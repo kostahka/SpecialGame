@@ -12,7 +12,7 @@ namespace Kengine
 class static_vertex_array_object_impl : public static_vertex_array_object
 {
 public:
-    void create_simple(const vertex_array& vertices)
+    static_vertex_array_object_impl(const vertex_array& vertices)
     {
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
@@ -35,7 +35,7 @@ public:
         glBindVertexArray(0);
     };
 
-    void create_with_color(const vertex_color_array& vertices)
+    static_vertex_array_object_impl(const vertex_color_array& vertices)
     {
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
@@ -65,7 +65,7 @@ public:
         glBindVertexArray(0);
     };
 
-    void create_with_texture(const vertex_text2d_array& vertices)
+    static_vertex_array_object_impl(const vertex_text2d_array& vertices)
     {
         glGenVertexArrays(1, &VAO);
         glBindVertexArray(VAO);
@@ -107,27 +107,21 @@ private:
     GLuint VAO;
 };
 
-static_vertex_array_object* create_static_vao_color(
+static_vertex_array_object* create_static_vao(
     const vertex_color_array& vertices)
 {
-    auto vao = new static_vertex_array_object_impl();
-    vao->create_with_color(vertices);
-    return vao;
+    return new static_vertex_array_object_impl(vertices);
 };
 
-static_vertex_array_object* create_static_vao_text2d(
+static_vertex_array_object* create_static_vao(
     const vertex_text2d_array& vertices)
 {
-    auto vao = new static_vertex_array_object_impl();
-    vao->create_with_texture(vertices);
-    return vao;
+    return new static_vertex_array_object_impl(vertices);
 };
 
 static_vertex_array_object* create_static_vao(const vertex_array& vertices)
 {
-    auto vao = new static_vertex_array_object_impl();
-    vao->create_simple(vertices);
-    return vao;
+    return new static_vertex_array_object_impl(vertices);
 };
 
 } // namespace Kengine

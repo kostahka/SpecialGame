@@ -7,7 +7,8 @@ project(engine)
 
 find_package(SDL3 REQUIRED)
 
-# add_subdirectory(efsw)
+add_subdirectory(efsw)
+add_subdirectory(glm)
 
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -50,17 +51,11 @@ if(ENGINE_DEV)
         engine PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME_TEX}")
 
     target_link_libraries(engine PRIVATE efsw)
+    target_link_libraries(engine PUBLIC glm::glm)
 
+    target_include_directories(engine PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+    
     set_target_properties(engine PROPERTIES ENABLE_EXPORTS ON)
-
-    target_include_directories(${ENGINE_GAME_LIB_NAME_TEX}
-                               PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)
-    target_compile_definitions(${ENGINE_GAME_LIB_NAME_TEX} PUBLIC ENGINE_DEV)
-    target_compile_definitions(
-        ${ENGINE_GAME_LIB_NAME_TEX}
-        PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME_TEX}")
-
-    # target_link_libraries(engine INTERFACE ${ENGINE_GAME_LIB_NAME_TEX})
 else()
 
     # Shared engine lib

@@ -13,8 +13,6 @@
 namespace Kengine
 {
 
-using namespace std::chrono;
-
 class game;
 class engine;
 
@@ -67,9 +65,9 @@ struct game_configuration
 struct engine_configuration
 {
     // frequency of physics update
-    duration<int, std::milli> update_delta_time;
+    std::chrono::duration<int, std::milli> update_delta_time;
     // frequency of render update
-    duration<int, std::milli> render_delta_time;
+    std::chrono::duration<int, std::milli> render_delta_time;
 };
 
 class engine
@@ -90,8 +88,10 @@ public:
     virtual void clear_color(color) = 0;
     virtual void swap_buffers()     = 0;
 
-    engine_configuration configuration{ milliseconds{ 1000 / 60 },
-                                        milliseconds{ 1000 / 90 } };
+    engine_configuration configuration{
+        std::chrono::milliseconds{ 1000 / 60 },
+        std::chrono::milliseconds{ 1000 / 90 },
+    };
 };
 
 bool is_key_pressed(key_name key);
@@ -105,11 +105,13 @@ public:
         : name(name)
         , game_engine(engine){};
 
-    virtual ~game()                                              = default;
-    virtual void on_start()                                      = 0;
-    virtual void on_event(event)                                 = 0;
-    virtual void on_update(duration<int, std::milli> delta_time) = 0;
-    virtual void on_render(duration<int, std::milli> delta_time) const = 0;
+    virtual ~game()              = default;
+    virtual void on_start()      = 0;
+    virtual void on_event(event) = 0;
+    virtual void on_update(
+        std::chrono::duration<int, std::milli> delta_time) = 0;
+    virtual void on_render(
+        std::chrono::duration<int, std::milli> delta_time) const = 0;
 
     std::string        name        = "";
     engine*            game_engine = nullptr;

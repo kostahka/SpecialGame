@@ -260,15 +260,15 @@ public:
             auto update_delta_time = game_clock.now() - update_time;
             if (update_delta_time > configuration.update_delta_time)
             {
-                e_game->on_update(
-                    duration_cast<milliseconds>(update_delta_time));
+                e_game->on_update(duration_cast<std::chrono::milliseconds>(
+                    update_delta_time));
                 update_time = game_clock.now();
             }
             auto render_delta_time = game_clock.now() - render_time;
             if (render_delta_time > configuration.render_delta_time)
             {
-                e_game->on_render(
-                    duration_cast<milliseconds>(render_delta_time));
+                e_game->on_render(duration_cast<std::chrono::milliseconds>(
+                    render_delta_time));
                 render_time = game_clock.now();
             }
         }
@@ -422,10 +422,10 @@ private:
     }
 
     // Time from init SDL in miliseconds
-    high_resolution_clock::time_point update_time;
-    high_resolution_clock::time_point render_time;
+    std::chrono::high_resolution_clock::time_point update_time;
+    std::chrono::high_resolution_clock::time_point render_time;
 
-    high_resolution_clock game_clock;
+    std::chrono::high_resolution_clock game_clock;
 };
 
 engine* engine_impl::instance = nullptr;
