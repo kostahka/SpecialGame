@@ -48,7 +48,7 @@ if(ENGINE_DEV)
     target_link_libraries(engine PRIVATE SDL3::SDL3-static)
     target_compile_definitions(engine PUBLIC ENGINE_DEV)
     target_compile_definitions(
-        engine PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME_TEX}")
+        engine PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME}")
 
     target_link_libraries(engine PRIVATE efsw)
     target_link_libraries(engine PUBLIC glm::glm)

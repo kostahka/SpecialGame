@@ -3,6 +3,7 @@
 #include "color.hxx"
 #include "transform3d.hxx"
 
+#include <cstdint>
 #include <vector>
 
 namespace Kengine
@@ -25,8 +26,9 @@ struct vertex_text2d
     transform2d text;
 };
 
+using vertex2d_array      = std::vector<transform2d>;
 using vertex_array        = std::vector<vertex>;
 using vertex_color_array  = std::vector<vertex_color>;
 using vertex_text2d_array = std::vector<vertex_text2d>;
-
+using indexes_vector      = std::vector<uint32_t>;
 } // namespace Kengine

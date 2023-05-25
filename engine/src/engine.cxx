@@ -1,7 +1,13 @@
 #include "engine.hxx"
 
+#include <SDL_events.h>
+#include <SDL_keyboard.h>
+#include <SDL_mouse.h>
+#include <SDL_oldnames.h>
+#include <SDL_stdinc.h>
 #include <algorithm>
 #include <chrono>
+#include <cstdint>
 #include <efsw/efsw.hpp>
 #include <exception>
 #include <filesystem>
@@ -15,6 +21,7 @@
 #include <glad/glad.h>
 
 #include "file-last-modify-listener.hxx"
+#include "glm/fwd.hpp"
 #include "handle-file-modify.hxx"
 #include "handle-user-event.hxx"
 #include "user-events.hxx"
@@ -71,28 +78,64 @@ void gl_get_error(int line, const char* file)
     }
 };
 
-struct key_state
-{
-    key_name key;
-    bool     is_pressed;
-};
-static std::vector<key_state> keys_states{
-    { key_name::left, false },
-    { key_name::up, false },
-    { key_name::right, false },
-    { key_name::down, false },
-};
-
 bool is_key_pressed(key_name key)
 {
-    auto key_state =
-        std::find_if(keys_states.begin(),
-                     keys_states.end(),
-                     [&](auto k_state) { return k_state.key == key; });
-    if (key_state == keys_states.end())
-        return false;
-    else
-        return (*key_state).is_pressed;
+    SDL_PumpEvents();
+
+    const Uint8* state = SDL_GetKeyboardState(NULL);
+    switch (key)
+    {
+        case key_name::left:
+            return state[SDL_SCANCODE_LEFT];
+            break;
+        case key_name::right:
+            return state[SDL_SCANCODE_RIGHT];
+            break;
+        case key_name::up:
+            return state[SDL_SCANCODE_UP];
+            break;
+        case key_name::down:
+            return state[SDL_SCANCODE_DOWN];
+            break;
+        default:
+            return false;
+            break;
+    }
+};
+
+mouse_state get_mouse_state(mouse_button button)
+{
+    Uint32      buttons;
+    float       x, y;
+    mouse_state m_state;
+
+    SDL_PumpEvents();
+    buttons = SDL_GetMouseState(&x, &y);
+
+    m_state.x = x;
+    m_state.y = y;
+    switch (button)
+    {
+        case mouse_button::left:
+            m_state.is_pressed = buttons & SDL_BUTTON_LMASK;
+            break;
+        case mouse_button::right:
+            m_state.is_pressed = buttons & SDL_BUTTON_RMASK;
+            break;
+        case mouse_button::middle:
+            m_state.is_pressed = buttons & SDL_BUTTON_MMASK;
+            break;
+        case mouse_button::x1:
+            m_state.is_pressed = buttons & SDL_BUTTON_X1MASK;
+            break;
+        case mouse_button::x2:
+            m_state.is_pressed = buttons & SDL_BUTTON_X2MASK;
+            break;
+        default:
+            m_state.is_pressed = false;
+            break;
+    }
+    return m_state;
 };
 
 #ifdef ENGINE_DEV
@@ -231,6 +274,17 @@ public:
                         event.type = event_type::key_released;
                         event.key  = get_key_name(sdl_event.key.keysym.sym);
                         break;
+                    case SDL_EVENT_MOUSE_BUTTON_DOWN:
+                    case SDL_EVENT_MOUSE_BUTTON_UP:
+                        event.type = event_type::mouse_event;
+                        event.mouse.button =
+                            get_mouse_button(sdl_event.button.button);
+                        event.mouse.state =
+                            get_button_state(sdl_event.button.state);
+                        event.mouse.clicks = sdl_event.button.clicks;
+                        event.mouse.x      = sdl_event.button.x;
+                        event.mouse.y      = sdl_event.button.y;
+                        break;
                     case SDL_EVENT_QUIT:
                         event.type    = event_type::quit;
                         continue_loop = false;
@@ -240,19 +294,6 @@ public:
                         handle_user_event(sdl_event.user);
                     default:
                         event.type = event_type::unknown;
-                }
-                if (event.type == event_type::key_pressed ||
-                    event.type == event_type::key_released)
-                {
-                    auto key_state = std::find_if(
-                        keys_states.begin(),
-                        keys_states.end(),
-                        [&](auto k_state) { return k_state.key == event.key; });
-                    if (key_state != keys_states.end())
-                    {
-                        (*key_state).is_pressed =
-                            event.type == event_type::key_pressed;
-                    }
                 }
                 e_game->on_event(event);
             }
@@ -420,6 +461,39 @@ private:
                 return key_name::unknown;
         }
     }
+
+    mouse_button get_mouse_button(Uint8 sdl_button)
+    {
+        switch (sdl_button)
+        {
+            case SDL_BUTTON_LEFT:
+                return mouse_button::left;
+            case SDL_BUTTON_RIGHT:
+                return mouse_button::right;
+            case SDL_BUTTON_MIDDLE:
+                return mouse_button::middle;
+            case SDL_BUTTON_X1:
+                return mouse_button::x1;
+            case SDL_BUTTON_X2:
+                return mouse_button::x2;
+            default:
+                return mouse_button::unknown;
+        }
+    }
+
+    button_state get_button_state(Uint8 sdl_state)
+    {
+
+        switch (sdl_state)
+        {
+            case SDL_PRESSED:
+                return button_state::pressed;
+            case SDL_RELEASED:
+                return button_state::released;
+            default:
+                return button_state::unknown;
+        }
+    };
 
     // Time from init SDL in miliseconds
     std::chrono::high_resolution_clock::time_point update_time;

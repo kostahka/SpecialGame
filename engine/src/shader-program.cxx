@@ -152,6 +152,15 @@ public:
             uniform_location, 1, GL_FALSE, glm::value_ptr(matrix));
     };
 
+    void set_uniform_matrix4fv(std::string uniform_name,
+                               glm::mat4&  matrix) override
+    {
+        auto uniform_location =
+            glGetUniformLocation(program, uniform_name.data());
+        glUniformMatrix4fv(
+            uniform_location, 1, GL_FALSE, glm::value_ptr(matrix));
+    };
+
     void reload_files()
     {
         glDeleteProgram(program);

@@ -24,10 +24,11 @@ struct file_modify_listener_info
 };
 
 using namespace std::chrono;
+using namespace std::chrono_literals;
 
 static std::vector<file_modify_listener_info> listeners;
 static const high_resolution_clock            clock;
-static const high_resolution_clock::duration  max_time_modify{ 2'000'000'000 };
+static const high_resolution_clock::duration  max_time_modify{ 2s };
 static high_resolution_clock::time_point      last_modify;
 static bool                                   any_file_modified = false;
 

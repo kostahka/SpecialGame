@@ -4,8 +4,16 @@ namespace Kengine
 {
 struct transform2d
 {
-    float x;
-    float y;
+    float              x;
+    float              y;
+    static transform2d blend(const transform2d& t1,
+                             const transform2d& t2,
+                             const float        a)
+    {
+        float x = (1.0f - a) * t1.x + a * t2.x;
+        float y = (1.0f - a) * t1.y + a * t2.y;
+        return { x, y };
+    };
 };
 struct transform3d
 {

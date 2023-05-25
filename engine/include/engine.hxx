@@ -5,6 +5,7 @@
 #include "vertex-array-object.hxx"
 
 #include <chrono>
+#include <cstdint>
 #include <ostream>
 #include <ratio>
 #include <string>
@@ -29,6 +30,8 @@ enum class event_type
     key_pressed,
     key_released,
 
+    mouse_event,
+
     quit,
 
     unknown
@@ -44,12 +47,48 @@ enum class key_name
     unknown
 };
 
+enum class mouse_button
+{
+    left,
+    middle,
+    right,
+    x1,
+    x2,
+
+    unknown
+};
+
+enum class button_state
+{
+    pressed,
+    released,
+
+    unknown
+};
+
+struct mouse_state
+{
+    bool  is_pressed;
+    float x;
+    float y;
+};
+
+struct mouse_button_event
+{
+    mouse_button button;
+    uint8_t      clicks;
+    button_state state;
+    int8_t       x;
+    int8_t       y;
+};
+
 struct event
 {
     event_type type;
     union
     {
-        key_name key;
+        key_name           key;
+        mouse_button_event mouse;
     };
 };
 
@@ -94,7 +133,8 @@ public:
     };
 };
 
-bool is_key_pressed(key_name key);
+bool        is_key_pressed(key_name key);
+mouse_state get_mouse_state(mouse_button button);
 
 engine* get_engine_instance();
 

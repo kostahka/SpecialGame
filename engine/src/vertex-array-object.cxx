@@ -3,6 +3,8 @@
 #include "glad/glad.h"
 #include "transform3d.hxx"
 #include "vertex.hxx"
+#include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <ostream>
 
@@ -106,6 +108,78 @@ private:
     GLuint VBO;
     GLuint VAO;
 };
+
+class vertex_array_object_impl : public vertex_array_object
+{
+public:
+    vertex_array_object_impl(const transform2d* vertices,
+                             const size_t       v_count,
+                             const uint32_t*    indexes,
+                             const size_t       i_count)
+    {
+
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER,
+                     v_count * sizeof(transform2d),
+                     vertices,
+                     GL_DYNAMIC_DRAW);
+
+        glVertexAttribPointer(0,
+                              2,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              sizeof(transform2d),
+                              reinterpret_cast<GLvoid*>(0));
+        glEnableVertexAttribArray(0);
+
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     i_count * sizeof(uint32_t),
+                     indexes,
+                     GL_DYNAMIC_DRAW);
+
+        glBindVertexArray(0);
+    };
+
+    void draw_triangles(int count) override
+    {
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    };
+
+    void set_vertices(transform2d* data, long offset, long size) override
+    {
+        glBindVertexArray(VAO);
+        glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
+        glBindVertexArray(0);
+    };
+
+    void set_indexes(uint32_t* data, long offset, long size) override
+    {
+        glBindVertexArray(VAO);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
+        glBindVertexArray(0);
+    };
+
+private:
+    GLuint VBO;
+    GLuint VAO;
+    GLuint EBO;
+};
+
+vertex_array_object* create_vao(const transform2d* vertices,
+                                const size_t       v_count,
+                                const uint32_t*    indexes,
+                                const size_t       i_count)
+{
+    return new vertex_array_object_impl(vertices, v_count, indexes, i_count);
+}
 
 static_vertex_array_object* create_static_vao(
     const vertex_color_array& vertices)
