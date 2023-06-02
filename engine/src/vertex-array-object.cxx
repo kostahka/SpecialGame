@@ -112,6 +112,36 @@ private:
 class vertex_array_object_impl : public vertex_array_object
 {
 public:
+    vertex_array_object_impl(const vertex_text2d_array& vertices)
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER,
+                     vertices.size() * sizeof(vertex_text2d),
+                     vertices.data(),
+                     GL_DYNAMIC_DRAW);
+
+        glVertexAttribPointer(0,
+                              3,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              sizeof(vertex_text2d),
+                              reinterpret_cast<GLvoid*>(0));
+        glVertexAttribPointer(1,
+                              2,
+                              GL_FLOAT,
+                              GL_FALSE,
+                              sizeof(vertex_text2d),
+                              reinterpret_cast<GLvoid*>(sizeof(transform3d)));
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+
+        glBindVertexArray(0);
+    };
+
     vertex_array_object_impl(const transform2d* vertices,
                              const size_t       v_count,
                              const uint32_t*    indexes,
@@ -149,6 +179,13 @@ public:
     void draw_triangles(int count) override
     {
         glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, count * 3);
+        glBindVertexArray(0);
+    }
+
+    void draw_triangles_elements(int count) override
+    {
+        glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
     };
@@ -171,6 +208,11 @@ private:
     GLuint VBO;
     GLuint VAO;
     GLuint EBO;
+};
+
+vertex_array_object* create_vao(const vertex_text2d_array& vertices)
+{
+    return new vertex_array_object_impl(vertices);
 };
 
 vertex_array_object* create_vao(const transform2d* vertices,

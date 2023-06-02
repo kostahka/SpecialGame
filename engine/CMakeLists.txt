@@ -29,6 +29,8 @@ set(ENGINE_SRC
     "src/handle-file-modify.hxx"
     "src/picopng.hxx"
     "src/texture.cxx"
+    "src/sprite.cxx"
+    "include/sprite.hxx"
     "include/texture.hxx"
     "include/user-events.hxx"
     "include/file-last-modify-listener.hxx"
@@ -54,7 +56,7 @@ if(ENGINE_DEV)
     target_link_libraries(engine PUBLIC glm::glm)
 
     target_include_directories(engine PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
-    
+
     set_target_properties(engine PROPERTIES ENABLE_EXPORTS ON)
 else()
 

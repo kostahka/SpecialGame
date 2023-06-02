@@ -2,6 +2,10 @@
 
 #include "engine.hxx"
 #include "glm/ext/matrix_clip_space.hpp"
+#include "glm/fwd.hpp"
+#include "landscape.hxx"
+#include "sprite.hxx"
+#include "texture.hxx"
 #include <glm/glm.hpp>
 
 #include <ctime>
@@ -12,9 +16,8 @@ using namespace Kengine;
 std::chrono::high_resolution_clock game_clock;
 
 my_game::my_game(engine* game_engine)
-    : game("My game", game_engine){};
-
-glm::mat4 my_game::projection{};
+    : game("My game", game_engine)
+    , land(this){};
 
 void my_game::on_start()
 {
@@ -23,8 +26,16 @@ void my_game::on_start()
                             static_cast<float>(configuration.screen_width),
                             0.f,
                             static_cast<float>(configuration.screen_height));
+    view        = glm::mat4(1);
     land.init();
+    player_texture = create_texture("./assets/astronaut.png");
+    player         = new sprite(
+        player_texture, { 0, 0, 52, 52 }, { 0, 0 }, { 100, 100 }, this);
+    player->set_origin({ 0.5, 0.5 });
+    player->set_pos({ 100, 100 });
 };
+
+float angle = 0;
 
 void my_game::on_event(event e){};
 
@@ -48,6 +59,9 @@ void my_game::on_update(std::chrono::duration<int, std::milli> delta_time)
                            20.0,
                            delta_value);
     }
+
+    angle += delta_time.count() / 1'00.f;
+    player->set_angle(angle);
 };
 
 void my_game::on_render(std::chrono::duration<int, std::milli> delta_time) const
@@ -57,6 +71,7 @@ void my_game::on_render(std::chrono::duration<int, std::milli> delta_time) const
     float time = (game_clock.now() - start_point).count() / 1'000'000'000.f;
 
     land.draw();
+    player->draw();
 
     game_engine->swap_buffers();
 };

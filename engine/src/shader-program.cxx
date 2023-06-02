@@ -15,7 +15,68 @@
 namespace Kengine
 {
 
-GLuint create_program(const GLchar* vertex_path, const GLchar* fragment_path)
+GLuint create_program_from_code(const GLchar* vertex_code,
+                                const GLchar* fragment_code)
+{
+    GLuint program;
+
+    GLuint vertex, fragment;
+    GLint  succes;
+
+    GLint             info_len;
+    std::vector<char> info_log;
+
+    vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &vertex_code, nullptr);
+    glCompileShader(vertex);
+    glGetShaderiv(vertex, GL_COMPILE_STATUS, &succes);
+    if (!succes)
+    {
+        glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &info_len);
+        info_log.resize(info_len);
+        glGetShaderInfoLog(vertex, info_len, nullptr, info_log.data());
+        glDeleteShader(vertex);
+        std::cerr << "Failed to compile vertex shader. Log: " << info_log.data()
+                  << std::endl;
+    }
+
+    fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &fragment_code, nullptr);
+    glCompileShader(fragment);
+    glGetShaderiv(fragment, GL_COMPILE_STATUS, &succes);
+    if (!succes)
+    {
+        glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &info_len);
+        info_log.resize(info_len);
+        glGetShaderInfoLog(fragment, info_len, nullptr, info_log.data());
+        glDeleteShader(fragment);
+        std::cerr << "Failed to compile fragment shader. Log: "
+                  << info_log.data() << std::endl;
+    }
+
+    program = glCreateProgram();
+    glAttachShader(program, vertex);
+    glAttachShader(program, fragment);
+
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &succes);
+    if (!succes)
+    {
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_len);
+        info_log.resize(info_len);
+        glGetProgramInfoLog(program, info_len, nullptr, info_log.data());
+        glDeleteProgram(program);
+        std::cerr << "Failed to link shader program. Log: " << info_log.data()
+                  << std::endl;
+    }
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
+
+    return program;
+};
+
+GLuint create_program_from_file(const GLchar* vertex_path,
+                                const GLchar* fragment_path)
 {
     GLuint program;
 
@@ -112,8 +173,8 @@ void reload_shader(void* data);
 class shader_program_impl : public shader_program
 {
 public:
-    shader_program_impl(const std::string& vertex_path,
-                        const std::string& fragment_path)
+    explicit shader_program_impl(const std::string& vertex_path,
+                                 const std::string& fragment_path)
         : vertex_path(vertex_path)
         , fragment_path(fragment_path)
     {
@@ -122,16 +183,24 @@ public:
             f_listener->add_file(vertex_path, &reload_shader, this);
         fragment_listener_id =
             f_listener->add_file(fragment_path, &reload_shader, this);
-        this->program =
-            create_program(vertex_path.c_str(), fragment_path.c_str());
+        this->program = create_program_from_file(vertex_path.c_str(),
+                                                 fragment_path.c_str());
+    };
+
+    explicit shader_program_impl(const char* vertex_code,
+                                 const char* fragment_code)
+    {
+        this->program = create_program_from_code(vertex_code, fragment_code);
     };
 
     ~shader_program_impl() override
     {
         glDeleteProgram(this->program);
         auto f_listener = file_last_modify_listener::get_instance();
-        f_listener->remove_file(vertex_listener_id);
-        f_listener->remove_file(fragment_listener_id);
+        if (vertex_listener_id)
+            f_listener->remove_file(vertex_listener_id);
+        if (fragment_listener_id)
+            f_listener->remove_file(fragment_listener_id);
     };
 
     void use() override { glUseProgram(this->program); };
@@ -164,7 +233,8 @@ public:
     void reload_files()
     {
         glDeleteProgram(program);
-        program = create_program(vertex_path.c_str(), fragment_path.c_str());
+        program = create_program_from_file(vertex_path.c_str(),
+                                           fragment_path.c_str());
     };
 
 private:
@@ -172,8 +242,8 @@ private:
     std::string vertex_path;
     std::string fragment_path;
 
-    long vertex_listener_id;
-    long fragment_listener_id;
+    long vertex_listener_id   = 0;
+    long fragment_listener_id = 0;
 };
 
 void reload_shader(void* data)
@@ -187,4 +257,11 @@ shader_program* create_shader_program(const std::string& vertex_path,
 {
     return new shader_program_impl(vertex_path, fragment_path);
 };
+
+shader_program* create_shader_program_from_code(const char* vertex_code,
+                                                const char* fragment_code)
+{
+    return new shader_program_impl(vertex_code, fragment_code);
+};
+
 } // namespace Kengine

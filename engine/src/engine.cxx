@@ -29,6 +29,8 @@
 namespace Kengine
 {
 
+shader_program* sprite_program;
+
 class engine_impl;
 
 void APIENTRY debug_message(GLenum        source,
@@ -246,6 +248,39 @@ public:
         }
 
         glEnable(GL_DEPTH_TEST);
+
+        sprite_program = create_shader_program_from_code(R"(
+                #version 300 es
+                precision mediump float;
+
+                layout (location = 0) in vec3 a_position;
+                layout (location = 1) in vec2 a_tex_coord;
+                out vec2 v_tex_coord;
+
+                uniform mat4 projection;
+                uniform mat4 view;
+                uniform mat4 model;
+
+                void main()
+                {
+                    v_tex_coord = a_tex_coord;
+                    gl_Position = projection * view * model * vec4(a_position, 1.0);
+                }
+)",
+                                                         R"(
+                #version 300 es
+                precision mediump float;
+
+                in vec2 v_tex_coord;
+                uniform sampler2D s_texture;
+
+                out vec4 fragColor;
+
+                void main()
+                {
+                    fragColor = texture2D(s_texture, v_tex_coord);
+                }
+)");
 
         start_files_watch();
 

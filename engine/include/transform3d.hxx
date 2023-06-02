@@ -2,6 +2,12 @@
 
 namespace Kengine
 {
+struct itransform2d
+{
+    int x;
+    int y;
+};
+
 struct transform2d
 {
     float              x;

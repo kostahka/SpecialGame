@@ -3,6 +3,8 @@
 #include "engine.hxx"
 #include "glm/fwd.hpp"
 #include "landscape.hxx"
+#include "sprite.hxx"
+#include "texture.hxx"
 
 using namespace Kengine;
 
@@ -26,8 +28,8 @@ public:
 
     ~my_game() override;
 
-    static glm::mat4 projection;
-
 private:
-    landscape land;
+    landscape       land;
+    texture_object* player_texture;
+    sprite*         player;
 };

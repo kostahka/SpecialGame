@@ -1,6 +1,8 @@
 #pragma once
 
+#include "engine.hxx"
 #include "shader-program.hxx"
+#include "texture.hxx"
 #include "vertex-array-object.hxx"
 #include <array>
 #include <cstddef>
@@ -12,8 +14,8 @@ struct ground
     float value;
 };
 
-constexpr int   ground_w_count = 50;
-constexpr int   ground_h_count = 50;
+constexpr int   ground_w_count = 100;
+constexpr int   ground_h_count = 100;
 constexpr float cell_size      = 10.0f;
 
 constexpr float ground_value = 0.5f;
@@ -46,7 +48,7 @@ struct triangle_indexes
 class landscape
 {
 public:
-    landscape();
+    landscape(Kengine::game* l_game);
 
     void init();
     void draw() const;
@@ -77,4 +79,7 @@ private:
     Kengine::vertex_array_object* vao;
     Kengine::shader_program*      program;
     int                           triangles_count;
+    Kengine::texture_object*      ground_texture;
+
+    Kengine::game* land_game;
 };

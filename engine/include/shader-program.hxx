@@ -23,4 +23,7 @@ public:
 
 shader_program* create_shader_program(const std::string& vertex_path,
                                       const std::string& fragment_path);
+
+shader_program* create_shader_program_from_code(const char* vertex_code,
+                                                const char* fragment_code);
 } // namespace Kengine

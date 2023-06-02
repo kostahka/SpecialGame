@@ -2,6 +2,7 @@
 #include "picopng.hxx"
 
 #include "glad/glad.h"
+#include "transform3d.hxx"
 #include <cstddef>
 #include <fstream>
 #include <ios>
@@ -58,6 +59,8 @@ public:
         {
             std::cerr << "Failed to decode png texture" << std::endl;
         }
+        size = { static_cast<int>(image_width),
+                 static_cast<int>(image_height) };
 
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -78,10 +81,13 @@ public:
 
     void bind() override { glBindTexture(GL_TEXTURE_2D, texture); };
 
+    itransform2d get_size() const override { return size; };
+
     ~texture_impl() override { glDeleteTextures(1, &texture); };
 
 private:
-    GLuint texture;
+    itransform2d size;
+    GLuint       texture;
 };
 
 texture_object* create_texture(std::string texture_path)

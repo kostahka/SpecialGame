@@ -1,6 +1,7 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
+#include "glm/fwd.hpp"
 #include "shader-program.hxx"
 #include "vertex-array-object.hxx"
 
@@ -156,7 +157,12 @@ public:
     std::string        name        = "";
     engine*            game_engine = nullptr;
     game_configuration configuration{ 640, 480 };
+
+    glm::mat4 projection;
+    glm::mat4 view;
 };
+
+extern shader_program* sprite_program;
 
 }; // namespace Kengine
 

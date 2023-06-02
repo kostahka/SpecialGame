@@ -1,6 +1,9 @@
 #include "landscape.hxx"
+#include "PerlinNoise.hxx"
+#include "engine.hxx"
 #include "game.hxx"
 #include "shader-program.hxx"
+#include "texture.hxx"
 #include "transform3d.hxx"
 
 #include <algorithm>
@@ -8,7 +11,8 @@
 #include <cstddef>
 #include <cstdint>
 
-landscape::landscape(){};
+landscape::landscape(game* l_game)
+    : land_game(l_game){};
 
 float interpolate_ground(float g1, float g2)
 {
@@ -21,12 +25,35 @@ float interpolate_ground(float g1, float g2)
 
 void landscape::init()
 {
-    for (size_t i = 0; i < ground_h_count; i++)
+    const siv::PerlinNoise::seed_type seed = time(NULL);
+    const siv::PerlinNoise            perlin{ seed };
+    const float                       map_fill = 0.55;
+
+    const float  planet_radius = ground_w_count * 0.3;
+    const size_t planet_x      = ground_w_count / 2;
+    const size_t planet_y      = ground_h_count / 2;
+
+    for (size_t y = 0; y < ground_h_count; y++)
     {
-        std::generate(
-            g_table[i].begin(),
-            g_table[i].end(),
-            []() { return ground{ static_cast<float>(rand()) / RAND_MAX }; });
+        for (size_t x = 0; x < ground_w_count; x++)
+        {
+            float delta = std::sqrt((planet_x - x) * (planet_x - x) +
+                                    (planet_y - y) * (planet_y - y));
+            if (delta < planet_radius)
+            {
+                float ground =
+                    perlin.normalizedOctave2D_01(x / 8.0, y / 8.0, 2, 0.3);
+                ground              = ground < ground_value
+                                          ? ground / ground_value * map_fill
+                                          : (ground / ground_value - 1) * (1 - map_fill) +
+                                   ground_value;
+                g_table[y][x].value = ground;
+            }
+            else
+            {
+                g_table[y][x].value = 0.1;
+            }
+        }
     }
 
     for (size_t i = ground_vertices_index; i < ground_horizontal_vertices_index;
@@ -38,12 +65,13 @@ void landscape::init()
     }
     calculate_vertices();
     calculate_indexes();
-    vao     = Kengine::create_vao(l_vertices.data(),
+    vao            = Kengine::create_vao(l_vertices.data(),
                               l_vertices.size(),
                               l_indexes.data(),
                               l_indexes.size());
-    program = create_shader_program("./shaders/landscape-vertex.vert",
+    program        = create_shader_program("./shaders/landscape-vertex.vert",
                                     "./shaders/landscape-fragment.frag");
+    ground_texture = create_texture("./assets/ground.png");
 };
 
 landscape::~landscape()
@@ -53,22 +81,37 @@ landscape::~landscape()
 
 void landscape::draw() const
 {
+    ground_texture->bind();
     program->use();
-    program->set_uniform_matrix4fv("projection", my_game::projection);
-    vao->draw_triangles(l_indexes.size());
+    program->set_uniform1f("cell_size", cell_size);
+    program->set_uniform_matrix4fv("projection", land_game->projection);
+    program->set_uniform_matrix4fv("view", land_game->view);
+    vao->draw_triangles_elements(l_indexes.size());
 };
 
 void landscape::change_ground(float x, float y, float radius, float delta_value)
 {
-    const size_t x_start = std::round((x - radius) / cell_size);
-    const size_t x_end   = std::round((x + radius) / cell_size);
+    size_t y_start = std::round((y - radius) / cell_size);
+    size_t y_end   = std::round((y + radius) / cell_size);
 
-    const size_t y_start = std::round((y - radius) / cell_size);
-    const size_t y_end   = std::round((y + radius) / cell_size);
+    if (y_start < 0)
+        y_start = 0;
+    if (y_end >= ground_h_count)
+        y_end = ground_h_count - 1;
 
-    for (size_t y = y_start; y < y_end; y++)
+    for (size_t y = y_start; y <= y_end; y++)
     {
-        for (size_t x = x_start; x < x_end; x++)
+        float r = std::sqrt(y * y + radius * radius);
+
+        size_t x_start = std::round((x - r) / cell_size);
+        size_t x_end   = std::round((x + r) / cell_size);
+
+        if (x_start < 0)
+            x_start = 0;
+        if (x_end >= ground_w_count)
+            x_end = ground_w_count - 1;
+
+        for (size_t x = x_start; x <= x_end; x++)
         {
             g_table[y][x].value += delta_value;
             if (g_table[y][x].value > 1.0)
@@ -144,13 +187,13 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
 
     uint8_t code = 0;
     if (g_table[y][x].value > ground_value)
-        code += 1;
+        code += 0b0001;
     if (g_table[y][x + 1].value > ground_value)
-        code += 2;
+        code += 0b0010;
     if (g_table[y + 1][x + 1].value > ground_value)
-        code += 4;
+        code += 0b0100;
     if (g_table[y + 1][x].value > ground_value)
-        code += 8;
+        code += 0b1000;
 
     const uint32_t v_i0 = x + y * ground_w_count;
     const uint32_t v_i1 = x + 1 + y * ground_w_count;
@@ -169,8 +212,6 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
 
     switch (code)
     {
-        case 0:
-            break;
         case 0b0001:
             set_indexes(x, y, { v_i0, v_hi0, v_vi0 });
             break;
@@ -242,6 +283,8 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_hi0, v_vi1, v_vi0 },
                         { v_vi1, v_hi1, v_vi0 });
             break;
+        default:
+            set_indexes(x, y, { 0, 0, 0 });
     }
 };
 
