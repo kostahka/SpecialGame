@@ -190,16 +190,16 @@ public:
     void set_vertices(transform2d* data, size_t offset, size_t size) override
     {
         glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferSubData(GL_ARRAY_BUFFER, offset, size, data);
-        gl_get_error(__LINE__, __FILE__);
         glBindVertexArray(0);
     };
 
     void set_indexes(uint32_t* data, size_t offset, size_t size) override
     {
         glBindVertexArray(VAO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, size, data);
-        gl_get_error(__LINE__, __FILE__);
         glBindVertexArray(0);
     };
 

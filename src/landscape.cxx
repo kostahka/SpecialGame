@@ -374,15 +374,15 @@ void landscape::set_vao_indexes(size_t x, size_t y)
 {
     const size_t cell_i = (y * (ground_w_count - 1) + x) * 4 * 3;
 
-    uint32_t* data   = l_indexes.data();
-    size_t    offset = cell_i * sizeof(uint32_t) * 4 * 3;
+    uint32_t* data   = &l_indexes[cell_i];
+    size_t    offset = cell_i * sizeof(uint32_t);
     size_t    size   = sizeof(uint32_t) * 4 * 3;
     vao->set_indexes(data, offset, size);
 };
 
 void landscape::set_vao_vertices(size_t index)
 {
-    transform2d* data   = l_vertices.data();
+    transform2d* data   = &l_vertices[index];
     size_t       offset = index * sizeof(transform2d);
     size_t       size   = sizeof(transform2d);
     vao->set_vertices(data, offset, size);
