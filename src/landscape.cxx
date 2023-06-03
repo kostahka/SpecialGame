@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <iostream>
 
 using namespace Kengine;
 
@@ -106,10 +107,13 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
 
     for (int gy = y_start; gy <= y_end; gy++)
     {
-        float r = std::sqrt(radius * radius - std::pow(y - gy * cell_size, 2));
+        float r = std::sqrt(
+            std::abs(radius * radius - std::pow(y - gy * cell_size, 2)));
 
         int x_start = std::round((x - r) / cell_size);
         int x_end   = std::round((x + r) / cell_size);
+
+        std::cout << x_start << "   " << x_end << std::endl;
 
         if (x_start < 0)
             x_start = 0;
