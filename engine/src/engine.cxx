@@ -3,17 +3,12 @@
 #include <SDL_events.h>
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
-#include <SDL_oldnames.h>
-#include <SDL_stdinc.h>
-#include <algorithm>
-#include <chrono>
+
 #include <cstdint>
-#include <efsw/efsw.hpp>
 #include <exception>
 #include <filesystem>
 #include <iostream>
 #include <ratio>
-#include <string>
 #include <string_view>
 #include <syncstream>
 
@@ -21,10 +16,9 @@
 #include <glad/glad.h>
 
 #include "file-last-modify-listener.hxx"
-#include "glm/fwd.hpp"
 #include "handle-file-modify.hxx"
 #include "handle-user-event.hxx"
-#include "user-events.hxx"
+#include "opengl_error.hxx"
 
 namespace Kengine
 {
@@ -44,40 +38,6 @@ void APIENTRY debug_message(GLenum        source,
     std::osyncstream sync_err(std::cerr);
     sync_err.write(message, length);
     sync_err << std::endl;
-};
-
-void gl_get_error(int line, const char* file)
-{
-    GLenum error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-        std::cerr << "Error at line " << line << ", at file " << file
-                  << std::endl;
-        switch (error)
-        {
-            case GL_INVALID_ENUM:
-                std::cerr << "GL_INVALID_ENUM" << std::endl;
-                break;
-            case GL_INVALID_VALUE:
-                std::cerr << "GL_INVALID_VALUE" << std::endl;
-                break;
-            case GL_INVALID_OPERATION:
-                std::cerr << "GL_INVALID_OPERATION" << std::endl;
-                break;
-            case GL_INVALID_FRAMEBUFFER_OPERATION:
-                std::cerr << "GL_INVALID_FRAMEBUFFER_OPERATION" << std::endl;
-                break;
-            case GL_OUT_OF_MEMORY:
-                std::cerr << "GL_OUT_OF_MEMORY" << std::endl;
-                break;
-            case GL_STACK_UNDERFLOW:
-                std::cerr << "GL_STACK_UNDERFLOW" << std::endl;
-                break;
-            case GL_STACK_OVERFLOW:
-                std::cerr << "GL_STACK_OVERFLOW" << std::endl;
-                break;
-        }
-    }
 };
 
 bool is_key_pressed(key_name key)

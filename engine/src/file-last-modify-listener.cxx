@@ -5,10 +5,8 @@
 #include <chrono>
 #include <efsw/efsw.hpp>
 #include <filesystem>
-#include <map>
 #include <vector>
 
-#include "handle-user-event.hxx"
 #include "user-events.hxx"
 
 namespace Kengine

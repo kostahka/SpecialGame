@@ -40,7 +40,9 @@ set(ENGINE_SRC
     "include/color.hxx"
     "include/transform3d.hxx"
     "include/vertex.hxx"
-    ${GLAD_SRC})
+    ${GLAD_SRC}
+    src/opengl_error.hxx
+    src/opengl_error.cxx)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/glad/include)

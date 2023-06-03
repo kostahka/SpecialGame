@@ -2,14 +2,8 @@
 
 #include "engine.hxx"
 #include "glm/ext/matrix_clip_space.hpp"
-#include "glm/fwd.hpp"
-#include "landscape.hxx"
 #include "sprite.hxx"
 #include "texture.hxx"
-#include <glm/glm.hpp>
-
-#include <ctime>
-#include <iostream>
 
 using namespace Kengine;
 

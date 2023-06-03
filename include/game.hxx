@@ -33,3 +33,5 @@ private:
     texture_object* player_texture;
     sprite*         player;
 };
+
+extern "C" game* create_game(engine* e);

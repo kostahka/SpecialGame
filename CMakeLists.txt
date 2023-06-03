@@ -7,6 +7,10 @@ project(special-game)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(WIN32)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
+
 set(ENGINE_DEV ON CACHE BOOL "engine load game dll with hot reload")
 set(ENGINE_GAME_LIB_NAME "special-game" CACHE STRING "game lib name to load")
 

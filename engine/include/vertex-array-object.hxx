@@ -21,8 +21,10 @@ public:
     virtual void draw_triangles(int count)          = 0;
     virtual void draw_triangles_elements(int count) = 0;
 
-    virtual void set_vertices(transform2d* data, long offset, long size) = 0;
-    virtual void set_indexes(uint32_t* data, long offset, long size)     = 0;
+    virtual void set_vertices(transform2d* data,
+                              size_t       offset,
+                              size_t       size)                               = 0;
+    virtual void set_indexes(uint32_t* data, size_t offset, size_t size) = 0;
 };
 
 vertex_array_object* create_vao(const transform2d* vertices,

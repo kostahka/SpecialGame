@@ -1,18 +1,23 @@
 #include "landscape.hxx"
 #include "PerlinNoise.hxx"
 #include "engine.hxx"
-#include "game.hxx"
 #include "shader-program.hxx"
 #include "texture.hxx"
 #include "transform3d.hxx"
 
-#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 
+using namespace Kengine;
+
 landscape::landscape(game* l_game)
-    : land_game(l_game){};
+    : land_game(l_game)
+    , g_table()
+    , l_vertices()
+    , l_indexes()
+    , vao(nullptr)
+    , program(nullptr)
+    , ground_texture(nullptr){};
 
 float interpolate_ground(float g1, float g2)
 {
@@ -20,12 +25,12 @@ float interpolate_ground(float g1, float g2)
     if (g1 > g2)
         return g1 + g2 - ground_value;
     else
-        return 1.0 - g1 - g2 + ground_value;
+        return 1.0f - g1 - g2 + ground_value;
 }
 
 void landscape::init()
 {
-    const siv::PerlinNoise::seed_type seed = time(NULL);
+    const siv::PerlinNoise::seed_type seed = time(nullptr);
     const siv::PerlinNoise            perlin{ seed };
     const float                       map_fill = 0.55;
 
@@ -91,35 +96,35 @@ void landscape::draw() const
 
 void landscape::change_ground(float x, float y, float radius, float delta_value)
 {
-    size_t y_start = std::round((y - radius) / cell_size);
-    size_t y_end   = std::round((y + radius) / cell_size);
+    int y_start = std::round((y - radius) / cell_size);
+    int y_end   = std::round((y + radius) / cell_size);
 
     if (y_start < 0)
         y_start = 0;
     if (y_end >= ground_h_count)
         y_end = ground_h_count - 1;
 
-    for (size_t y = y_start; y <= y_end; y++)
+    for (int gy = y_start; gy <= y_end; gy++)
     {
-        float r = std::sqrt(y * y + radius * radius);
+        float r = std::sqrt(radius * radius - std::pow(y - gy * cell_size, 2));
 
-        size_t x_start = std::round((x - r) / cell_size);
-        size_t x_end   = std::round((x + r) / cell_size);
+        int x_start = std::round((x - r) / cell_size);
+        int x_end   = std::round((x + r) / cell_size);
 
         if (x_start < 0)
             x_start = 0;
         if (x_end >= ground_w_count)
             x_end = ground_w_count - 1;
 
-        for (size_t x = x_start; x <= x_end; x++)
+        for (int gx = x_start; gx <= x_end; gx++)
         {
-            g_table[y][x].value += delta_value;
-            if (g_table[y][x].value > 1.0)
-                g_table[y][x].value = 1.0;
-            if (g_table[y][x].value < 0.0)
-                g_table[y][x].value = 0.0;
-            recalculate_vertices(x, y);
-            recalculate_indexes(x, y);
+            g_table[gy][gx].value += delta_value;
+            if (g_table[gy][gx].value > 1.0)
+                g_table[gy][gx].value = 1.0;
+            if (g_table[gy][gx].value < 0.0)
+                g_table[gy][gx].value = 0.0;
+            recalculate_vertices(gx, gy);
+            recalculate_indexes(gx, gy);
         }
     }
 };
@@ -301,15 +306,15 @@ void landscape::calculate_indexes()
 
 void landscape::recalculate_vertices(size_t x, size_t y)
 {
-    size_t left_i =
+    int left_i =
         ground_horizontal_vertices_index + y * (ground_w_count - 1) + x - 1;
 
-    size_t right_i = left_i + 1;
+    int right_i = left_i + 1;
 
-    size_t down_i =
+    int down_i =
         ground_vertical_vertices_index + (y - 1) * (ground_w_count) + x;
 
-    size_t up_i = ground_vertical_vertices_index + (y) * (ground_w_count) + x;
+    int up_i = ground_vertical_vertices_index + (y) * (ground_w_count) + x;
 
     if (x > 0)
     {
@@ -369,18 +374,16 @@ void landscape::set_vao_indexes(size_t x, size_t y)
 {
     const size_t cell_i = (y * (ground_w_count - 1) + x) * 4 * 3;
 
-    uint32_t* data = &l_indexes[cell_i];
-    long      offset =
-        reinterpret_cast<char*>(data) - reinterpret_cast<char*>(&l_indexes[0]);
-    long size = sizeof(uint32_t) * 4 * 3;
+    uint32_t* data   = l_indexes.data();
+    size_t    offset = cell_i * sizeof(uint32_t) * 4 * 3;
+    size_t    size   = sizeof(uint32_t) * 4 * 3;
     vao->set_indexes(data, offset, size);
 };
 
 void landscape::set_vao_vertices(size_t index)
 {
-    transform2d* data = &l_vertices[index];
-    long         offset =
-        reinterpret_cast<char*>(data) - reinterpret_cast<char*>(&l_vertices[0]);
-    long size = sizeof(transform2d);
+    transform2d* data   = l_vertices.data();
+    size_t       offset = index * sizeof(transform2d);
+    size_t       size   = sizeof(transform2d);
     vao->set_vertices(data, offset, size);
 };

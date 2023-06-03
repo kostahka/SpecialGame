@@ -78,7 +78,6 @@ private:
     landscape_indexes             l_indexes;
     Kengine::vertex_array_object* vao;
     Kengine::shader_program*      program;
-    int                           triangles_count;
     Kengine::texture_object*      ground_texture;
 
     Kengine::game* land_game;
