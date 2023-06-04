@@ -14,7 +14,11 @@ endif()
 set(ENGINE_DEV ON CACHE BOOL "engine load game dll with hot reload")
 set(ENGINE_GAME_LIB_NAME "special-game" CACHE STRING "game lib name to load")
 
-set(GAME_SRC "src/game.cxx" "src/landscape.cxx")
+set(GAME_SRC
+    "src/game.cxx"
+    "src/landscape.cxx"
+    include/player.h
+    src/player.cpp)
 
 add_library(special-game SHARED ${GAME_SRC})
 

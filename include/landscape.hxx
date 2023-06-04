@@ -48,7 +48,7 @@ struct triangle_indexes
 class landscape
 {
 public:
-    landscape(Kengine::game* l_game);
+    landscape();
 
     void init();
     void draw() const;
@@ -79,6 +79,4 @@ private:
     Kengine::vertex_array_object* vao;
     Kengine::shader_program*      program;
     Kengine::texture_object*      ground_texture;
-
-    Kengine::game* land_game;
 };

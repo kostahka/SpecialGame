@@ -7,11 +7,13 @@
 
 using namespace Kengine;
 
+game* current_game{ nullptr };
+
 std::chrono::high_resolution_clock game_clock;
 
 my_game::my_game(engine* game_engine)
     : game("My game", game_engine)
-    , land(this){};
+    , land(){};
 
 void my_game::on_start()
 {
@@ -75,7 +77,11 @@ my_game::~my_game(){};
 game* create_game(engine* e)
 {
     if (e != nullptr)
-        return new my_game(e);
+    {
+        if (!current_game)
+            current_game = new my_game(e);
+        return current_game;
+    }
 
     return nullptr;
 };

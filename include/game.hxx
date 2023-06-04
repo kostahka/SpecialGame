@@ -8,6 +8,8 @@
 
 using namespace Kengine;
 
+extern game* current_game;
+
 class my_game : public game
 {
 

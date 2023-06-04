@@ -1,19 +1,18 @@
 #include "landscape.hxx"
 #include "PerlinNoise.hxx"
 #include "engine.hxx"
+#include "game.hxx"
 #include "shader-program.hxx"
 #include "texture.hxx"
 #include "transform3d.hxx"
 
 #include <cmath>
-#include <cstdint>
 #include <iostream>
 
 using namespace Kengine;
 
-landscape::landscape(game* l_game)
-    : land_game(l_game)
-    , g_table()
+landscape::landscape()
+    : g_table()
     , l_vertices()
     , l_indexes()
     , vao(nullptr)
@@ -90,8 +89,8 @@ void landscape::draw() const
     ground_texture->bind();
     program->use();
     program->set_uniform1f("cell_size", cell_size);
-    program->set_uniform_matrix4fv("projection", land_game->projection);
-    program->set_uniform_matrix4fv("view", land_game->view);
+    program->set_uniform_matrix4fv("projection", current_game->projection);
+    program->set_uniform_matrix4fv("view", current_game->view);
     vao->draw_triangles_elements(l_indexes.size());
 };
 
@@ -112,8 +111,6 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
 
         int x_start = std::round((x - r) / cell_size);
         int x_end   = std::round((x + r) / cell_size);
-
-        std::cout << x_start << "   " << x_end << std::endl;
 
         if (x_start < 0)
             x_start = 0;
