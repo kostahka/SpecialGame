@@ -9,6 +9,10 @@ find_package(SDL3 REQUIRED)
 
 add_subdirectory(efsw)
 add_subdirectory(glm)
+add_subdirectory(box2d)
+
+file(GLOB IMGUI_SRC ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src/*.cpp)
+file(GLOB IMGUI_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src/*.h)
 
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -41,8 +45,21 @@ set(ENGINE_SRC
     "include/transform3d.hxx"
     "include/vertex.hxx"
     ${GLAD_SRC}
-    src/opengl_error.hxx
-    src/opengl_error.cxx)
+    src/opengl-error.hxx
+    src/opengl-error.cxx
+    ${IMGUI_SRC}
+    ${IMGUI_INCLUDE}
+    include/b2GLDraw.hxx
+    src/b2GLDraw.cxx
+    include/draw-primitives.hxx
+    src/draw-primitives.cxx
+    include/engine-resources.hxx
+    src/engine-resources.cxx
+    include/input.hxx
+    src/input.cxx
+    include/event.hxx
+    src/event.cxx
+    src/event-engine.hxx)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/glad/include)
@@ -54,9 +71,18 @@ if(ENGINE_DEV)
     target_compile_definitions(
         engine PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME}")
 
+    target_compile_definitions(engine PRIVATE IMGUI_IMPL_OPENGL_ES3)
+
+    if(WIN32)
+        target_compile_definitions(engine
+                                   PRIVATE "-DE_DECLSPEC=__declspec(dllexport)")
+    endif()
     target_link_libraries(engine PRIVATE efsw)
     target_link_libraries(engine PUBLIC glm::glm)
+    target_link_libraries(engine PUBLIC box2d)
 
+    target_include_directories(engine
+                               PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src)
     target_include_directories(engine PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
     set_target_properties(engine PROPERTIES ENABLE_EXPORTS ON)
@@ -67,10 +93,24 @@ else()
     target_link_libraries(game-engine-shared PRIVATE SDL3::SDL3-static)
 
     target_link_libraries(game-engine-shared PRIVATE efsw)
+    target_link_libraries(game-engine-shared PUBLIC glm::glm)
+    target_link_libraries(game-engine-shared PUBLIC box2d)
+
+    target_include_directories(game-engine-shared
+                               PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src)
+    target_include_directories(game-engine-shared
+                               PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
     # Static engine lib
     add_library(game-engine-static STATIC ${ENGINE_SRC})
     target_link_libraries(game-engine-static PRIVATE SDL3::SDL3-static)
 
     target_link_libraries(game-engine-static PRIVATE efsw)
+    target_link_libraries(game-engine-static PUBLIC glm::glm)
+    target_link_libraries(game-engine-static PUBLIC box2d)
+
+    target_include_directories(game-engine-static
+                               PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src)
+    target_include_directories(game-engine-static
+                               PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 endif()

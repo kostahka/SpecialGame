@@ -19,6 +19,8 @@ struct irect
     int h;
 };
 
+typedef void (*shader_program_use_func)(shader_program*);
+
 class sprite
 {
 public:
@@ -26,8 +28,8 @@ public:
            const irect&       uv,
            const transform2d& pos,
            const transform2d& size,
-           game*              s_game);
-    void draw();
+           bool               world_sprite = true);
+    void draw() const;
 
     void set_origin(const transform2d&);
     void set_uv(const irect&);
@@ -44,16 +46,18 @@ public:
     transform2d     get_size() const;
 
 private:
+    void set_texture_coords();
+
     texture_object* texture;
     irect           uv;
     transform2d     origin;
     transform2d     pos;
     transform2d     size;
     float           angle;
-    game*           sprite_game;
 
-    vertex_array_object* vao;
-    vertex_text2d_array  vertices;
-    shader_program*      program;
+    shader_program_use_func use_func;
+    vertex_array_object*    vao;
+    vertex_text2d_array     vertices;
+    shader_program*         program;
 };
 } // namespace Kengine

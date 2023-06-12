@@ -1,5 +1,7 @@
 #pragma once
 
+#include "box2d/box2d.h"
+
 namespace Kengine
 {
 struct itransform2d
@@ -20,6 +22,10 @@ struct transform2d
         float y = (1.0f - a) * t1.y + a * t2.y;
         return { x, y };
     };
+
+    transform2d operator+(const transform2d& t) { return { x + t.x, y + t.y }; }
+    transform2d operator-(const transform2d& t) { return { x - t.x, y - t.y }; }
+    operator b2Vec2() const { return { x, y }; };
 };
 struct transform3d
 {

@@ -16,11 +16,24 @@ set(ENGINE_GAME_LIB_NAME "special-game" CACHE STRING "game lib name to load")
 
 set(GAME_SRC
     "src/game.cxx"
+    "include/game.hxx"
     "src/landscape.cxx"
-    include/player.h
-    src/player.cpp)
+    "include/landscape.hxx"
+    include/player.hxx
+    src/player.cpp
+    include/resources.hxx
+    src/resources.cxx
+    src/camera.cxx
+    include/camera.hxx
+    include/cursor.hxx
+    src/cursor.cxx)
 
 add_library(special-game SHARED ${GAME_SRC})
+
+if(WIN32)
+    target_compile_definitions(special-game
+                               PRIVATE "-DE_DECLSPEC=__declspec(dllimport)")
+endif()
 
 add_subdirectory(engine)
 

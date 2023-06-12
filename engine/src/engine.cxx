@@ -1,9 +1,5 @@
 #include "engine.hxx"
 
-#include <SDL_events.h>
-#include <SDL_keyboard.h>
-#include <SDL_mouse.h>
-
 #include <cstdint>
 #include <exception>
 #include <filesystem>
@@ -14,16 +10,20 @@
 
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
+#include <imgui.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl3.h>
 
+#include "engine-resources.hxx"
+#include "event-engine.hxx"
+#include "event.hxx"
 #include "file-last-modify-listener.hxx"
 #include "handle-file-modify.hxx"
 #include "handle-user-event.hxx"
-#include "opengl_error.hxx"
+#include "opengl-error.hxx"
 
 namespace Kengine
 {
-
-shader_program* sprite_program;
 
 class engine_impl;
 
@@ -38,66 +38,6 @@ void APIENTRY debug_message(GLenum        source,
     std::osyncstream sync_err(std::cerr);
     sync_err.write(message, length);
     sync_err << std::endl;
-};
-
-bool is_key_pressed(key_name key)
-{
-    SDL_PumpEvents();
-
-    const Uint8* state = SDL_GetKeyboardState(NULL);
-    switch (key)
-    {
-        case key_name::left:
-            return state[SDL_SCANCODE_LEFT];
-            break;
-        case key_name::right:
-            return state[SDL_SCANCODE_RIGHT];
-            break;
-        case key_name::up:
-            return state[SDL_SCANCODE_UP];
-            break;
-        case key_name::down:
-            return state[SDL_SCANCODE_DOWN];
-            break;
-        default:
-            return false;
-            break;
-    }
-};
-
-mouse_state get_mouse_state(mouse_button button)
-{
-    Uint32      buttons;
-    float       x, y;
-    mouse_state m_state;
-
-    SDL_PumpEvents();
-    buttons = SDL_GetMouseState(&x, &y);
-
-    m_state.x = x;
-    m_state.y = y;
-    switch (button)
-    {
-        case mouse_button::left:
-            m_state.is_pressed = buttons & SDL_BUTTON_LMASK;
-            break;
-        case mouse_button::right:
-            m_state.is_pressed = buttons & SDL_BUTTON_RMASK;
-            break;
-        case mouse_button::middle:
-            m_state.is_pressed = buttons & SDL_BUTTON_MMASK;
-            break;
-        case mouse_button::x1:
-            m_state.is_pressed = buttons & SDL_BUTTON_X1MASK;
-            break;
-        case mouse_button::x2:
-            m_state.is_pressed = buttons & SDL_BUTTON_X2MASK;
-            break;
-        default:
-            m_state.is_pressed = false;
-            break;
-    }
-    return m_state;
 };
 
 #ifdef ENGINE_DEV
@@ -118,31 +58,7 @@ public:
             return "sdl init fail";
         }
 
-        return "good";
-    };
-
-    std::string_view uninitialize() override
-    {
-        if (context)
-            SDL_GL_DeleteContext(context);
-
-        if (window)
-            SDL_DestroyWindow(window);
-
-        SDL_Quit();
-
-        return "good";
-    };
-
-    std::string_view start_game_loop() override
-    {
-        if (e_game == nullptr)
-            return "game not set";
-
-        window = SDL_CreateWindow(e_game->name.c_str(),
-                                  e_game->configuration.screen_width,
-                                  e_game->configuration.screen_height,
-                                  SDL_WINDOW_OPENGL);
+        window = SDL_CreateWindow("Engine init", 600, 400, SDL_WINDOW_OPENGL);
 
         if (window == nullptr)
         {
@@ -208,44 +124,54 @@ public:
         }
 
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LEQUAL);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        e_resources::init();
 
-        sprite_program = create_shader_program_from_code(R"(
-                #version 300 es
-                precision mediump float;
+        IMGUI_CHECKVERSION();
 
-                layout (location = 0) in vec3 a_position;
-                layout (location = 1) in vec2 a_tex_coord;
-                out vec2 v_tex_coord;
+        ImGui::CreateContext();
+        ImGui_ImplSDL3_InitForOpenGL(window, context);
+        ImGui_ImplOpenGL3_Init("#version 300 es");
+        return "good";
+    };
 
-                uniform mat4 projection;
-                uniform mat4 view;
-                uniform mat4 model;
+    std::string_view uninitialize() override
+    {
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
+        ImGui::DestroyContext();
 
-                void main()
-                {
-                    v_tex_coord = a_tex_coord;
-                    gl_Position = projection * view * model * vec4(a_position, 1.0);
-                }
-)",
-                                                         R"(
-                #version 300 es
-                precision mediump float;
+        if (context)
+            SDL_GL_DeleteContext(context);
 
-                in vec2 v_tex_coord;
-                uniform sampler2D s_texture;
+        if (window)
+            SDL_DestroyWindow(window);
 
-                out vec4 fragColor;
+        SDL_Quit();
 
-                void main()
-                {
-                    fragColor = texture2D(s_texture, v_tex_coord);
-                }
-)");
+        return "good";
+    };
+
+    std::string_view start_game_loop() override
+    {
+        if (e_game == nullptr)
+            return "game not set";
+
+        SDL_SetWindowTitle(window, e_game->name.c_str());
+        SDL_SetWindowSize(window,
+                          e_game->configuration.screen_width,
+                          e_game->configuration.screen_height);
+
+        glViewport(0,
+                   0,
+                   e_game->configuration.screen_width,
+                   e_game->configuration.screen_height);
 
         start_files_watch();
 
-        bool      continue_loop = true;
-        SDL_Event sdl_event;
+        bool continue_loop = true;
 
         e_game->on_start();
 
@@ -256,42 +182,7 @@ public:
         {
             handle_file_modify_listeners();
 
-            while (SDL_PollEvent(&sdl_event))
-            {
-                event event;
-                switch (sdl_event.type)
-                {
-                    case SDL_EVENT_KEY_DOWN:
-                        event.type = event_type::key_pressed;
-                        event.key  = get_key_name(sdl_event.key.keysym.sym);
-                        break;
-                    case SDL_EVENT_KEY_UP:
-                        event.type = event_type::key_released;
-                        event.key  = get_key_name(sdl_event.key.keysym.sym);
-                        break;
-                    case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                    case SDL_EVENT_MOUSE_BUTTON_UP:
-                        event.type = event_type::mouse_event;
-                        event.mouse.button =
-                            get_mouse_button(sdl_event.button.button);
-                        event.mouse.state =
-                            get_button_state(sdl_event.button.state);
-                        event.mouse.clicks = sdl_event.button.clicks;
-                        event.mouse.x      = sdl_event.button.x;
-                        event.mouse.y      = sdl_event.button.y;
-                        break;
-                    case SDL_EVENT_QUIT:
-                        event.type    = event_type::quit;
-                        continue_loop = false;
-                        break;
-                    case SDL_EVENT_USER:
-                        event.type = event_type::unknown;
-                        handle_user_event(sdl_event.user);
-                    default:
-                        event.type = event_type::unknown;
-                }
-                e_game->on_event(event);
-            }
+            continue_loop = event::poll_events(e_game);
 
             auto update_delta_time = game_clock.now() - update_time;
             if (update_delta_time > configuration.update_delta_time)
@@ -314,12 +205,44 @@ public:
 
     void set_game(game* e_game) override { this->e_game = e_game; }
 
+    void set_cursor_visible(bool visible) override
+    {
+        int failure;
+        if (visible)
+        {
+            failure = SDL_ShowCursor();
+            ImGui::GetIO().ConfigFlags ^= ImGuiConfigFlags_NoMouseCursorChange;
+        }
+        else
+        {
+            failure = SDL_HideCursor();
+            ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+        }
+
+        if (failure)
+        {
+            std::cerr << "Error to set cursor visibility. Error: "
+                      << SDL_GetError() << std::endl;
+        }
+    };
+
     void clear_color(color col) override
     {
-        glClearColor(col.r, col.g, col.b, col.a);
-        gl_get_error(__LINE__, __FILE__);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl_get_error(__LINE__, __FILE__);
+        glClearColor(col.r, col.g, col.b, col.a);
+        gl_get_error(__LINE__, __FILE__);
+    };
+
+    void draw_imgui() override
+    {
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+        // ImGui::ShowDemoWindow();
+        e_game->on_imgui_render();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     };
 
     void swap_buffers() override
@@ -436,59 +359,8 @@ public:
 
 private:
     // Engine
-    game*         e_game  = nullptr;
     SDL_Window*   window  = nullptr;
     SDL_GLContext context = nullptr;
-    // SDL keys to engine keys
-    key_name get_key_name(SDL_Keycode sdl_key_code)
-    {
-        switch (sdl_key_code)
-        {
-            case SDLK_LEFT:
-                return key_name::left;
-            case SDLK_RIGHT:
-                return key_name::right;
-            case SDLK_UP:
-                return key_name::up;
-            case SDLK_DOWN:
-                return key_name::down;
-            default:
-                return key_name::unknown;
-        }
-    }
-
-    mouse_button get_mouse_button(Uint8 sdl_button)
-    {
-        switch (sdl_button)
-        {
-            case SDL_BUTTON_LEFT:
-                return mouse_button::left;
-            case SDL_BUTTON_RIGHT:
-                return mouse_button::right;
-            case SDL_BUTTON_MIDDLE:
-                return mouse_button::middle;
-            case SDL_BUTTON_X1:
-                return mouse_button::x1;
-            case SDL_BUTTON_X2:
-                return mouse_button::x2;
-            default:
-                return mouse_button::unknown;
-        }
-    }
-
-    button_state get_button_state(Uint8 sdl_state)
-    {
-
-        switch (sdl_state)
-        {
-            case SDL_PRESSED:
-                return button_state::pressed;
-            case SDL_RELEASED:
-                return button_state::released;
-            default:
-                return button_state::unknown;
-        }
-    };
 
     // Time from init SDL in miliseconds
     std::chrono::high_resolution_clock::time_point update_time;
@@ -501,14 +373,6 @@ engine* engine_impl::instance = nullptr;
 
 engine::~engine() = default;
 
-engine* get_engine_instance()
-{
-    if (engine_impl::instance == nullptr)
-        engine_impl::instance = new engine_impl();
-
-    return engine_impl::instance;
-}
-
 #ifdef ENGINE_DEV
 void reload_game(void* data)
 {
@@ -518,13 +382,21 @@ void reload_game(void* data)
 };
 #endif
 
+engine* engine::instance()
+{
+    if (engine_impl::instance == nullptr)
+        engine_impl::instance = new engine_impl();
+
+    return engine_impl::instance;
+    ;
+}
 }; // namespace Kengine
 
 #ifdef ENGINE_DEV
 int main()
 {
     using namespace Kengine;
-    engine* engine = get_engine_instance();
+    engine* engine = engine::instance();
 
     if (engine->initialize() != "good")
         return EXIT_FAILURE;

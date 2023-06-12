@@ -1,7 +1,8 @@
 #ifndef ENGINE_H_
 #define ENGINE_H_
 
-#include "glm/fwd.hpp"
+#include "event.hxx"
+#include "input.hxx"
 #include "shader-program.hxx"
 #include "vertex-array-object.hxx"
 
@@ -26,73 +27,6 @@ struct rect
     float h;
 };
 
-enum class event_type
-{
-    key_pressed,
-    key_released,
-
-    mouse_event,
-
-    quit,
-
-    unknown
-};
-
-enum class key_name
-{
-    left,
-    right,
-    up,
-    down,
-
-    unknown
-};
-
-enum class mouse_button
-{
-    left,
-    middle,
-    right,
-    x1,
-    x2,
-
-    unknown
-};
-
-enum class button_state
-{
-    pressed,
-    released,
-
-    unknown
-};
-
-struct mouse_state
-{
-    bool  is_pressed;
-    float x;
-    float y;
-};
-
-struct mouse_button_event
-{
-    mouse_button button;
-    uint8_t      clicks;
-    button_state state;
-    int8_t       x;
-    int8_t       y;
-};
-
-struct event
-{
-    event_type type;
-    union
-    {
-        key_name           key;
-        mouse_button_event mouse;
-    };
-};
-
 // game configuratiions
 struct game_configuration
 {
@@ -113,6 +47,8 @@ struct engine_configuration
 class engine
 {
 public:
+    static engine* instance();
+
     virtual ~engine();
     virtual std::string_view initialize()    = 0;
     virtual std::string_view uninitialize()  = 0;
@@ -125,19 +61,18 @@ public:
 #endif
     virtual std::string_view start_game_loop() = 0;
 
-    virtual void clear_color(color) = 0;
-    virtual void swap_buffers()     = 0;
+    virtual void set_cursor_visible(bool visible) = 0;
+    virtual void clear_color(color)               = 0;
+    virtual void swap_buffers()                   = 0;
+    virtual void draw_imgui()                     = 0;
 
     engine_configuration configuration{
         std::chrono::milliseconds{ 1000 / 60 },
         std::chrono::milliseconds{ 1000 / 90 },
     };
+
+    game* e_game = nullptr;
 };
-
-bool        is_key_pressed(key_name key);
-mouse_state get_mouse_state(mouse_button button);
-
-engine* get_engine_instance();
 
 class game
 {
@@ -146,13 +81,14 @@ public:
         : name(name)
         , game_engine(engine){};
 
-    virtual ~game()              = default;
-    virtual void on_start()      = 0;
-    virtual void on_event(event) = 0;
+    virtual ~game()                          = default;
+    virtual void on_start()                  = 0;
+    virtual void on_event(event::game_event) = 0;
     virtual void on_update(
         std::chrono::duration<int, std::milli> delta_time) = 0;
     virtual void on_render(
         std::chrono::duration<int, std::milli> delta_time) const = 0;
+    virtual void on_imgui_render()                               = 0;
 
     std::string        name        = "";
     engine*            game_engine = nullptr;
@@ -161,8 +97,6 @@ public:
     glm::mat4 projection;
     glm::mat4 view;
 };
-
-extern shader_program* sprite_program;
 
 }; // namespace Kengine
 

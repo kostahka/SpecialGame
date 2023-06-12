@@ -1,5 +1,6 @@
 #include "landscape.hxx"
 #include "PerlinNoise.hxx"
+#include "camera.hxx"
 #include "engine.hxx"
 #include "game.hxx"
 #include "shader-program.hxx"
@@ -11,13 +12,17 @@
 
 using namespace Kengine;
 
+constexpr float render_size = 500.0;
+
 landscape::landscape()
     : g_table()
     , l_vertices()
     , l_indexes()
+    , l_fixtures()
     , vao(nullptr)
     , program(nullptr)
-    , ground_texture(nullptr){};
+    , ground_texture(nullptr)
+    , gravity_force(50.0f){};
 
 float interpolate_ground(float g1, float g2)
 {
@@ -68,6 +73,11 @@ void landscape::init()
         size_t y      = (i - ground_vertices_index) / ground_w_count;
         l_vertices[i] = { x * cell_size, y * cell_size };
     }
+    b2BodyDef land_body_def;
+    land_body_def.position.Set(0, 0);
+    l_body = current_game->physics_world.CreateBody(&land_body_def);
+    l_fixtures.fill(nullptr);
+
     calculate_vertices();
     calculate_indexes();
     vao            = Kengine::create_vao(l_vertices.data(),
@@ -77,6 +87,9 @@ void landscape::init()
     program        = create_shader_program("./shaders/landscape-vertex.vert",
                                     "./shaders/landscape-fragment.frag");
     ground_texture = create_texture("./assets/ground.png");
+
+    l_lines = create_primitive_render(Kengine::primitive_type::lines);
+    l_lines->create();
 };
 
 landscape::~landscape()
@@ -91,7 +104,48 @@ void landscape::draw() const
     program->set_uniform1f("cell_size", cell_size);
     program->set_uniform_matrix4fv("projection", current_game->projection);
     program->set_uniform_matrix4fv("view", current_game->view);
-    vao->draw_triangles_elements(l_indexes.size());
+
+    transform2d camera_pos = camera::get_pos();
+    int y_start = std::round((camera_pos.y - render_size / 2) / cell_size);
+    int y_end   = std::round((camera_pos.y + render_size / 2) / cell_size);
+    int x_start = std::round((camera_pos.x - render_size / 2) / cell_size);
+    int x_end   = std::round((camera_pos.x + render_size / 2) / cell_size);
+
+    if (y_start < 0)
+        y_start = 0;
+    if (x_start < 0)
+        x_start = 0;
+    if (y_end >= ground_h_count - 1)
+        y_end = ground_h_count - 2;
+    if (x_end >= ground_w_count - 1)
+        x_end = ground_w_count - 2;
+
+    for (int y = y_start; y <= y_end; y++)
+    {
+        size_t       count = (x_end - x_start + 1) * 4 * 3;
+        const size_t offset =
+            (y * (ground_w_count - 1) + x_start) * 4 * 3 * sizeof(uint32_t);
+        vao->draw_triangles_elements(count, offset);
+    }
+
+    l_lines->vertex({ x_start * cell_size, y_start * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->vertex({ x_start * cell_size, (y_end + 1) * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->vertex({ x_start * cell_size, (y_end + 1) * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->vertex({ (x_end + 1) * cell_size, (y_end + 1) * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->vertex({ (x_end + 1) * cell_size, (y_end + 1) * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->vertex({ (x_end + 1) * cell_size, y_start * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->vertex({ (x_end + 1) * cell_size, y_start * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->vertex({ x_start * cell_size, y_start * cell_size, 0 },
+                    { 1.f, 0.1f, 0.1f, 0.5f });
+    l_lines->draw();
+    // vao->draw_triangles_elements(l_indexes.size());
 };
 
 void landscape::change_ground(float x, float y, float radius, float delta_value)
@@ -169,7 +223,8 @@ void landscape::set_indexes(size_t                  x,
                             const triangle_indexes& t2,
                             const triangle_indexes& t3)
 {
-    const size_t cell_i = (y * (ground_w_count - 1) + x) * 4 * 3;
+    const size_t cell_i     = (y * (ground_w_count - 1) + x) * 4 * 3;
+    const size_t cell_index = y * (ground_w_count - 1) + x;
 
     l_indexes[cell_i + 0] = t0.i0;
     l_indexes[cell_i + 1] = t0.i1;
@@ -190,7 +245,6 @@ void landscape::set_indexes(size_t                  x,
 
 void landscape::calculate_cell_indexes(size_t x, size_t y)
 {
-
     uint8_t code = 0;
     if (g_table[y][x].value > ground_value)
         code += 0b0001;
@@ -216,36 +270,57 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
     const uint32_t v_vi1 =
         ground_vertical_vertices_index + x + 1 + y * ground_w_count;
 
+    const transform2d& v0 = l_vertices[v_i0];
+    const transform2d& v1 = l_vertices[v_i1];
+    const transform2d& v2 = l_vertices[v_i2];
+    const transform2d& v3 = l_vertices[v_i3];
+
+    const transform2d& vh0 = l_vertices[v_hi0];
+    const transform2d& vh1 = l_vertices[v_hi1];
+
+    const transform2d& vv0 = l_vertices[v_vi0];
+    const transform2d& vv1 = l_vertices[v_vi1];
+
     switch (code)
     {
         case 0b0001:
+            set_cell_shape(x, y, 3, v0, vh0, vv0);
             set_indexes(x, y, { v_i0, v_hi0, v_vi0 });
             break;
         case 0b0010:
+            set_cell_shape(x, y, 3, vv1, vh0, v1);
             set_indexes(x, y, { v_vi1, v_i1, v_hi0 });
             break;
         case 0b0100:
+            set_cell_shape(x, y, 3, v2, vh1, vv1);
             set_indexes(x, y, { v_i2, v_hi1, v_vi1 });
             break;
         case 0b1000:
+            set_cell_shape(x, y, 3, v3, vv0, vh1);
             set_indexes(x, y, { v_i3, v_vi0, v_hi1 });
             break;
         case 0b0011:
+            set_cell_shape(x, y, 4, v0, v1, vv1, vv0);
             set_indexes(x, y, { v_i1, v_vi0, v_i0 }, { v_i1, v_vi1, v_vi0 });
             break;
         case 0b0110:
+            set_cell_shape(x, y, 4, v1, v2, vh1, vh0);
             set_indexes(x, y, { v_i2, v_hi0, v_i1 }, { v_i2, v_hi1, v_hi0 });
             break;
         case 0b1100:
+            set_cell_shape(x, y, 4, v2, v3, vv0, vv1);
             set_indexes(x, y, { v_i3, v_vi1, v_i2 }, { v_i3, v_vi0, v_vi1 });
             break;
         case 0b1001:
+            set_cell_shape(x, y, 4, v3, v0, vh0, vh1);
             set_indexes(x, y, { v_i0, v_hi1, v_i3 }, { v_i0, v_hi0, v_hi1 });
             break;
         case 0b1111:
+            set_cell_shape(x, y, 4, v0, v1, v2, v3);
             set_indexes(x, y, { v_i0, v_i1, v_i2 }, { v_i2, v_i3, v_i0 });
             break;
         case 0b0111:
+            set_cell_shape(x, y, 5, v0, v1, v2, vh1, vv0);
             set_indexes(x,
                         y,
                         { v_i0, v_i1, v_vi0 },
@@ -253,6 +328,7 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_i1, v_i2, v_hi1 });
             break;
         case 0b1110:
+            set_cell_shape(x, y, 5, v1, v2, v3, vv0, vh0);
             set_indexes(x,
                         y,
                         { v_i1, v_i2, v_hi0 },
@@ -260,6 +336,7 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_i2, v_i3, v_vi0 });
             break;
         case 0b1101:
+            set_cell_shape(x, y, 5, v2, v3, v0, vh0, vv1);
             set_indexes(x,
                         y,
                         { v_i2, v_i3, v_vi1 },
@@ -267,6 +344,7 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_i3, v_i0, v_hi0 });
             break;
         case 0b1011:
+            set_cell_shape(x, y, 5, v3, v0, v1, vv1, vh0);
             set_indexes(x,
                         y,
                         { v_i3, v_i0, v_hi1 },
@@ -274,6 +352,7 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_i0, v_i1, v_vi1 });
             break;
         case 0b0101:
+            set_cell_shape(x, y, 6, v0, vh0, vv1, v2, vh1, vv0);
             set_indexes(x,
                         y,
                         { v_i0, v_hi0, v_vi0 },
@@ -282,6 +361,7 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_hi0, v_vi1, v_hi1 });
             break;
         case 0b1010:
+            set_cell_shape(x, y, 6, v1, vv1, vh1, v3, vv0, vh0);
             set_indexes(x,
                         y,
                         { v_i1, v_vi1, v_hi0 },
@@ -290,6 +370,7 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_vi1, v_hi1, v_vi0 });
             break;
         default:
+            set_cell_shape(x, y, 0);
             set_indexes(x, y, { 0, 0, 0 });
     }
 };
@@ -387,4 +468,41 @@ void landscape::set_vao_vertices(size_t index)
     size_t       offset = index * sizeof(transform2d);
     size_t       size   = sizeof(transform2d);
     vao->set_vertices(data, offset, size);
+}
+Kengine::transform2d landscape::get_center() const
+{
+    return { ground_w_count * cell_size / 2, ground_h_count * cell_size / 2 };
+}
+void landscape::set_cell_shape(size_t x, size_t y, int count, ...)
+{
+    va_list vertices_list;
+    va_start(vertices_list, count);
+
+    const size_t index = x + (ground_w_count - 1) * y;
+
+    b2Fixture* old_fixture = l_fixtures[index];
+    if (old_fixture)
+    {
+        l_body->DestroyFixture(old_fixture);
+        l_fixtures[index] = 0;
+    }
+
+    if (count > 0)
+    {
+        b2Vec2* vertices = new b2Vec2[count];
+
+        for (int i = 0; i < count; i++)
+        {
+            vertices[i] = va_arg(vertices_list, transform2d);
+        }
+
+        b2ChainShape chain_shape;
+        chain_shape.CreateLoop(vertices, count);
+
+        l_fixtures[index] = l_body->CreateFixture(&chain_shape, 0.f);
+
+        delete[] vertices;
+    }
+
+    va_end(vertices_list);
 };

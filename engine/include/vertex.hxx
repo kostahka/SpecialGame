@@ -26,6 +26,13 @@ struct vertex_text2d
     transform2d text;
 };
 
+struct vertex_color_size
+{
+    transform3d pos;
+    color       col;
+    float       size;
+};
+
 using vertex2d_array      = std::vector<transform2d>;
 using vertex_array        = std::vector<vertex>;
 using vertex_color_array  = std::vector<vertex_color>;

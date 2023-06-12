@@ -1,5 +1,7 @@
 #pragma once
 
+#include "box2d/box2d.h"
+#include "draw-primitives.hxx"
 #include "engine.hxx"
 #include "shader-program.hxx"
 #include "texture.hxx"
@@ -14,8 +16,8 @@ struct ground
     float value;
 };
 
-constexpr int   ground_w_count = 100;
-constexpr int   ground_h_count = 100;
+constexpr int   ground_w_count = 300;
+constexpr int   ground_h_count = 300;
 constexpr float cell_size      = 10.0f;
 
 constexpr float ground_value = 0.5f;
@@ -33,8 +35,10 @@ using ground_table =
 using landscape_vertices =
     std::array<Kengine::transform2d, ground_vertices_end_index>;
 
-constexpr int cells_count         = (ground_w_count) * (ground_h_count - 1);
+constexpr int cells_count         = (ground_w_count - 1) * (ground_h_count - 1);
 constexpr int max_triangles_count = cells_count * 4;
+
+using landscape_fixtures = std::array<b2Fixture*, cells_count>;
 
 using landscape_indexes = std::array<uint32_t, max_triangles_count * 3>;
 
@@ -54,7 +58,11 @@ public:
     void draw() const;
     void change_ground(float x, float y, float radius, float delta_value);
 
+    Kengine::transform2d get_center() const;
+
     ~landscape();
+
+    float gravity_force;
 
 private:
     void calculate_vertices();
@@ -73,10 +81,16 @@ private:
     void set_vao_vertices(size_t index);
     void set_vao_indexes(size_t x, size_t y);
 
+    void set_cell_shape(size_t x, size_t y, int count, ...);
+
     ground_table                  g_table;
     landscape_vertices            l_vertices;
     landscape_indexes             l_indexes;
     Kengine::vertex_array_object* vao;
     Kengine::shader_program*      program;
     Kengine::texture_object*      ground_texture;
+    b2Body*                       l_body;
+    landscape_fixtures            l_fixtures;
+
+    Kengine::gl_render_primitive* l_lines;
 };

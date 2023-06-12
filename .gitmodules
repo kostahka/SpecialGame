@@ -4,3 +4,6 @@
 [submodule "engine/glm"]
 	path = engine/glm
 	url = https://github.com/g-truc/glm
+[submodule "engine/box2d"]
+	path = engine/box2d
+	url = https://github.com/erincatto/box2d
