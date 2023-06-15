@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Kengine/engine.hxx"
+#include "Kengine/render/draw-primitives.hxx"
+#include "Kengine/render/shader-program.hxx"
+#include "Kengine/render/texture.hxx"
+#include "Kengine/render/vertex-array-object.hxx"
 #include "box2d/box2d.h"
-#include "draw-primitives.hxx"
-#include "engine.hxx"
-#include "shader-program.hxx"
-#include "texture.hxx"
-#include "vertex-array-object.hxx"
 #include <array>
 #include <cstddef>
 #include <cstdint>

@@ -19,14 +19,28 @@ set(GAME_SRC
     "include/game.hxx"
     "src/landscape.cxx"
     "include/landscape.hxx"
-    include/player.hxx
-    src/player.cpp
-    include/resources.hxx
-    src/resources.cxx
-    src/camera.cxx
-    include/camera.hxx
-    include/cursor.hxx
-    src/cursor.cxx)
+    include/render/resources.hxx
+    src/render/resources.cxx
+    src/render/camera.cxx
+    include/render/camera.hxx
+    include/render/cursor.hxx
+    src/render/cursor.cxx
+    include/scene/scene.hxx
+    include/scene/planet-scene.hxx
+    src/scene/planet-scene.cxx
+    src/scene/scene.cxx
+    include/physics/physics.hxx
+    src/physics/physics.cxx
+    include/physics/physic-object.hxx
+    src/physics/physics-object.cxx
+    include/astronaut/astronaut.hxx
+    src/astronaut/astronaut.cxx
+    include/game-object/game-object.hxx
+    include/astronaut/player.hxx
+    src/astronaut/player.cxx
+    include/astronaut/bullet.hxx
+    src/astronaut/bullet.cxx
+    src/game-object/game-object.cxx)
 
 add_library(special-game SHARED ${GAME_SRC})
 

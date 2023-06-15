@@ -1,4 +1,4 @@
-#include "file-last-modify-listener.hxx"
+#include "Kengine/file-last-modify-listener.hxx"
 #include "handle-file-modify.hxx"
 
 #include <algorithm>
@@ -7,7 +7,7 @@
 #include <filesystem>
 #include <vector>
 
-#include "user-events.hxx"
+#include "Kengine/event/user-events.hxx"
 
 namespace Kengine
 {
@@ -24,29 +24,10 @@ struct file_modify_listener_info
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
-static std::vector<file_modify_listener_info> listeners;
-static const high_resolution_clock            clock;
-static const high_resolution_clock::duration  max_time_modify{ 2s };
-static high_resolution_clock::time_point      last_modify;
-static bool                                   any_file_modified = false;
-
-void handle_file_modify_listeners()
-{
-    if (any_file_modified && (clock.now() - last_modify > max_time_modify))
-    {
-        any_file_modified = false;
-        std::for_each(listeners.begin(),
-                      listeners.end(),
-                      [](file_modify_listener_info& i)
-                      {
-                          if (i.modify)
-                          {
-                              i.modify = false;
-                              i.func(i.data);
-                          }
-                      });
-    }
-};
+static const high_resolution_clock           clock;
+static const high_resolution_clock::duration max_time_modify{ 2s };
+static high_resolution_clock::time_point     last_modify;
+static bool                                  any_file_modified = false;
 
 void file_modify_event(void* data)
 {
@@ -55,15 +36,11 @@ void file_modify_event(void* data)
     reinterpret_cast<file_modify_listener_info*>(data)->modify = true;
 };
 
-static efsw::FileWatcher watcher;
+static file_last_modify_listener* instance;
 
-void start_files_watch()
-{
-    watcher.watch();
-};
+class file_last_modify_listener_impl : public efsw::FileWatchListener,
+                                       public file_last_modify_listener
 
-class file_last_modify_listener_impl : public file_last_modify_listener,
-                                       public efsw::FileWatchListener
 {
     long add_file(std::string          file_path,
                   file_modify_callback f_modify_func,
@@ -115,13 +92,38 @@ class file_last_modify_listener_impl : public file_last_modify_listener,
                     break;
             }
     };
-};
 
-static file_last_modify_listener* instance =
-    new file_last_modify_listener_impl();
+    void start_files_watch() override { watcher.watch(); };
+
+    void handle_file_modify_listeners() override
+    {
+        if (any_file_modified && (clock.now() - last_modify > max_time_modify))
+        {
+            any_file_modified = false;
+            std::for_each(listeners.begin(),
+                          listeners.end(),
+                          [](file_modify_listener_info& i)
+                          {
+                              if (i.modify)
+                              {
+                                  i.modify = false;
+                                  i.func(i.data);
+                              }
+                          });
+        }
+    };
+
+    ~file_last_modify_listener_impl() { instance = nullptr; }
+
+private:
+    std::vector<file_modify_listener_info> listeners;
+    efsw::FileWatcher                      watcher;
+};
 
 file_last_modify_listener* file_last_modify_listener::get_instance()
 {
+    if (instance == nullptr)
+        instance = new file_last_modify_listener_impl();
     return instance;
 };
 

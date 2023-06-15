@@ -1,4 +1,4 @@
-#include "engine.hxx"
+#include "Kengine/engine.hxx"
 
 #include <cstdint>
 #include <exception>
@@ -14,13 +14,13 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
 
-#include "engine-resources.hxx"
-#include "event-engine.hxx"
-#include "event.hxx"
-#include "file-last-modify-listener.hxx"
+#include "Kengine/event/event.hxx"
+#include "Kengine/file-last-modify-listener.hxx"
+#include "Kengine/render/engine-resources.hxx"
+#include "event/event-engine.hxx"
+#include "event/handle-user-event.hxx"
 #include "handle-file-modify.hxx"
-#include "handle-user-event.hxx"
-#include "opengl-error.hxx"
+#include "render/opengl-error.hxx"
 
 namespace Kengine
 {
@@ -169,7 +169,7 @@ public:
                    e_game->configuration.screen_width,
                    e_game->configuration.screen_height);
 
-        start_files_watch();
+        file_last_modify_listener::get_instance()->start_files_watch();
 
         bool continue_loop = true;
 
@@ -180,7 +180,8 @@ public:
 
         while (continue_loop)
         {
-            handle_file_modify_listeners();
+            file_last_modify_listener::get_instance()
+                ->handle_file_modify_listeners();
 
             continue_loop = event::poll_events(e_game);
 

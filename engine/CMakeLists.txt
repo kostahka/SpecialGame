@@ -25,41 +25,43 @@ set(GLAD_SRC "glad/src/glad.c")
 
 set(ENGINE_SRC
     "src/engine.cxx"
-    "src/shader-program.cxx"
-    "src/vertex-array-object.cxx"
+    "src/render/shader-program.cxx"
+    "src/render/vertex-array-object.cxx"
     "src/file-last-modify-listener.cxx"
-    "src/user-events.cxx"
-    "src/handle-user-event.hxx"
+    "src/event/user-events.cxx"
+    "src/event/handle-user-event.hxx"
     "src/handle-file-modify.hxx"
-    "src/picopng.hxx"
-    "src/texture.cxx"
-    "src/sprite.cxx"
-    "include/sprite.hxx"
-    "include/texture.hxx"
-    "include/user-events.hxx"
-    "include/file-last-modify-listener.hxx"
-    "include/engine.hxx"
-    "include/shader-program.hxx"
-    "include/vertex-array-object.hxx"
-    "include/color.hxx"
-    "include/transform3d.hxx"
-    "include/vertex.hxx"
+    "src/render/picopng.hxx"
+    "src/render/texture.cxx"
+    "src/render/sprite.cxx"
+    "include/Kengine/render/sprite.hxx"
+    "include/Kengine/render/texture.hxx"
+    "include/Kengine/event/user-events.hxx"
+    "include/Kengine/file-last-modify-listener.hxx"
+    "include/Kengine/engine.hxx"
+    "include/Kengine/render/shader-program.hxx"
+    "include/Kengine/render/vertex-array-object.hxx"
+    "include/Kengine/render/color.hxx"
+    "include/Kengine/transform3d.hxx"
+    "include/Kengine/render/vertex.hxx"
     ${GLAD_SRC}
-    src/opengl-error.hxx
-    src/opengl-error.cxx
+    src/render/opengl-error.hxx
+    src/render/opengl-error.cxx
     ${IMGUI_SRC}
     ${IMGUI_INCLUDE}
-    include/b2GLDraw.hxx
-    src/b2GLDraw.cxx
-    include/draw-primitives.hxx
-    src/draw-primitives.cxx
-    include/engine-resources.hxx
-    src/engine-resources.cxx
-    include/input.hxx
-    src/input.cxx
-    include/event.hxx
-    src/event.cxx
-    src/event-engine.hxx)
+    include/Kengine/render/b2GLDraw.hxx
+    src/render/b2GLDraw.cxx
+    include/Kengine/render/draw-primitives.hxx
+    src/render/draw-primitives.cxx
+    include/Kengine/render/engine-resources.hxx
+    src/render/engine-resources.cxx
+    include/Kengine/io/input.hxx
+    src/io/input.cxx
+    include/Kengine/event/event.hxx
+    src/event/event.cxx
+    src/event/event-engine.hxx
+    include/Kengine/render/animation.hxx
+    src/render/animation.cxx)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/glad/include)

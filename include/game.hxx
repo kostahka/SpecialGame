@@ -1,15 +1,16 @@
 #pragma once
 
-#include "b2GLDraw.hxx"
-#include "engine.hxx"
+#include "Kengine/engine.hxx"
+#include "Kengine/render/b2GLDraw.hxx"
 #include "glm/fwd.hpp"
 #include <box2d/box2d.h>
 
-#include "cursor.hxx"
+#include "Kengine/render/sprite.hxx"
+#include "Kengine/render/texture.hxx"
+#include "game-object/game-object.hxx"
 #include "landscape.hxx"
-#include "player.hxx"
-#include "sprite.hxx"
-#include "texture.hxx"
+#include "render/cursor.hxx"
+#include "scene/scene.hxx"
 
 using namespace Kengine;
 
@@ -29,19 +30,19 @@ public:
         std::chrono::duration<int, std::milli> delta_time) override;
 
     virtual void on_render(
-        std::chrono::duration<int, std::milli> delta_time) const override;
+        std::chrono::duration<int, std::milli> delta_time) override;
 
     void on_imgui_render() override;
 
+    void add_game_object(game_object* obj);
+    void remove_game_object(game_object* obj);
+
     ~my_game() override;
 
-    b2World   physics_world;
-    landscape land;
-    b2GLDraw  physics_draw;
-    cursor*   game_cursor;
+    cursor* game_cursor;
 
 private:
-    player* game_player;
+    scene* current_scene;
 };
 extern my_game* current_game;
 

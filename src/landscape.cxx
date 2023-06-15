@@ -1,11 +1,14 @@
 #include "landscape.hxx"
-#include "PerlinNoise.hxx"
-#include "camera.hxx"
-#include "engine.hxx"
+
+#include "Kengine/engine.hxx"
+#include "Kengine/render/shader-program.hxx"
+#include "Kengine/render/texture.hxx"
+#include "Kengine/transform3d.hxx"
+
+#include "external/PerlinNoise.hxx"
 #include "game.hxx"
-#include "shader-program.hxx"
-#include "texture.hxx"
-#include "transform3d.hxx"
+#include "physics/physics.hxx"
+#include "render/camera.hxx"
 
 #include <cmath>
 #include <iostream>
@@ -75,7 +78,7 @@ void landscape::init()
     }
     b2BodyDef land_body_def;
     land_body_def.position.Set(0, 0);
-    l_body = current_game->physics_world.CreateBody(&land_body_def);
+    l_body = physics::physics_world.CreateBody(&land_body_def);
     l_fixtures.fill(nullptr);
 
     calculate_vertices();
