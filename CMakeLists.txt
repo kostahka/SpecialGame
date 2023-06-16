@@ -40,7 +40,17 @@ set(GAME_SRC
     src/astronaut/player.cxx
     include/astronaut/bullet.hxx
     src/astronaut/bullet.cxx
-    src/game-object/game-object.cxx)
+    src/game-object/game-object.cxx
+    include/physics/collision_interface.hxx
+    include/astronaut/enemy.hxx
+    include/game-object/controller.hxx
+    src/game-object/controller.cxx
+    include/game-object/destroy_listener.hxx
+    src/astronaut/enemy.cxx
+    src/astronaut/enemy_spawner.cxx
+    include/astronaut/enemy_spawner.hxx
+    src/game-object/destroy_listener.cxx
+    include/render/game_gui.hxx)
 
 add_library(special-game SHARED ${GAME_SRC})
 

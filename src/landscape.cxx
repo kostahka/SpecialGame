@@ -15,7 +15,10 @@
 
 using namespace Kengine;
 
-constexpr float render_size = 500.0;
+constexpr float render_size   = 500.0;
+constexpr float cell_size     = 3.0f;
+constexpr float land_friction = 0.2f;
+constexpr float planet_radius = ground_w_count * 0.3;
 
 landscape::landscape()
     : g_table()
@@ -25,15 +28,24 @@ landscape::landscape()
     , vao(nullptr)
     , program(nullptr)
     , ground_texture(nullptr)
-    , gravity_force(50.0f){};
+    , gravity_force(0.1f)
+    , l_body(nullptr)
+    , l_lines(nullptr)
+{
+}
 
 float interpolate_ground(float g1, float g2)
 {
     // return (g1 - ground_value) / (g1 - g2);
+    float t = 0;
     if (g1 > g2)
-        return g1 + g2 - ground_value;
+        t = g1 + g2 - ground_value;
     else
-        return 1.0f - g1 - g2 + ground_value;
+        t = 1.0f - g1 - g2 + ground_value;
+    if (t < 0.05f)
+        t = 0.05f;
+
+    return t;
 }
 
 void landscape::init()
@@ -42,20 +54,23 @@ void landscape::init()
     const siv::PerlinNoise            perlin{ seed };
     const float                       map_fill = 0.55;
 
-    const float  planet_radius = ground_w_count * 0.3;
-    const size_t planet_x      = ground_w_count / 2;
-    const size_t planet_y      = ground_h_count / 2;
+    const size_t planet_x = ground_w_count / 2;
+    const size_t planet_y = ground_h_count / 2;
 
     for (size_t y = 0; y < ground_h_count; y++)
     {
         for (size_t x = 0; x < ground_w_count; x++)
         {
-            float delta = std::sqrt((planet_x - x) * (planet_x - x) +
-                                    (planet_y - y) * (planet_y - y));
+            float delta =
+                std::sqrtf(static_cast<float>((planet_x - x) * (planet_x - x) +
+                                              (planet_y - y) * (planet_y - y)));
             if (delta < planet_radius)
             {
-                float ground =
-                    perlin.normalizedOctave2D_01(x / 8.0, y / 8.0, 2, 0.3);
+                auto ground = static_cast<float>(
+                    perlin.normalizedOctave2D_01(static_cast<float>(x) / 8.0,
+                                                 static_cast<float>(y) / 8.0,
+                                                 2,
+                                                 0.3f));
                 ground              = ground < ground_value
                                           ? ground / ground_value * map_fill
                                           : (ground / ground_value - 1) * (1 - map_fill) +
@@ -74,10 +89,13 @@ void landscape::init()
     {
         size_t x      = (i - ground_vertices_index) % ground_w_count;
         size_t y      = (i - ground_vertices_index) / ground_w_count;
-        l_vertices[i] = { x * cell_size, y * cell_size };
+        l_vertices[i] = { static_cast<float>(x) * cell_size,
+                          static_cast<float>(y) * cell_size };
     }
     b2BodyDef land_body_def;
     land_body_def.position.Set(0, 0);
+    land_body_def.userData.pointer =
+        reinterpret_cast<uintptr_t>(static_cast<collision_interface*>(this));
     l_body = physics::physics_world.CreateBody(&land_body_def);
     l_fixtures.fill(nullptr);
 
@@ -93,26 +111,29 @@ void landscape::init()
 
     l_lines = create_primitive_render(Kengine::primitive_type::lines);
     l_lines->create();
-};
+}
 
 landscape::~landscape()
 {
     delete program;
-};
+}
 
 void landscape::draw() const
 {
     ground_texture->bind();
     program->use();
-    program->set_uniform1f("cell_size", cell_size);
     program->set_uniform_matrix4fv("projection", current_game->projection);
     program->set_uniform_matrix4fv("view", current_game->view);
 
     transform2d camera_pos = camera::get_pos();
-    int y_start = std::round((camera_pos.y - render_size / 2) / cell_size);
-    int y_end   = std::round((camera_pos.y + render_size / 2) / cell_size);
-    int x_start = std::round((camera_pos.x - render_size / 2) / cell_size);
-    int x_end   = std::round((camera_pos.x + render_size / 2) / cell_size);
+    int         y_start    = static_cast<int>(
+        std::roundf((camera_pos.y - render_size / 2) / cell_size));
+    int y_end = static_cast<int>(
+        std::roundf((camera_pos.y + render_size / 2) / cell_size));
+    int x_start = static_cast<int>(
+        std::roundf((camera_pos.x - render_size / 2) / cell_size));
+    int x_end = static_cast<int>(
+        std::roundf((camera_pos.x + render_size / 2) / cell_size));
 
     if (y_start < 0)
         y_start = 0;
@@ -125,7 +146,7 @@ void landscape::draw() const
 
     for (int y = y_start; y <= y_end; y++)
     {
-        size_t       count = (x_end - x_start + 1) * 4 * 3;
+        int          count = (x_end - x_start + 1) * 4 * 3;
         const size_t offset =
             (y * (ground_w_count - 1) + x_start) * 4 * 3 * sizeof(uint32_t);
         vao->draw_triangles_elements(count, offset);
@@ -199,7 +220,7 @@ void landscape::calculate_vertices()
         size_t y =
             (i - ground_horizontal_vertices_index) / (ground_w_count - 1);
 
-        // getting vertice in horizontal line.
+        // getting vertex in horizontal line.
         float t =
             interpolate_ground(g_table[y][x].value, g_table[y][x + 1].value);
         l_vertices[i] = { (x + t) * cell_size, y * cell_size };
@@ -208,11 +229,11 @@ void landscape::calculate_vertices()
          i < ground_vertices_end_index;
          i++)
     {
-        // gettin x and y of vertices on vertical lines.
+        // getting x and y of vertices on vertical lines.
         size_t x = (i - ground_vertical_vertices_index) % ground_w_count;
         size_t y = (i - ground_vertical_vertices_index) / ground_w_count;
 
-        // getting vertice in vertical line.
+        // getting vertex in vertical line.
         float t =
             interpolate_ground(g_table[y][x].value, g_table[y + 1][x].value);
         l_vertices[i] = { x * cell_size, (y + t) * cell_size };
@@ -503,9 +524,34 @@ void landscape::set_cell_shape(size_t x, size_t y, int count, ...)
         chain_shape.CreateLoop(vertices, count);
 
         l_fixtures[index] = l_body->CreateFixture(&chain_shape, 0.f);
+        l_fixtures[index]->SetFriction(land_friction);
 
         delete[] vertices;
     }
 
     va_end(vertices_list);
+}
+void landscape::Hurt(int damage) {}
+void landscape::Hurt(float radius, float damage, const transform2d& pos)
+{
+    change_ground(pos.x, pos.y, radius, -damage);
+}
+Kengine::transform2d landscape::get_spawn_place(float angle) const
+{
+    constexpr float spawn_radius = planet_radius * cell_size + 2 * cell_size;
+    transform2d     center       = get_center();
+
+    return { center.x + std::cosf(angle) * spawn_radius,
+             center.y + std::sinf(angle) * spawn_radius };
+}
+float landscape::get_angle_to(const transform2d& pos) const
+{
+    Kengine::transform2d center_pos = get_center();
+    Kengine::transform2d vec        = pos - center_pos;
+    return std::atan2f(vec.y, vec.x);
+}
+float landscape::get_distance_to(const transform2d& pos) const
+{
+    Kengine::transform2d center_pos = get_center();
+    return center_pos.distance(pos);
 };

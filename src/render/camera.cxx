@@ -10,6 +10,7 @@ namespace camera
 static glm::vec3 camera_pos(0.f, 0.f, 10.f);
 static glm::vec3 camera_target(0.f, 0.f, 0.f);
 static glm::vec3 camera_up(0.f, 1.f, 0.f);
+static float     scale        = 5.f;
 float            camera_angle = 0;
 
 void look_at(const Kengine::transform2d& pos, float angle)
@@ -19,6 +20,7 @@ void look_at(const Kengine::transform2d& pos, float angle)
     camera_target      = glm::vec3(pos.x, pos.y, 0.f);
     camera_up          = glm::vec3(std::cos(angle), std::sin(angle), 0.f);
     current_game->view = glm::lookAt(camera_pos, camera_target, camera_up);
+    glm::mat4 view     = glm::lookAt(camera_pos, camera_target, camera_up);
 };
 void look_at(const Kengine::transform2d& pos,
              const Kengine::transform2d& up_vector)
@@ -27,7 +29,10 @@ void look_at(const Kengine::transform2d& pos,
     camera_target = glm::vec3(pos.x, pos.y, 0.f);
     camera_up     = glm::vec3(up_vector.x, up_vector.y, 0.f);
     camera_angle  = std::atan2f(up_vector.y, up_vector.x) / std::numbers::pi;
-    current_game->view = glm::lookAt(camera_pos, camera_target, camera_up);
+    glm::mat4 view(1);
+    view = glm::scale(view, { scale, scale, 1 }) *
+           glm::lookAt(camera_pos, camera_target, camera_up);
+    current_game->view = view;
 };
 float get_angle()
 {

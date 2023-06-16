@@ -7,7 +7,10 @@ game_object::game_object()
     current_game->add_game_object(this);
 }
 
-game_object::~game_object()
+game_object::~game_object() {}
+
+void game_object::destroy()
 {
-    current_game->remove_game_object(this);
+    destroyable::destroy();
+    current_game->destroy_game_object(this);
 }

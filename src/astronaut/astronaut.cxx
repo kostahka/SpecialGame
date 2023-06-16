@@ -4,12 +4,13 @@
 #include "render/resources.hxx"
 #include <numbers>
 
-constexpr float astronaut_size       = 50;
+constexpr float astronaut_size       = 10;
 constexpr float astronaut_density    = 0.1;
-constexpr float astronaut_move_speed = 50.0f;
-constexpr float astronaut_fly_speed  = 100.0f;
+constexpr float astronaut_move_speed = 0.1f;
+constexpr float astronaut_fly_speed  = 0.2f;
+constexpr float astronaut_friction   = 0.1f;
 
-constexpr float bullet_distance = 40.0f;
+constexpr float bullet_distance = 10.0f;
 
 astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     : astronaut_anim(resources::special_game_texture,
@@ -37,6 +38,7 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
                    true)
     , current_gun_sprite(&pistol_sprite)
     , gun_angle(0)
+    , hp(100)
 {
     astronaut_anim.set_origin({ 0.5, 0.5 });
     astronaut_anim.set_angle(0);
@@ -75,20 +77,25 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     player_body_def.position.Set(pos.x, pos.y);
     player_body_def.type          = b2_dynamicBody;
     player_body_def.fixedRotation = true;
+    player_body_def.linearDamping = 0.5;
+    player_body_def.userData.pointer =
+        reinterpret_cast<uintptr_t>(static_cast<collision_interface*>(this));
 
     astronaut_body = physics::physics_world.CreateBody(&player_body_def);
 
     b2CircleShape astronaut_shape;
-    astronaut_shape.m_radius = (astronaut_size - 5) / 4;
-    astronaut_shape.m_p.Set(0, (astronaut_size - 5) / 4);
+    astronaut_shape.m_radius = (0.9f * astronaut_size) / 4;
+    astronaut_shape.m_p.Set(0, (0.9f * astronaut_size) / 4);
     astronaut_body->CreateFixture(&astronaut_shape, astronaut_density);
-    astronaut_shape.m_p.Set(0, -(astronaut_size - 5) / 4);
-    astronaut_body->CreateFixture(&astronaut_shape, astronaut_density);
+    astronaut_shape.m_p.Set(0, -(0.9f * astronaut_size) / 4);
+    legs_fixture =
+        astronaut_body->CreateFixture(&astronaut_shape, astronaut_density);
+    legs_fixture->SetFriction(1);
 }
 
 void astronaut::move(int direction)
 {
-
+    legs_fixture->SetFriction(1);
     move_direction = direction;
     moving         = true;
 }
@@ -111,6 +118,7 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
         astronaut_anim.set_current_animation("run");
         astronaut_body->ApplyLinearImpulseToCenter(
             move_direction * d_impulse_vec, true);
+        legs_fixture->SetFriction(astronaut_friction);
         moving = false;
     }
 
@@ -171,11 +179,7 @@ void astronaut::render(std::chrono::duration<int, std::milli> delta_time)
     hand_sprite.draw();
 }
 
-void astronaut::input_process() {}
-
-void astronaut::on_event(Kengine::event::game_event e) {}
-
-Kengine::transform2d astronaut::get_pos()
+Kengine::transform2d astronaut::get_pos() const
 {
     b2Vec2 pos = astronaut_body->GetPosition();
     return { pos.x, pos.y };
@@ -204,11 +208,6 @@ void astronaut::select_gun(gun g)
     }
 };
 
-void astronaut::destroy()
-{
-    delete this;
-}
-
 void astronaut::shoot()
 {
     b2Vec2               astronaut_pos = astronaut_body->GetPosition();
@@ -217,4 +216,26 @@ void astronaut::shoot()
     new bullet(
         { bullet_pos.x + astronaut_pos.x, bullet_pos.y + astronaut_pos.y },
         gun_angle);
+}
+
+void astronaut::Hurt(int damage)
+{
+    hp -= damage;
+    if (hp <= 0)
+    {
+        destroy();
+    }
+}
+int astronaut::get_hp() const
+{
+    return hp;
+}
+void astronaut::Hurt(float                       radius,
+                     float                       damage,
+                     const Kengine::transform2d& pos)
+{
+}
+astronaut::~astronaut()
+{
+    physics::physics_world.DestroyBody(astronaut_body);
 };

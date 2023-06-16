@@ -23,10 +23,13 @@ struct transform2d
         return { x, y };
     };
 
-    transform2d operator+(const transform2d& t) { return { x + t.x, y + t.y }; }
-    transform2d operator-(const transform2d& t) { return { x - t.x, y - t.y }; }
-    operator b2Vec2() const { return { x, y }; };
+    float distance(const transform2d& t) const;
+
+    transform2d operator+(const transform2d& t) const;
+    transform2d operator-(const transform2d& t) const;
+    operator b2Vec2() const;
 };
+
 struct transform3d
 {
     float x;

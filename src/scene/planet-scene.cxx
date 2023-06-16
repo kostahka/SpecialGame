@@ -1,6 +1,10 @@
 #include "scene/planet-scene.hxx"
+#include "astronaut/enemy.hxx"
+#include "game.hxx"
+#include "imgui.h"
 #include "physics/physics.hxx"
 #include "render/camera.hxx"
+#include "render/game_gui.hxx"
 
 planet_scene::planet_scene()
     : current_state(-1)
@@ -37,16 +41,75 @@ void planet_scene::add_game_object(game_object* obj)
 {
     game_objects.push_back(obj);
 }
-void planet_scene::remove_game_object(game_object* obj)
+void planet_scene::destroy_game_object(game_object* obj)
 {
-    game_objects.erase(
-        std::remove(game_objects.begin(), game_objects.end(), obj));
+    destroy_game_objects.push_back(obj);
 }
 
 void planet_scene::on_start()
 {
-    game_player = new player({ 500, 500 });
     physics::land.init();
+
+    game_player = new player(physics::land.get_spawn_place(0));
+    e_spawner.init(game_player->get_astronaut());
+}
+void planet_scene::update_game_objects(
+    std::chrono::duration<int, std::milli> delta_time)
+{
+    for (game_object* obj : game_objects)
+    {
+        obj->update(delta_time);
+    }
+    for (int i = 0; i < destroy_game_objects.size(); i++)
+    {
+        game_objects.erase(std::remove(
+            game_objects.begin(), game_objects.end(), destroy_game_objects[i]));
+        delete destroy_game_objects[i];
+    }
+    destroy_game_objects.clear();
+}
+
+void planet_scene::add_controller(controller* c)
+{
+    controllers.push_back(c);
+}
+
+void planet_scene::destroy_controller(controller* c)
+{
+    destroy_controllers.push_back(c);
+}
+
+void planet_scene::render_game_objects(
+    std::chrono::duration<int, std::milli> delta_time)
+{
+    for (game_object* obj : game_objects)
+    {
+        obj->render(delta_time);
+    }
+}
+
+void planet_scene::on_event_game_objects(Kengine::event::game_event e)
+{
+    for (controller* c : controllers)
+    {
+        c->on_event(e);
+    }
+}
+
+void planet_scene::control_game_objects(
+    std::chrono::duration<int, std::milli> delta_time)
+{
+    for (controller* c : controllers)
+    {
+        c->control(delta_time);
+    }
+    for (int i = 0; i < destroy_controllers.size(); i++)
+    {
+        controllers.erase(std::remove(
+            controllers.begin(), controllers.end(), destroy_controllers[i]));
+        delete destroy_controllers[i];
+    }
+    destroy_controllers.clear();
 }
 
 const std::string planet_start_state::name = "planet_start";
@@ -79,7 +142,7 @@ planet_play_state::planet_play_state(planet_scene* scene)
 
 void planet_play_state::on_event(const Kengine::event::game_event& e)
 {
-    state_scene->game_player->on_event(e);
+    state_scene->on_event_game_objects(e);
 }
 
 void planet_play_state::update(
@@ -87,28 +150,59 @@ void planet_play_state::update(
 {
     physics::update(delta_time);
 
-    state_scene->game_player->input_process();
+    state_scene->e_spawner.update(delta_time);
 
-    for (game_object* obj : state_scene->game_objects)
-    {
-        obj->update(delta_time);
-    }
-
-    Kengine::transform2d player_pos = state_scene->game_player->get_pos();
-    camera::look_at(player_pos, player_pos - physics::land.get_center());
+    state_scene->update_game_objects(delta_time);
+    state_scene->control_game_objects(delta_time);
 }
 
 void planet_play_state::render(
     std::chrono::duration<int, std::milli> delta_time)
 {
-    for (game_object* obj : state_scene->game_objects)
-    {
-        obj->render(delta_time);
-    }
+    state_scene->render_game_objects(delta_time);
+
     physics::land.draw();
 }
 
-void planet_play_state::imgui_render() {}
+void planet_play_state::imgui_render()
+{
+    if (ImGui::Begin("Guns", nullptr, gui::window_flags))
+    {
+        if (ImGui::BeginChildFrame(1, { 100, 100 }))
+        {
+
+            ImGui::EndChildFrame();
+        }
+
+        ImGui::End();
+    }
+
+    ImGui::SetNextWindowPos(
+        { static_cast<float>(current_game->configuration.screen_width - 60),
+          60 });
+    ImGui::SetNextWindowSize({ 60, 200 });
+    if (ImGui::Begin("HP", nullptr, gui::window_flags))
+    {
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+        ImGui::Text("Health");
+        ImVec2 health_bar_size = ImVec2(30, 160);
+
+        int   health = state_scene->game_player->get_hp();
+        float fill   = health / 100.f;
+
+        ImVec2 p0    = ImGui::GetCursorScreenPos();
+        ImVec2 p1    = ImVec2(p0.x + health_bar_size.x,
+                           p0.y + health_bar_size.y * (1 - fill));
+        ImVec2 p2    = ImVec2(p0.x, p0.y + health_bar_size.y);
+        ImU32  col_r = ImGui::GetColorU32(IM_COL32(255, 0, 0, 255));
+        ImU32  col_g = ImGui::GetColorU32(IM_COL32(0, 255, 0, 255));
+        draw_list->AddRectFilledMultiColor(p0, p1, col_r, col_r, col_r, col_r);
+        draw_list->AddRectFilledMultiColor(p1, p2, col_g, col_g, col_g, col_g);
+
+        ImGui::End();
+    }
+}
 
 const std::string planet_end_state::name = "planet_end";
 

@@ -6,6 +6,7 @@
 #include "Kengine/render/texture.hxx"
 #include "Kengine/render/vertex-array-object.hxx"
 #include "box2d/box2d.h"
+#include "physics/collision_interface.hxx"
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -16,9 +17,8 @@ struct ground
     float value;
 };
 
-constexpr int   ground_w_count = 300;
-constexpr int   ground_h_count = 300;
-constexpr float cell_size      = 10.0f;
+constexpr int ground_w_count = 300;
+constexpr int ground_h_count = 300;
 
 constexpr float ground_value = 0.5f;
 
@@ -49,7 +49,7 @@ struct triangle_indexes
     uint32_t i2;
 };
 
-class landscape
+class landscape : public collision_interface
 {
 public:
     landscape();
@@ -58,7 +58,15 @@ public:
     void draw() const;
     void change_ground(float x, float y, float radius, float delta_value);
 
-    Kengine::transform2d get_center() const;
+    void Hurt(int damage) override;
+    void Hurt(float                       radius,
+              float                       damage,
+              const Kengine::transform2d& pos) override;
+
+    [[nodiscard]] Kengine::transform2d get_center() const;
+    [[nodiscard]] Kengine::transform2d get_spawn_place(float angle) const;
+    [[nodiscard]] float get_angle_to(const Kengine::transform2d& pos) const;
+    [[nodiscard]] float get_distance_to(const Kengine::transform2d& pos) const;
 
     ~landscape();
 

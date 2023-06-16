@@ -35,7 +35,10 @@ public:
     void on_imgui_render() override;
 
     void add_game_object(game_object* obj);
-    void remove_game_object(game_object* obj);
+    void destroy_game_object(game_object* obj);
+
+    void add_controller(controller* c);
+    void destroy_controller(controller* c);
 
     ~my_game() override;
 
