@@ -81,7 +81,8 @@ public:
 
     void bind() override { glBindTexture(GL_TEXTURE_2D, texture); };
 
-    itransform2d get_size() const override { return size; };
+    [[nodiscard]] itransform2d get_size() const override { return size; };
+    [[nodiscard]] intptr_t     get_id() const override { return texture; };
 
     ~texture_impl() override { glDeleteTextures(1, &texture); };
 

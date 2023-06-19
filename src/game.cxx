@@ -3,11 +3,12 @@
 #include "Kengine/engine.hxx"
 #include "Kengine/render/texture.hxx"
 #include "glm/ext/matrix_clip_space.hpp"
-#include "imgui_internal.h"
 
 #include "physics/physics.hxx"
-#include "render/game_gui.hxx"
+#include "render/background.hxx"
+#include "render/game-gui.hxx"
 #include "render/resources.hxx"
+#include "scene/main-menu.hxx"
 #include "scene/planet-scene.hxx"
 
 using namespace Kengine;
@@ -23,6 +24,8 @@ my_game::my_game(engine* game_engine)
     , game_cursor(nullptr)
     , current_scene(nullptr)
 {
+    configuration.screen_width  = 1000;
+    configuration.screen_height = 600;
 }
 
 void my_game::on_start()
@@ -45,16 +48,24 @@ void my_game::on_start()
     game_cursor = new cursor();
 
     game_cursor->set_cursor(cursor_type::simple);
-
-    current_scene = new planet_scene();
-    current_scene->on_start();
-
     physics::init();
+
+    background::init();
+
+    scene_id[planet_scene::name] = 0;
+    scenes.push_back(new planet_scene());
+    scene_id[main_menu_scene::name] = 1;
+    scenes.push_back(new main_menu_scene());
+
+    set_scene(main_menu_scene::name);
 
     game_engine->set_cursor_visible(false);
 
     ImGui::GetStyle().WindowRounding = 10;
     ImGui::GetStyle().FrameRounding  = 10;
+
+    resources::main_theme_sound->set_loop(true);
+    resources::main_theme_sound->play();
 }
 
 void my_game::on_event(event::game_event e)
@@ -70,6 +81,7 @@ void my_game::on_update(std::chrono::duration<int, std::milli> delta_time)
 void my_game::on_render(std::chrono::duration<int, std::milli> delta_time)
 {
     game_engine->clear_color({ 0.0, 0.0, 0.0, 0.0 });
+    background::render();
 
     current_scene->get_current_state()->render(delta_time);
 
@@ -101,7 +113,7 @@ void my_game::on_imgui_render()
         ImGui::End();
     }
 
-    ImGui::ShowDemoWindow();
+    // ImGui::ShowDemoWindow();
 }
 
 my_game::~my_game() = default;
@@ -110,17 +122,29 @@ void my_game::add_game_object(game_object* obj)
 {
     current_scene->add_game_object(obj);
 }
+
 void my_game::destroy_game_object(game_object* obj)
 {
     current_scene->destroy_game_object(obj);
 }
+
 void my_game::add_controller(controller* c)
 {
     current_scene->add_controller(c);
 }
+
 void my_game::destroy_controller(controller* c)
 {
     current_scene->destroy_controller(c);
+}
+
+void my_game::set_scene(const std::string& name)
+{
+    if (scene_id.contains(name))
+    {
+        current_scene = scenes[scene_id[name]];
+        current_scene->on_start();
+    }
 }
 
 game* create_game(engine* e)

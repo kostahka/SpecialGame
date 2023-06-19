@@ -91,6 +91,11 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     legs_fixture =
         astronaut_body->CreateFixture(&astronaut_shape, astronaut_density);
     legs_fixture->SetFriction(1);
+
+    shooting_sound =
+        Kengine::audio::create_sound_buffer("./assets/BlastShooting.wav");
+    hurt_sound =
+        Kengine::audio::create_sound_buffer("./assets/AstronautHurt.wav");
 }
 
 void astronaut::move(int direction)
@@ -216,10 +221,13 @@ void astronaut::shoot()
     new bullet(
         { bullet_pos.x + astronaut_pos.x, bullet_pos.y + astronaut_pos.y },
         gun_angle);
+
+    shooting_sound->play();
 }
 
 void astronaut::Hurt(int damage)
 {
+    hurt_sound->play();
     hp -= damage;
     if (hp <= 0)
     {
@@ -238,4 +246,6 @@ void astronaut::Hurt(float                       radius,
 astronaut::~astronaut()
 {
     physics::physics_world.DestroyBody(astronaut_body);
+    delete shooting_sound;
+    delete hurt_sound;
 };

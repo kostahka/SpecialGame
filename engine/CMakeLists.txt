@@ -62,7 +62,10 @@ set(ENGINE_SRC
     src/event/event-engine.hxx
     include/Kengine/render/animation.hxx
     src/render/animation.cxx
-    src/transform3d.cxx)
+    src/transform3d.cxx
+    src/audio/audio.hxx
+    src/audio/audio.cxx
+    include/Kengine/audio/audio.hxx)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/glad/include)

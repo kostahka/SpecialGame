@@ -66,6 +66,8 @@ public:
     virtual void swap_buffers()                   = 0;
     virtual void draw_imgui()                     = 0;
 
+    virtual void quit() = 0;
+
     engine_configuration configuration{
         std::chrono::milliseconds{ 1000 / 60 },
         std::chrono::milliseconds{ 1000 / 90 },

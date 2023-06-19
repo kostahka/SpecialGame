@@ -40,12 +40,16 @@ public:
     void add_controller(controller* c);
     void destroy_controller(controller* c);
 
+    void set_scene(const std::string& name);
+
     ~my_game() override;
 
     cursor* game_cursor;
 
 private:
-    scene* current_scene;
+    std::map<std::string, int> scene_id;
+    std::vector<scene*>        scenes;
+    scene*                     current_scene;
 };
 extern my_game* current_game;
 

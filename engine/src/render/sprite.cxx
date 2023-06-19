@@ -6,7 +6,6 @@
 #include "Kengine/transform3d.hxx"
 
 #include "glm/ext/matrix_transform.hpp"
-#include "glm/trigonometric.hpp"
 
 namespace Kengine
 {
@@ -35,12 +34,15 @@ sprite::sprite(texture_object*    texture,
                const irect&       uv,
                const transform2d& pos,
                const transform2d& size,
-               bool               world_sprite)
+               bool               world_sprite,
+               float              z)
     : texture(texture)
     , uv(uv)
     , pos(pos)
     , size(size)
     , origin({ 0, 0 })
+    , angle(0)
+    , z(z)
 {
     vertices.resize(6);
 
@@ -81,9 +83,9 @@ void sprite::draw() const
     texture->bind();
     use_func(program);
     glm::mat4 model(1);
-    model = glm::translate(model, glm::vec3(pos.x, pos.y, 0));
+    model = glm::translate(model, glm::vec3(pos.x, pos.y, z));
     model = glm::rotate(model, angle, glm::vec3(0.0, 0.0, 1.0));
-    model = glm::scale(model, glm::vec3(size.x, size.y, 0));
+    model = glm::scale(model, glm::vec3(size.x, size.y, 1));
     model = glm::translate(model, glm::vec3(-origin.x, -origin.y, 0));
     program->set_uniform_matrix4fv("model", model);
     vao->draw_triangles(2);

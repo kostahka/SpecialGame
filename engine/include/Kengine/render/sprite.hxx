@@ -28,7 +28,8 @@ public:
            const irect&       uv,
            const transform2d& pos,
            const transform2d& size,
-           bool               world_sprite = true);
+           bool               world_sprite = true,
+           float              z            = 0);
     void draw() const;
 
     void set_origin(const transform2d&);
@@ -54,6 +55,7 @@ private:
     transform2d     pos;
     transform2d     size;
     float           angle;
+    float           z;
 
     shader_program_use_func use_func;
     vertex_array_object*    vao;

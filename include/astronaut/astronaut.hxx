@@ -2,6 +2,7 @@
 
 #include "physics/physic-object.hxx"
 
+#include "Kengine/audio/audio.hxx"
 #include "Kengine/render/animation.hxx"
 #include "game-object/game-object.hxx"
 #include "physics/collision_interface.hxx"
@@ -50,6 +51,9 @@ private:
     Kengine::sprite  pistol_sprite;
     Kengine::sprite  drill_sprite;
     Kengine::sprite* current_gun_sprite;
+
+    Kengine::audio::sound_buffer* shooting_sound;
+    Kengine::audio::sound_buffer* hurt_sound;
 
     bool moving;
     int  move_direction;

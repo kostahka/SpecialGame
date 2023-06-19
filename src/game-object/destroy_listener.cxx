@@ -9,13 +9,17 @@ void destroyable::add_destroy_listener(destroy_listener* listener,
 
 void destroyable::remove_destroy_listener(destroy_listener* listener)
 {
-    listeners.erase(std::find_if(listeners.begin(),
-                                 listeners.end(),
-                                 [&](destroy_listener_info& info)
-                                 { return info.listener == listener; }));
+    auto remove_listener = std::find_if(listeners.begin(),
+                                        listeners.end(),
+                                        [&](destroy_listener_info& info)
+                                        { return info.listener == listener; });
+    if (remove_listener != listeners.end())
+        listeners.erase(remove_listener);
 }
 
-void destroyable::destroy()
+void destroyable::destroy() {}
+
+destroyable::~destroyable()
 {
     for (destroy_listener_info& listener_info : listeners)
     {
@@ -38,6 +42,8 @@ destroy_listener::~destroy_listener()
 }
 void destroy_listener::unmark_listener(destroyable* obj)
 {
-    destroyable_objects.erase(std::remove(
-        destroyable_objects.begin(), destroyable_objects.end(), obj));
+    auto remove_obj = std::remove(
+        destroyable_objects.begin(), destroyable_objects.end(), obj);
+    if (remove_obj != destroyable_objects.end())
+        destroyable_objects.erase(remove_obj);
 }

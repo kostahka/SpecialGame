@@ -1,6 +1,5 @@
 #include "Kengine/engine.hxx"
 
-#include <cstdint>
 #include <exception>
 #include <filesystem>
 #include <iostream>
@@ -14,12 +13,11 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
 
-#include "Kengine/event/event.hxx"
 #include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/render/engine-resources.hxx"
+#include "audio/audio.hxx"
 #include "event/event-engine.hxx"
 #include "event/handle-user-event.hxx"
-#include "handle-file-modify.hxx"
 #include "render/opengl-error.hxx"
 
 namespace Kengine
@@ -121,6 +119,12 @@ public:
             glDebugMessageCallback(&debug_message, nullptr);
             glDebugMessageControl(
                 GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+            glDebugMessageControl(GL_DONT_CARE,
+                                  GL_DONT_CARE,
+                                  GL_DEBUG_SEVERITY_NOTIFICATION,
+                                  0,
+                                  nullptr,
+                                  GL_FALSE);
         }
 
         glEnable(GL_DEPTH_TEST);
@@ -134,6 +138,9 @@ public:
         ImGui::CreateContext();
         ImGui_ImplSDL3_InitForOpenGL(window, context);
         ImGui_ImplOpenGL3_Init("#version 300 es");
+
+        audio::init();
+
         return "good";
     };
 
@@ -240,7 +247,6 @@ public:
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
-        // ImGui::ShowDemoWindow();
         e_game->on_imgui_render();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -250,6 +256,13 @@ public:
     {
         SDL_GL_SwapWindow(window);
         gl_get_error(__LINE__, __FILE__);
+    };
+
+    void quit() override
+    {
+        SDL_Event* quit = new SDL_Event();
+        quit->type      = SDL_EVENT_QUIT;
+        SDL_PushEvent(quit);
     };
 
 #ifdef ENGINE_DEV

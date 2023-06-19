@@ -14,7 +14,10 @@ public:
 
     void on_destroy(int object_id) override;
 
+    [[nodiscard]] int get_killed_enemies() const;
+
 private:
+    int        killed_enemies;
     astronaut* target;
     int        spawn_time;
 };

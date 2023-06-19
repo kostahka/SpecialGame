@@ -8,6 +8,7 @@ constexpr int astronaut_id = 0;
 
 player::player(const Kengine::transform2d& pos)
     : dead(false)
+    , selected_gun(1)
 {
     player_astronaut = new astronaut(pos, false);
     player_astronaut->add_destroy_listener(this, astronaut_id);
@@ -54,10 +55,12 @@ void player::on_event(Kengine::event::game_event e)
         {
             if (e.keyboard.key == keyboard::key::key_1)
             {
+                selected_gun = 1;
                 player_astronaut->select_gun(gun::pistol);
             }
             else if (e.keyboard.key == keyboard::key::key_2)
             {
+                selected_gun = 2;
                 player_astronaut->select_gun(gun::drill);
             }
         }
@@ -87,4 +90,8 @@ astronaut* player::get_astronaut() const
 int player::get_hp() const
 {
     return hp;
+}
+int player::get_selected_gun() const
+{
+    return selected_gun;
 }

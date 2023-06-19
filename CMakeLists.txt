@@ -50,7 +50,12 @@ set(GAME_SRC
     src/astronaut/enemy_spawner.cxx
     include/astronaut/enemy_spawner.hxx
     src/game-object/destroy_listener.cxx
-    include/render/game_gui.hxx)
+    include/render/game-gui.hxx
+    src/render/background.cxx
+    include/render/background.hxx
+    src/render/game-gui.cxx
+    src/scene/main-menu.cxx
+    include/scene/main-menu.hxx)
 
 add_library(special-game SHARED ${GAME_SRC})
 

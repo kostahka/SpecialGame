@@ -92,25 +92,47 @@ void landscape::init()
         l_vertices[i] = { static_cast<float>(x) * cell_size,
                           static_cast<float>(y) * cell_size };
     }
-    b2BodyDef land_body_def;
-    land_body_def.position.Set(0, 0);
-    land_body_def.userData.pointer =
-        reinterpret_cast<uintptr_t>(static_cast<collision_interface*>(this));
-    l_body = physics::physics_world.CreateBody(&land_body_def);
-    l_fixtures.fill(nullptr);
+    if (!l_body)
+    {
+        b2BodyDef land_body_def;
+        land_body_def.position.Set(0, 0);
+        land_body_def.userData.pointer = reinterpret_cast<uintptr_t>(
+            static_cast<collision_interface*>(this));
+        l_body = physics::physics_world.CreateBody(&land_body_def);
+        l_fixtures.fill(nullptr);
+    }
 
     calculate_vertices();
     calculate_indexes();
-    vao            = Kengine::create_vao(l_vertices.data(),
-                              l_vertices.size(),
-                              l_indexes.data(),
-                              l_indexes.size());
-    program        = create_shader_program("./shaders/landscape-vertex.vert",
-                                    "./shaders/landscape-fragment.frag");
-    ground_texture = create_texture("./assets/ground.png");
 
-    l_lines = create_primitive_render(Kengine::primitive_type::lines);
-    l_lines->create();
+    if (!vao)
+    {
+        vao = Kengine::create_vao(l_vertices.data(),
+                                  l_vertices.size(),
+                                  l_indexes.data(),
+                                  l_indexes.size());
+    }
+    else
+    {
+        vao->set_vertices(
+            l_vertices.data(), 0, l_vertices.size() * sizeof(transform2d));
+        vao->set_indexes(
+            l_indexes.data(), 0, l_indexes.size() * sizeof(uint32_t));
+    }
+    if (!program)
+    {
+        program = create_shader_program("./shaders/landscape-vertex.vert",
+                                        "./shaders/landscape-fragment.frag");
+    }
+    if (!ground_texture)
+    {
+        ground_texture = create_texture("./assets/ground.png");
+    }
+    if (!l_lines)
+    {
+        l_lines = create_primitive_render(Kengine::primitive_type::lines);
+        l_lines->create();
+    }
 }
 
 landscape::~landscape()
@@ -152,23 +174,25 @@ void landscape::draw() const
         vao->draw_triangles_elements(count, offset);
     }
 
-    l_lines->vertex({ x_start * cell_size, y_start * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->vertex({ x_start * cell_size, (y_end + 1) * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->vertex({ x_start * cell_size, (y_end + 1) * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->vertex({ (x_end + 1) * cell_size, (y_end + 1) * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->vertex({ (x_end + 1) * cell_size, (y_end + 1) * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->vertex({ (x_end + 1) * cell_size, y_start * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->vertex({ (x_end + 1) * cell_size, y_start * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->vertex({ x_start * cell_size, y_start * cell_size, 0 },
-                    { 1.f, 0.1f, 0.1f, 0.5f });
-    l_lines->draw();
+    //    l_lines->vertex({ x_start * cell_size, y_start * cell_size, 0 },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->vertex({ x_start * cell_size, (y_end + 1) * cell_size, 0 },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->vertex({ x_start * cell_size, (y_end + 1) * cell_size, 0 },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->vertex({ (x_end + 1) * cell_size, (y_end + 1) * cell_size, 0
+    //    },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->vertex({ (x_end + 1) * cell_size, (y_end + 1) * cell_size, 0
+    //    },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->vertex({ (x_end + 1) * cell_size, y_start * cell_size, 0 },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->vertex({ (x_end + 1) * cell_size, y_start * cell_size, 0 },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->vertex({ x_start * cell_size, y_start * cell_size, 0 },
+    //                    { 1.f, 0.1f, 0.1f, 0.5f });
+    //    l_lines->draw();
     // vao->draw_triangles_elements(l_indexes.size());
 };
 

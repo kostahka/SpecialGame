@@ -16,9 +16,11 @@ public:
     [[nodiscard]] astronaut* get_astronaut() const;
 
     [[nodiscard]] int get_hp() const;
+    [[nodiscard]] int get_selected_gun() const;
 
 private:
     int        hp;
     bool       dead;
     astronaut* player_astronaut;
+    int        selected_gun;
 };

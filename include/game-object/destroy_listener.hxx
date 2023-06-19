@@ -7,10 +7,12 @@ struct destroy_listener_info;
 class destroyable
 {
 public:
-    virtual void destroy();
+    virtual void destroy() = 0;
 
     void add_destroy_listener(destroy_listener* listener, int object_id);
     void remove_destroy_listener(destroy_listener* listener);
+
+    virtual ~destroyable();
 
 private:
     std::vector<destroy_listener_info> listeners;
