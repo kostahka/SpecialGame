@@ -1,6 +1,6 @@
 #include "Kengine/render/draw-primitives.hxx"
 
-#include "../../../include/game.hxx"
+#include "Kengine/engine.hxx"
 #include "Kengine/render/engine-resources.hxx"
 #include "Kengine/render/shader-program.hxx"
 #include "Kengine/render/vertex-array-object.hxx"
@@ -157,6 +157,9 @@ gl_render_primitive* create_primitive_render(primitive_type type)
             break;
         case primitive_type::triangles:
             return new gl_render_triangles();
+            break;
+        default:
+            return nullptr;
             break;
     }
 };

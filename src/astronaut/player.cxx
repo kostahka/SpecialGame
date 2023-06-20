@@ -40,7 +40,7 @@ void player::control(std::chrono::duration<int, std::milli> delta_time)
 
         Kengine::transform2d delta_pos =
             mouse_pos - player_astronaut->get_pos();
-        float mouse_angle = std::atan2f(delta_pos.y, delta_pos.x);
+        float mouse_angle = std::atan2(delta_pos.y, delta_pos.x);
         player_astronaut->aim(mouse_angle);
 
         hp = player_astronaut->get_hp();
@@ -52,7 +52,7 @@ void player::on_event(Kengine::event::game_event e)
     {
         using namespace Kengine::event;
         using namespace Kengine::input;
-        if (e.type == type::keyboard_event && e.keyboard.pressed)
+        if (e.g_type == type::keyboard_event && e.keyboard.pressed)
         {
             if (e.keyboard.key == keyboard::key::key_1)
             {
@@ -67,7 +67,7 @@ void player::on_event(Kengine::event::game_event e)
                 player_astronaut->select_gun(gun::drill);
             }
         }
-        if (e.type == type::mouse_button_event && e.mouse.pressed)
+        if (e.g_type == type::mouse_button_event && e.mouse.pressed)
         {
             if (e.mouse.button == mouse::button::left)
             {

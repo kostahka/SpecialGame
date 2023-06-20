@@ -138,8 +138,8 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
     physics::physics_world.RayCast(
         &ground_ray_cast_callback,
         astronaut_pos,
-        { astronaut_pos.x + std::cosf(down_angle) * astronaut_size / 1.75f,
-          astronaut_pos.y + std::sinf(down_angle) * astronaut_size / 1.75f });
+        { astronaut_pos.x + std::cos(down_angle) * astronaut_size / 1.75f,
+          astronaut_pos.y + std::sin(down_angle) * astronaut_size / 1.75f });
 
     if (moving && on_ground)
     {
@@ -192,7 +192,7 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
 
     float d_gun_angle;
     int   direction;
-    if (std::cosf(astronaut_angle - gun_angle) < 0)
+    if (std::cos(astronaut_angle - gun_angle) < 0)
     {
         d_gun_angle = gun_angle - static_cast<float>(std::numbers::pi);
         direction   = -1;
@@ -238,8 +238,8 @@ void astronaut::render(std::chrono::duration<int, std::milli> delta_time)
     if (debug_draw)
     {
         d_lines->vertex({ pos.x, pos.y, 10 }, { 0, 100, 0, 0 });
-        d_lines->vertex({ pos.x + std::cosf(angle) * astronaut_size / 1.75f,
-                          pos.y + std::sinf(angle) * astronaut_size / 1.75f,
+        d_lines->vertex({ pos.x + std::cos(angle) * astronaut_size / 1.75f,
+                          pos.y + std::sin(angle) * astronaut_size / 1.75f,
                           10 },
                         { 0, 0.7, 0, 1.0 });
         d_lines->draw();

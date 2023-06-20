@@ -1,5 +1,7 @@
 #include "game-object/destroy_listener.hxx"
 
+#include <algorithm>
+
 void destroyable::add_destroy_listener(destroy_listener* listener,
                                        int               object_id)
 {

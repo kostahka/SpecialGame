@@ -47,7 +47,7 @@ planet_start_state::planet_start_state(planet_scene* scene)
 
 void planet_start_state::on_event(const Kengine::event::game_event& event)
 {
-    if (event.type == Kengine::event::type::keyboard_event &&
+    if (event.g_type == Kengine::event::type::keyboard_event &&
         event.keyboard.pressed)
     {
         state_scene->set_state(planet_play_state::name);
@@ -87,7 +87,7 @@ void planet_play_state::on_event(const Kengine::event::game_event& e)
 {
     using namespace Kengine::event;
     using namespace Kengine::input;
-    if (e.type == type::keyboard_event &&
+    if (e.g_type == type::keyboard_event &&
         e.keyboard.key == input::keyboard::key::key_escape &&
         e.keyboard.pressed)
     {
@@ -173,7 +173,7 @@ void planet_pause_state::on_event(const event::game_event& e)
 {
     using namespace Kengine::event;
     using namespace Kengine::input;
-    if (e.type == type::keyboard_event &&
+    if (e.g_type == type::keyboard_event &&
         e.keyboard.key == input::keyboard::key::key_escape &&
         e.keyboard.pressed)
     {

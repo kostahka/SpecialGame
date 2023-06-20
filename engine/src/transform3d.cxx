@@ -21,7 +21,7 @@ transform2d::operator b2Vec2() const
 
 float transform2d::distance(const transform2d& t) const
 {
-    return std::sqrtf(std::powf(t.x - x, 2) + std::powf(t.y - y, 2));
+    return std::sqrt(std::pow(t.x - x, 2) + std::pow(t.y - y, 2));
 }
 
 } // namespace Kengine

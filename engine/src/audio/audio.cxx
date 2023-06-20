@@ -1,5 +1,6 @@
 #include "audio.hxx"
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <mutex>
@@ -114,8 +115,8 @@ public:
         }
     };
 
-    [[nodiscard]] virtual uint8_t* get_data() const { return buffer; };
-    [[nodiscard]] virtual uint32_t get_length() const { return length; };
+    [[nodiscard]] uint8_t* get_data() const override { return buffer; };
+    [[nodiscard]] uint32_t get_length() const override { return length; };
 
     ~sound_buffer_impl() override
     {
@@ -285,6 +286,8 @@ bool init()
               << "-samples: " << audio_device_spec.samples << std::endl;
 
     SDL_PlayAudioDevice(audio_device_id);
+
+    return true;
 }
 
 sound_buffer* create_sound_buffer(std::string_view wav_path)

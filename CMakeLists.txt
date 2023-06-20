@@ -62,6 +62,8 @@ add_library(special-game SHARED ${GAME_SRC})
 if(WIN32)
     target_compile_definitions(special-game
                                PRIVATE "-DE_DECLSPEC=__declspec(dllimport)")
+else()
+    target_compile_definitions(special-game PRIVATE "-DE_DECLSPEC=")
 endif()
 
 add_subdirectory(engine)

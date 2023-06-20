@@ -28,7 +28,7 @@ void look_at(const Kengine::transform2d& pos,
     camera_pos    = glm::vec3(pos.x, pos.y, 10.f);
     camera_target = glm::vec3(pos.x, pos.y, 0.f);
     camera_up     = glm::vec3(up_vector.x, up_vector.y, 0.f);
-    camera_angle  = std::atan2f(up_vector.y, up_vector.x) / std::numbers::pi;
+    camera_angle  = std::atan2(up_vector.y, up_vector.x) / std::numbers::pi;
     glm::mat4 view(1);
     view = glm::scale(view, { scale, scale, 1 }) *
            glm::lookAt(camera_pos, camera_target, camera_up);

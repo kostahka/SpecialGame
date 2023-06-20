@@ -4,7 +4,7 @@
 
 class main_menu_scene : public scene
 {
-    friend class main_menu_scene;
+    friend class main_menu_state;
 
 public:
     static const std::string name;

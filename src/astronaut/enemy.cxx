@@ -25,7 +25,7 @@ void enemy::control(std::chrono::duration<int, std::milli> delta_time)
         Kengine::transform2d target_pos = target_astronaut->get_pos();
         Kengine::transform2d pos        = enemy_astronaut->get_pos();
         Kengine::transform2d aim_vector = target_pos - pos;
-        float aim_angle = std::atan2f(aim_vector.y, aim_vector.x);
+        float                aim_angle = std::atan2(aim_vector.y, aim_vector.x);
         enemy_astronaut->aim(aim_angle);
 
         if (target_pos.distance(pos) > aim_distance)

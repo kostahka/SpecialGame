@@ -29,7 +29,7 @@ struct keyboard_event
 };
 struct game_event
 {
-    type type;
+    type g_type;
     union
     {
         mouse_button_event mouse;

@@ -7,9 +7,17 @@ project(engine)
 
 find_package(SDL3 REQUIRED)
 
+set(BOX2D_BUILD_UNIT_TESTS OFF)
+set(BOX2D_BUILD_TESTBED OFF)
+set(BOX2D_BUILD_DOCS ON)
+set(BOX2D_USER_SETTINGS OFF)
+
+set(BUILD_SHARED_LIBS OFF)
+
 add_subdirectory(efsw)
 add_subdirectory(glm)
 add_subdirectory(box2d)
+set_property(TARGET box2d PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 file(GLOB IMGUI_SRC ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src/*.cpp)
 file(GLOB IMGUI_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src/*.h)
@@ -82,6 +90,8 @@ if(ENGINE_DEV)
     if(WIN32)
         target_compile_definitions(engine
                                    PRIVATE "-DE_DECLSPEC=__declspec(dllexport)")
+    else()
+        target_compile_definitions(engine PRIVATE "-DE_DECLSPEC=")
     endif()
     target_link_libraries(engine PRIVATE efsw)
     target_link_libraries(engine PUBLIC glm::glm)

@@ -67,8 +67,8 @@ void landscape::init()
         for (size_t x = 0; x < ground_w_count; x++)
         {
             float delta =
-                std::sqrtf(static_cast<float>((planet_x - x) * (planet_x - x) +
-                                              (planet_y - y) * (planet_y - y)));
+                std::sqrt(static_cast<float>((planet_x - x) * (planet_x - x) +
+                                             (planet_y - y) * (planet_y - y)));
             if (delta < planet_radius)
             {
                 auto ground = static_cast<float>(
@@ -590,14 +590,14 @@ Kengine::transform2d landscape::get_spawn_place(float angle) const
     constexpr float spawn_radius = planet_radius * cell_size + 2 * cell_size;
     transform2d     center       = get_center();
 
-    return { center.x + std::cosf(angle) * spawn_radius,
-             center.y + std::sinf(angle) * spawn_radius };
+    return { center.x + std::cos(angle) * spawn_radius,
+             center.y + std::sin(angle) * spawn_radius };
 }
 float landscape::get_angle_to(const transform2d& pos) const
 {
     Kengine::transform2d center_pos = get_center();
     Kengine::transform2d vec        = pos - center_pos;
-    return std::atan2f(vec.y, vec.x);
+    return std::atan2(vec.y, vec.x);
 }
 float landscape::get_distance_to(const transform2d& pos) const
 {
