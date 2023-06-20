@@ -17,7 +17,6 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
                      pos,
                      { astronaut_size, astronaut_size })
     , physics_object(true)
-    , astronaut_body(nullptr)
     , moving(false)
     , flying(false)
     , move_direction(1)
@@ -39,6 +38,7 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     , current_gun_sprite(&pistol_sprite)
     , gun_angle(0)
     , hp(100)
+    , current_gun(gun::pistol)
 {
     astronaut_anim.set_origin({ 0.5, 0.5 });
     astronaut_anim.set_angle(0);
@@ -60,6 +60,7 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
 
     idle_anim.push_back({ 0, irect_y, 64, 64 });
 
+    run_anim.reserve(7);
     for (int i = 0; i < 7; i++)
     {
         run_anim.push_back({ 64 * i, irect_y, 64, 64 });
@@ -93,9 +94,13 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     legs_fixture->SetFriction(1);
 
     shooting_sound =
-        Kengine::audio::create_sound_buffer("./assets/BlastShooting.wav");
+        Kengine::audio::create_sound_object(resources::shooting_sound_buffer);
     hurt_sound =
-        Kengine::audio::create_sound_buffer("./assets/AstronautHurt.wav");
+        Kengine::audio::create_sound_object(resources::hurt_sound_buffer);
+    fly_sound =
+        Kengine::audio::create_sound_object(resources::fly_sound_buffer);
+
+    // fly_sound->set_volume(0.3f);
 }
 
 void astronaut::move(int direction)
@@ -107,6 +112,10 @@ void astronaut::move(int direction)
 
 void astronaut::fly()
 {
+    if (!fly_sound->get_is_playing())
+    {
+        fly_sound->play();
+    }
     flying = true;
 }
 
@@ -116,13 +125,14 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
 
     if (moving)
     {
-        const float  delta_impulse = delta_time.count() * astronaut_move_speed;
+        const float delta_impulse =
+            static_cast<float>(delta_time.count()) * astronaut_move_speed;
         const b2Vec2 d_impulse_vec(-delta_impulse * direction_to_planet.y,
                                    delta_impulse * direction_to_planet.x);
 
         astronaut_anim.set_current_animation("run");
         astronaut_body->ApplyLinearImpulseToCenter(
-            move_direction * d_impulse_vec, true);
+            static_cast<float>(move_direction) * d_impulse_vec, true);
         legs_fixture->SetFriction(astronaut_friction);
         moving = false;
     }
@@ -130,7 +140,7 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
     if (flying)
     {
         const float delta_fly_impulse =
-            delta_time.count() * astronaut_fly_speed;
+            static_cast<float>(delta_time.count()) * astronaut_fly_speed;
         const b2Vec2 d_fly_vec(delta_fly_impulse * -direction_to_planet.x,
                                delta_fly_impulse * -direction_to_planet.y);
 
@@ -147,9 +157,9 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
 
     float d_gun_angle;
     int   direction;
-    if (std::cos(astronaut_angle - gun_angle) < 0)
+    if (std::cosf(astronaut_angle - gun_angle) < 0)
     {
-        d_gun_angle = gun_angle - std::numbers::pi;
+        d_gun_angle = gun_angle - static_cast<float>(std::numbers::pi);
         direction   = -1;
     }
     else
@@ -163,10 +173,14 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
     else
         astronaut_anim.set_animation_delta_frame(1);
 
-    astronaut_anim.set_size({ direction * astronaut_size, astronaut_size });
-    hand_sprite.set_size({ direction * astronaut_size, astronaut_size });
-    pistol_sprite.set_size({ direction * astronaut_size, astronaut_size });
-    drill_sprite.set_size({ direction * astronaut_size, astronaut_size });
+    astronaut_anim.set_size(
+        { static_cast<float>(direction) * astronaut_size, astronaut_size });
+    hand_sprite.set_size(
+        { static_cast<float>(direction) * astronaut_size, astronaut_size });
+    pistol_sprite.set_size(
+        { static_cast<float>(direction) * astronaut_size, astronaut_size });
+    drill_sprite.set_size(
+        { static_cast<float>(direction) * astronaut_size, astronaut_size });
     hand_sprite.set_angle(d_gun_angle);
     pistol_sprite.set_angle(d_gun_angle);
     drill_sprite.set_angle(d_gun_angle);
@@ -211,7 +225,7 @@ void astronaut::select_gun(gun g)
             current_gun_sprite = &drill_sprite;
             break;
     }
-};
+}
 
 void astronaut::shoot()
 {
@@ -248,4 +262,4 @@ astronaut::~astronaut()
     physics::physics_world.DestroyBody(astronaut_body);
     delete shooting_sound;
     delete hurt_sound;
-};
+}

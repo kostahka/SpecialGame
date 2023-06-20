@@ -35,25 +35,22 @@ std::size_t get_sound_format_size(uint16_t format_value)
     auto it = format.find(format_value);
     return it->second;
 }
-class sound_buffer_impl;
+class sound_object_impl;
 
 static SDL_AudioSpec     audio_device_spec;
 static SDL_AudioDeviceID audio_device_id;
 
 static std::mutex audio_mutex;
 
-static std::vector<sound_buffer_impl*> sound_buffers;
+static std::vector<sound_object_impl*> sound_buffers;
 
 class sound_buffer_impl : public sound_buffer
 {
 public:
     sound_buffer_impl(std::string_view path)
-        : current_index(0)
-        , is_playing(false)
-        , buffer(nullptr)
+        : buffer(nullptr)
         , length(0)
-        , looped(false)
-        , volume(SDL_MIX_MAXVOLUME)
+
     {
         //        SDL_RWops* file = SDL_RWFromFile(path.data(), "rb");
         //        if (file == nullptr)
@@ -117,6 +114,38 @@ public:
         }
     };
 
+    [[nodiscard]] virtual uint8_t* get_data() const { return buffer; };
+    [[nodiscard]] virtual uint32_t get_length() const { return length; };
+
+    ~sound_buffer_impl() override
+    {
+        std::lock_guard<std::mutex> lock(audio_mutex);
+
+        if (buffer)
+        {
+            SDL_free(buffer);
+        }
+        buffer = nullptr;
+        length = 0;
+    };
+
+    uint8_t* buffer;
+    uint32_t length;
+};
+
+class sound_object_impl : public sound_object
+{
+public:
+    explicit sound_object_impl(sound_buffer* s_buff)
+        : current_index(0)
+        , is_playing(false)
+        , looped(false)
+        , volume(SDL_MIX_MAXVOLUME)
+    {
+        buffer = s_buff->get_data();
+        length = s_buff->get_length();
+    };
+
     void play() override
     {
         std::lock_guard<std::mutex> lock(sound_mutex);
@@ -128,6 +157,13 @@ public:
         std::lock_guard<std::mutex> lock(sound_mutex);
         is_playing = false;
     };
+
+    bool get_is_playing() override
+    {
+        std::lock_guard<std::mutex> lock(sound_mutex);
+        return is_playing;
+    };
+
     void set_loop(bool loop) override
     {
         std::lock_guard<std::mutex> lock(sound_mutex);
@@ -142,18 +178,12 @@ public:
             volume = SDL_MIX_MAXVOLUME;
         else if (volume < 0)
             volume = 0;
-    };
+    }; // set from 0 to 1
 
-    ~sound_buffer_impl() override
+    ~sound_object_impl() override
     {
         std::lock_guard<std::mutex> lock(audio_mutex);
 
-        if (buffer)
-        {
-            SDL_free(buffer);
-        }
-        buffer = nullptr;
-        length = 0;
         auto remove_sound =
             std::remove(sound_buffers.begin(), sound_buffers.end(), this);
         if (remove_sound != sound_buffers.end())
@@ -170,6 +200,8 @@ public:
     int        volume;
     std::mutex sound_mutex;
 };
+
+sound_object::~sound_object() = default;
 
 void audio_callback(void* user_data, uint8_t* stream, int stream_size)
 {
@@ -257,7 +289,12 @@ bool init()
 
 sound_buffer* create_sound_buffer(std::string_view wav_path)
 {
-    sound_buffer_impl* s = new sound_buffer_impl(wav_path);
+    return new sound_buffer_impl(wav_path);
+}
+
+sound_object* create_sound_object(sound_buffer* s_buff)
+{
+    sound_object_impl* s = new sound_object_impl(s_buff);
     {
         std::lock_guard<std::mutex> lock(audio_mutex);
         sound_buffers.push_back(s);

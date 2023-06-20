@@ -52,8 +52,9 @@ private:
     Kengine::sprite  drill_sprite;
     Kengine::sprite* current_gun_sprite;
 
-    Kengine::audio::sound_buffer* shooting_sound;
-    Kengine::audio::sound_buffer* hurt_sound;
+    Kengine::audio::sound_object* shooting_sound;
+    Kengine::audio::sound_object* hurt_sound;
+    Kengine::audio::sound_object* fly_sound;
 
     bool moving;
     int  move_direction;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Kengine/audio/audio.hxx"
 #include "Kengine/engine.hxx"
 #include "Kengine/render/draw-primitives.hxx"
 #include "Kengine/render/shader-program.hxx"
@@ -91,14 +92,18 @@ private:
 
     void set_cell_shape(size_t x, size_t y, int count, ...);
 
-    ground_table                  g_table;
+    ground_table g_table;
+
     landscape_vertices            l_vertices;
     landscape_indexes             l_indexes;
     Kengine::vertex_array_object* vao;
     Kengine::shader_program*      program;
     Kengine::texture_object*      ground_texture;
-    b2Body*                       l_body;
-    landscape_fixtures            l_fixtures;
+
+    b2Body*            l_body;
+    landscape_fixtures l_fixtures;
 
     Kengine::gl_render_primitive* l_lines;
+
+    Kengine::audio::sound_object* damage_sound;
 };

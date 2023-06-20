@@ -9,6 +9,7 @@
 #include "game.hxx"
 #include "physics/physics.hxx"
 #include "render/camera.hxx"
+#include "render/resources.hxx"
 
 #include <cmath>
 #include <iostream>
@@ -31,6 +32,7 @@ landscape::landscape()
     , gravity_force(0.1f)
     , l_body(nullptr)
     , l_lines(nullptr)
+    , damage_sound(nullptr)
 {
 }
 
@@ -50,6 +52,9 @@ float interpolate_ground(float g1, float g2)
 
 void landscape::init()
 {
+    std::cout << "Land init:" << std::endl;
+
+    std::cout << "Init ground values..." << std::endl;
     const siv::PerlinNoise::seed_type seed = time(nullptr);
     const siv::PerlinNoise            perlin{ seed };
     const float                       map_fill = 0.55;
@@ -84,6 +89,7 @@ void landscape::init()
         }
     }
 
+    std::cout << "Init cross vertices" << std::endl;
     for (size_t i = ground_vertices_index; i < ground_horizontal_vertices_index;
          i++)
     {
@@ -92,21 +98,29 @@ void landscape::init()
         l_vertices[i] = { static_cast<float>(x) * cell_size,
                           static_cast<float>(y) * cell_size };
     }
-    if (!l_body)
+    if (l_body)
     {
-        b2BodyDef land_body_def;
-        land_body_def.position.Set(0, 0);
-        land_body_def.userData.pointer = reinterpret_cast<uintptr_t>(
-            static_cast<collision_interface*>(this));
-        l_body = physics::physics_world.CreateBody(&land_body_def);
-        l_fixtures.fill(nullptr);
+        std::cout << "Destroy land body..." << std::endl;
+        physics::physics_world.DestroyBody(l_body);
     }
 
+    std::cout << "Init land body..." << std::endl;
+
+    b2BodyDef land_body_def;
+    land_body_def.position.Set(0, 0);
+    land_body_def.userData.pointer =
+        reinterpret_cast<uintptr_t>(static_cast<collision_interface*>(this));
+    l_body = physics::physics_world.CreateBody(&land_body_def);
+    l_fixtures.fill(nullptr);
+
+    std::cout << "Init vertices..." << std::endl;
     calculate_vertices();
+    std::cout << "Init indexes..." << std::endl;
     calculate_indexes();
 
     if (!vao)
     {
+        std::cout << "Init vao..." << std::endl;
         vao = Kengine::create_vao(l_vertices.data(),
                                   l_vertices.size(),
                                   l_indexes.data(),
@@ -114,6 +128,7 @@ void landscape::init()
     }
     else
     {
+        std::cout << "Reinit vao..." << std::endl;
         vao->set_vertices(
             l_vertices.data(), 0, l_vertices.size() * sizeof(transform2d));
         vao->set_indexes(
@@ -121,18 +136,27 @@ void landscape::init()
     }
     if (!program)
     {
+        std::cout << "Init shader program..." << std::endl;
         program = create_shader_program("./shaders/landscape-vertex.vert",
                                         "./shaders/landscape-fragment.frag");
     }
     if (!ground_texture)
     {
+        std::cout << "Init texture..." << std::endl;
         ground_texture = create_texture("./assets/ground.png");
     }
     if (!l_lines)
     {
+        std::cout << "Init render lines..." << std::endl;
         l_lines = create_primitive_render(Kengine::primitive_type::lines);
         l_lines->create();
     }
+    if (!damage_sound)
+    {
+        damage_sound = Kengine::audio::create_sound_object(
+            resources::ground_damage_sound_buffer);
+    }
+    std::cout << "End init land." << std::endl;
 }
 
 landscape::~landscape()
@@ -558,6 +582,7 @@ void landscape::set_cell_shape(size_t x, size_t y, int count, ...)
 void landscape::Hurt(int damage) {}
 void landscape::Hurt(float radius, float damage, const transform2d& pos)
 {
+    damage_sound->play();
     change_ground(pos.x, pos.y, radius, -damage);
 }
 Kengine::transform2d landscape::get_spawn_place(float angle) const
