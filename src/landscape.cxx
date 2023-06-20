@@ -416,7 +416,7 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
                         { v_i3, v_i0, v_hi0 });
             break;
         case 0b1011:
-            set_cell_shape(x, y, 5, v3, v0, v1, vv1, vh0);
+            set_cell_shape(x, y, 5, v3, v0, v1, vv1, vh1);
             set_indexes(x,
                         y,
                         { v_i3, v_i0, v_hi1 },
@@ -603,4 +603,8 @@ float landscape::get_distance_to(const transform2d& pos) const
 {
     Kengine::transform2d center_pos = get_center();
     return center_pos.distance(pos);
+}
+b2Body* landscape::get_body() const
+{
+    return l_body;
 };

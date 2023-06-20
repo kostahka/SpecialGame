@@ -90,7 +90,7 @@ void planet_play_state::update(
 {
     physics::update(delta_time);
 
-    state_scene->e_spawner.update(delta_time);
+    // state_scene->e_spawner.update(delta_time);
 
     state_scene->update_game_objects(delta_time);
     state_scene->control_game_objects(delta_time);

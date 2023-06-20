@@ -1,11 +1,12 @@
 #pragma once
 
-#include "physics/physic-object.hxx"
-
 #include "Kengine/audio/audio.hxx"
 #include "Kengine/render/animation.hxx"
+#include "Kengine/render/draw-primitives.hxx"
+
 #include "game-object/game-object.hxx"
 #include "physics/collision_interface.hxx"
+#include "physics/physic-object.hxx"
 
 enum class gun
 {
@@ -35,6 +36,8 @@ public:
     void update(std::chrono::duration<int, std::milli> delta_time) override;
     void render(std::chrono::duration<int, std::milli> delta_time) override;
 
+    void destroy() override;
+
     b2Body& get_physics_body() override;
 
     Kengine::transform2d get_pos() const;
@@ -43,6 +46,21 @@ public:
     ~astronaut() override;
 
 private:
+    class GroundRayCastCallback : public b2RayCastCallback
+    {
+    public:
+        explicit GroundRayCastCallback(astronaut* astro);
+
+        float ReportFixture(b2Fixture*    fixture,
+                            const b2Vec2& point,
+                            const b2Vec2& normal,
+                            float         fraction) override;
+
+    private:
+        astronaut* astro;
+    } ground_ray_cast_callback;
+    //    GroundRayCastCallback ground_ray_cast_callback;
+
     Kengine::animation_controller astronaut_anim;
     b2Body*                       astronaut_body;
     b2Fixture*                    legs_fixture;
@@ -55,6 +73,7 @@ private:
     Kengine::audio::sound_object* shooting_sound;
     Kengine::audio::sound_object* hurt_sound;
     Kengine::audio::sound_object* fly_sound;
+    Kengine::audio::sound_object* walking_sound;
 
     bool moving;
     int  move_direction;
@@ -64,4 +83,10 @@ private:
     gun   current_gun;
 
     int hp;
+
+    bool on_ground;
+
+    bool enemy;
+
+    Kengine::gl_render_primitive* d_lines;
 };

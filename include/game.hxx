@@ -14,6 +14,8 @@
 
 using namespace Kengine;
 
+extern bool debug_draw;
+
 class my_game : public game
 {
 

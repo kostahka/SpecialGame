@@ -68,6 +68,7 @@ public:
     [[nodiscard]] Kengine::transform2d get_spawn_place(float angle) const;
     [[nodiscard]] float get_angle_to(const Kengine::transform2d& pos) const;
     [[nodiscard]] float get_distance_to(const Kengine::transform2d& pos) const;
+    [[nodiscard]] b2Body* get_body() const;
 
     ~landscape();
 

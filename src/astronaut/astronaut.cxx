@@ -1,7 +1,10 @@
 #include "astronaut/astronaut.hxx"
 #include "astronaut/bullet.hxx"
+#include "game.hxx"
 #include "physics/physics.hxx"
 #include "render/resources.hxx"
+
+#include <iostream>
 #include <numbers>
 
 constexpr float astronaut_size       = 10;
@@ -39,6 +42,9 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     , gun_angle(0)
     , hp(100)
     , current_gun(gun::pistol)
+    , enemy(enemy)
+    , on_ground(false)
+    , ground_ray_cast_callback(this)
 {
     astronaut_anim.set_origin({ 0.5, 0.5 });
     astronaut_anim.set_angle(0);
@@ -99,8 +105,13 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
         Kengine::audio::create_sound_object(resources::hurt_sound_buffer);
     fly_sound =
         Kengine::audio::create_sound_object(resources::fly_sound_buffer);
+    walking_sound =
+        Kengine::audio::create_sound_object(resources::walking_sound_buffer);
 
     // fly_sound->set_volume(0.3f);
+
+    d_lines = Kengine::create_primitive_render(Kengine::primitive_type::lines);
+    d_lines->create();
 }
 
 void astronaut::move(int direction)
@@ -112,16 +123,33 @@ void astronaut::move(int direction)
 
 void astronaut::fly()
 {
-    if (!fly_sound->get_is_playing())
-    {
-        fly_sound->play();
-    }
     flying = true;
 }
 
 void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
 {
+    float  astronaut_angle = astronaut_body->GetAngle();
+    b2Vec2 astronaut_pos   = astronaut_body->GetPosition();
+    float  down_angle =
+        astronaut_angle - static_cast<float>(std::numbers::pi) / 2.f;
+
     astronaut_anim.set_current_animation("idle");
+
+    physics::physics_world.RayCast(
+        &ground_ray_cast_callback,
+        astronaut_pos,
+        { astronaut_pos.x + std::cosf(down_angle) * astronaut_size / 1.75f,
+          astronaut_pos.y + std::sinf(down_angle) * astronaut_size / 1.75f });
+
+    if (moving && on_ground)
+    {
+        if (!walking_sound->get_is_playing())
+            walking_sound->play();
+    }
+    else
+    {
+        walking_sound->stop();
+    }
 
     if (moving)
     {
@@ -139,6 +167,16 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
 
     if (flying)
     {
+        if (!fly_sound->get_is_playing())
+            fly_sound->play();
+    }
+    else
+    {
+        fly_sound->stop();
+    }
+
+    if (flying)
+    {
         const float delta_fly_impulse =
             static_cast<float>(delta_time.count()) * astronaut_fly_speed;
         const b2Vec2 d_fly_vec(delta_fly_impulse * -direction_to_planet.x,
@@ -148,9 +186,6 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
         astronaut_body->ApplyLinearImpulseToCenter(d_fly_vec, true);
         flying = false;
     }
-
-    float  astronaut_angle = astronaut_body->GetAngle();
-    b2Vec2 astronaut_pos   = astronaut_body->GetPosition();
 
     astronaut_anim.set_angle(astronaut_angle);
     astronaut_anim.set_pos({ astronaut_pos.x, astronaut_pos.y });
@@ -196,6 +231,19 @@ void astronaut::render(std::chrono::duration<int, std::milli> delta_time)
     current_gun_sprite->draw();
 
     hand_sprite.draw();
+
+    float  angle = astronaut_body->GetAngle() - std::numbers::pi / 2;
+    b2Vec2 pos   = astronaut_body->GetPosition();
+
+    if (debug_draw)
+    {
+        d_lines->vertex({ pos.x, pos.y, 10 }, { 0, 100, 0, 0 });
+        d_lines->vertex({ pos.x + std::cosf(angle) * astronaut_size / 1.75f,
+                          pos.y + std::sinf(angle) * astronaut_size / 1.75f,
+                          10 },
+                        { 0, 0.7, 0, 1.0 });
+        d_lines->draw();
+    }
 }
 
 Kengine::transform2d astronaut::get_pos() const
@@ -260,6 +308,32 @@ void astronaut::Hurt(float                       radius,
 astronaut::~astronaut()
 {
     physics::physics_world.DestroyBody(astronaut_body);
+    if (enemy)
+        std::cout << "Deleting enemy astronaut" << std::endl;
+    else
+        std::cout << "Deleting player astronaut" << std::endl;
     delete shooting_sound;
     delete hurt_sound;
+}
+void astronaut::destroy()
+{
+    game_object::destroy();
+    if (enemy)
+        std::cout << "Destroy enemy astronaut" << std::endl;
+    else
+        std::cout << "Destroy player astronaut" << std::endl;
+}
+
+float astronaut::GroundRayCastCallback::ReportFixture(b2Fixture*    fixture,
+                                                      const b2Vec2& point,
+                                                      const b2Vec2& normal,
+                                                      float         fraction)
+{
+    astro->on_ground = fixture->GetBody() == physics::land.get_body();
+    return -1;
+}
+
+astronaut::GroundRayCastCallback::GroundRayCastCallback(astronaut* astro)
+    : astro(astro)
+{
 }

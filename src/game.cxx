@@ -13,7 +13,7 @@
 
 using namespace Kengine;
 
-static bool debug_draw = false;
+bool debug_draw = false;
 
 my_game* current_game{ nullptr };
 

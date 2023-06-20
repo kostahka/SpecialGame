@@ -1,4 +1,5 @@
 #include "astronaut/bullet.hxx"
+#include <iostream>
 
 #include "physics/collision_interface.hxx"
 #include "physics/physics.hxx"
@@ -80,4 +81,10 @@ void bullet::render(std::chrono::duration<int, std::milli> delta_time)
 bullet::~bullet()
 {
     physics::physics_world.DestroyBody(bullet_body);
+    std::cout << "Deleting bullet" << std::endl;
+}
+void bullet::destroy()
+{
+    game_object::destroy();
+    std::cout << "Destroy bullet" << std::endl;
 }

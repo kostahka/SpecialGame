@@ -8,7 +8,7 @@
 
 inline Kengine::transform3d vec_to_tr(const b2Vec2 v)
 {
-    return { v.x, v.y, 1 };
+    return { v.x, v.y, 5 };
 }
 
 //
@@ -181,7 +181,7 @@ void b2GLDraw::DrawSegment(const b2Vec2&  p1,
                            const b2Color& color)
 {
     r_lines->vertex(vec_to_tr(p1), { color.r, color.g, color.b, color.a });
-    r_lines->vertex(vec_to_tr(p1), { color.r, color.g, color.b, color.a });
+    r_lines->vertex(vec_to_tr(p2), { color.r, color.g, color.b, color.a });
 }
 
 //

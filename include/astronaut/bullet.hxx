@@ -13,6 +13,8 @@ public:
     void update(std::chrono::duration<int, std::milli> delta_time) override;
     void render(std::chrono::duration<int, std::milli> delta_time) override;
 
+    void destroy() override;
+
     ~bullet() override;
 
 private:
