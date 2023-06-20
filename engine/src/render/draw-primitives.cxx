@@ -161,4 +161,5 @@ gl_render_primitive* create_primitive_render(primitive_type type)
     }
 };
 
+gl_render_primitive::~gl_render_primitive() = default;
 } // namespace Kengine

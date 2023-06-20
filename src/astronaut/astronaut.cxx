@@ -314,6 +314,10 @@ astronaut::~astronaut()
         std::cout << "Deleting player astronaut" << std::endl;
     delete shooting_sound;
     delete hurt_sound;
+    delete fly_sound;
+    delete walking_sound;
+    d_lines->destroy();
+    delete d_lines;
 }
 void astronaut::destroy()
 {

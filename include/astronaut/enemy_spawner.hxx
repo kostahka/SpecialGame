@@ -16,8 +16,22 @@ public:
 
     [[nodiscard]] int get_killed_enemies() const;
 
+    void imgui_render();
+
 private:
+    static int   get_random_wave_time();
+    static int   get_random_spawn_time();
+    static float get_random_spawn_angle();
+    static int   get_random_enemies_count();
+
     int        killed_enemies;
     astronaut* target;
-    int        spawn_time;
+
+    bool wave_active;
+    int  wave_time;
+    int  total_wave_time;
+    int  wave_enemies_count;
+    int  wave_enemies_left_count;
+    int  total_wave_enemies_count;
+    int  spawn_time;
 };

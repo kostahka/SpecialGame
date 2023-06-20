@@ -131,11 +131,13 @@ void draw_selected_gun(int selected_gun)
 void draw_score(int score)
 {
     ImGui::SetNextWindowPos(
-        { static_cast<float>(current_game->configuration.screen_width / 2 - 50),
-          50 });
+        { static_cast<float>(current_game->configuration.screen_width / 2 - 75),
+          10 });
+    ImGui::SetNextWindowSize({ 150, 30 });
+
     if (ImGui::Begin("Score", nullptr, gui::window_flags))
     {
-        ImGui::Text("Score: %d", score);
+        TextCentered("Score: " + std::to_string(score));
         ImGui::End();
     }
 }
@@ -180,9 +182,9 @@ bool draw_end_menu(int score)
         std::string score_str = "Score: " + std::to_string(score);
         TextCentered(score_str);
 
-        restart = ButtonCentered("Restart");
+        restart = ButtonCentered("Restart", { 100, 20 });
 
-        if (ButtonCentered("Exit"))
+        if (ButtonCentered("Exit", { 100, 20 }))
         {
             current_game->game_engine->quit();
         }
@@ -220,6 +222,115 @@ bool draw_main_menu()
         ImGui::End();
     }
     return start_game;
+}
+
+int draw_pause_menu()
+{
+    int button = 0;
+    ImGui::SetNextWindowPos(
+        { static_cast<float>(current_game->configuration.screen_width / 2 -
+                             200),
+          static_cast<float>(current_game->configuration.screen_height / 2 -
+                             80) });
+    ImGui::SetNextWindowSize({ 400, 160 });
+
+    if (ImGui::Begin("Pause", nullptr, gui::window_flags))
+    {
+        ImGui::SetWindowFontScale(2);
+
+        TextCentered("Pause");
+        ImGui::SetWindowFontScale(1);
+
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
+        if (ButtonCentered("Resume", { 100, 20 }))
+        {
+            button = 1;
+        }
+        if (ButtonCentered("Restart", { 100, 20 }))
+        {
+            button = 2;
+        }
+        if (ButtonCentered("Exit", { 100, 20 }))
+        {
+            current_game->game_engine->quit();
+        }
+
+        ImGui::End();
+    }
+
+    return button;
+}
+
+void draw_wave_time(int current, int max)
+{
+    ImGui::SetNextWindowPos(
+        { static_cast<float>(current_game->configuration.screen_width / 2 -
+                             100),
+          40 });
+    ImGui::SetNextWindowSize({ 200, 60 });
+
+    if (ImGui::Begin("Wave time", nullptr, gui::window_flags))
+    {
+        TextCentered("Time to next wave:");
+
+        ImVec2 time_bar_size = ImVec2(180, 20);
+
+        float fill = static_cast<float>(current) / static_cast<float>(max);
+
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+        ImVec2 win_size = ImGui::GetWindowSize();
+        ImGui::SetCursorPosX((win_size.x - time_bar_size.x) / 2.f);
+
+        ImVec2 p0 = ImGui::GetCursorScreenPos();
+        ImVec2 p1 =
+            ImVec2(p0.x + time_bar_size.x * (1 - fill), p0.y + time_bar_size.y);
+        ImVec2 p2       = ImVec2(p0.x + time_bar_size.x, p0.y);
+        ImU32  col_blue = ImGui::GetColorU32(IM_COL32(100, 100, 200, 100));
+        ImU32  col_gray = ImGui::GetColorU32(IM_COL32(100, 100, 100, 100));
+        draw_list->AddRectFilledMultiColor(
+            p0, p1, col_blue, col_blue, col_blue, col_blue);
+        draw_list->AddRectFilledMultiColor(
+            p1, p2, col_gray, col_gray, col_gray, col_gray);
+
+        ImGui::End();
+    }
+}
+
+void draw_enemies_count(int current, int max)
+{
+    ImGui::SetNextWindowPos(
+        { static_cast<float>(current_game->configuration.screen_width / 2 -
+                             100),
+          40 });
+    ImGui::SetNextWindowSize({ 200, 60 });
+
+    if (ImGui::Begin("Enemies count", nullptr, gui::window_flags))
+    {
+        TextCentered(std::to_string(current) + " enemies left.");
+
+        ImVec2 count_bar_size = ImVec2(180, 20);
+
+        float fill = static_cast<float>(current) / static_cast<float>(max);
+
+        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+        ImVec2 win_size = ImGui::GetWindowSize();
+        ImGui::SetCursorPosX((win_size.x - count_bar_size.x) / 2.f);
+
+        ImVec2 p0       = ImGui::GetCursorScreenPos();
+        ImVec2 p1       = ImVec2(p0.x + count_bar_size.x * (1 - fill),
+                           p0.y + count_bar_size.y);
+        ImVec2 p2       = ImVec2(p0.x + count_bar_size.x, p0.y);
+        ImU32  col_blue = ImGui::GetColorU32(IM_COL32(155, 155, 255, 100));
+        ImU32  col_gray = ImGui::GetColorU32(IM_COL32(100, 100, 100, 100));
+        draw_list->AddRectFilledMultiColor(
+            p0, p1, col_blue, col_blue, col_blue, col_blue);
+        draw_list->AddRectFilledMultiColor(
+            p1, p2, col_gray, col_gray, col_gray, col_gray);
+
+        ImGui::End();
+    }
 }
 
 } // namespace gui

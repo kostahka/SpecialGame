@@ -13,6 +13,7 @@ class planet_scene : public scene
     friend class planet_start_state;
     friend class planet_play_state;
     friend class planet_end_state;
+    friend class planet_pause_state;
 
 public:
     static const std::string name;
@@ -67,6 +68,22 @@ public:
     static const std::string name;
 
     explicit planet_end_state(planet_scene* scene);
+
+    void on_event(const Kengine::event::game_event&) override;
+    void update(std::chrono::duration<int, std::milli> delta_time) override;
+    void render(std::chrono::duration<int, std::milli> delta_time) override;
+    void imgui_render() override;
+
+private:
+    planet_scene* state_scene;
+};
+
+class planet_pause_state : public scene_state
+{
+public:
+    static const std::string name;
+
+    explicit planet_pause_state(planet_scene* scene);
 
     void on_event(const Kengine::event::game_event&) override;
     void update(std::chrono::duration<int, std::milli> delta_time) override;

@@ -8,7 +8,7 @@
 
 cursor::cursor()
     : aim_sprite(resources::crosshairs_texture,
-                 { 320, 64, 64, 64 },
+                 { 0, 0, 64, 64 },
                  { 0, 0 },
                  { 40, 40 },
                  false)
@@ -30,10 +30,10 @@ void cursor::set_cursor(cursor_type cur)
     switch (cur)
     {
         case cursor_type::simple:
-            aim_sprite.set_uv({ 320, 64, 64, 64 });
+            aim_sprite.set_uv({ 0, 0, 64, 64 });
             break;
         case cursor_type::shovel:
-            aim_sprite.set_uv({ 320, 256, 64, 64 });
+            aim_sprite.set_uv({ 2 * 64, 3 * 64, 64, 64 });
             break;
         case cursor_type::attack:
             aim_sprite.set_uv({ 192, 128, 64, 64 });

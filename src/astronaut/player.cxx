@@ -1,6 +1,7 @@
 #include "astronaut/player.hxx"
 
 #include "Kengine/io/input.hxx"
+#include "game.hxx"
 #include "physics/physics.hxx"
 #include "render/camera.hxx"
 
@@ -55,11 +56,13 @@ void player::on_event(Kengine::event::game_event e)
         {
             if (e.keyboard.key == keyboard::key::key_1)
             {
+                current_game->game_cursor->set_cursor(cursor_type::attack);
                 selected_gun = 1;
                 player_astronaut->select_gun(gun::pistol);
             }
             else if (e.keyboard.key == keyboard::key::key_2)
             {
+                current_game->game_cursor->set_cursor(cursor_type::shovel);
                 selected_gun = 2;
                 player_astronaut->select_gun(gun::drill);
             }

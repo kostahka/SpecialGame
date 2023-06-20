@@ -18,6 +18,8 @@ struct gl_render_primitive
                         const color&       col,
                         const float        size = 1) = 0;
     virtual void draw()                       = 0;
+
+    virtual ~gl_render_primitive();
 };
 
 gl_render_primitive* create_primitive_render(primitive_type);

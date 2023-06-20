@@ -24,4 +24,7 @@ void draw_score(int score);
 void draw_training_hint();
 bool draw_end_menu(int score);
 bool draw_main_menu();
+int  draw_pause_menu();
+void draw_wave_time(int current, int max);
+void draw_enemies_count(int current, int max);
 } // namespace gui
