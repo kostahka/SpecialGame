@@ -5,14 +5,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(engine)
 
-find_package(SDL3 REQUIRED)
+option(BUILD_SHARED_LIBS OFF)
+if(SDL3_SRC_DIR AND ANDROID)
+    add_subdirectory(
+        # Specifies the directory of the CMakeLists.txt file.
+        ${SDL3_SRC_DIR}
+        # Specifies the directory for the build outputs.
+        ${CMAKE_CURRENT_BINARY_DIR}/SDL_${ANDROID_ABI})
+else()
+    find_package(SDL3 REQUIRED)
+endif()
 
-set(BOX2D_BUILD_UNIT_TESTS OFF)
-set(BOX2D_BUILD_TESTBED OFF)
-set(BOX2D_BUILD_DOCS ON)
-set(BOX2D_USER_SETTINGS OFF)
-
-set(BUILD_SHARED_LIBS OFF)
+option(BOX2D_BUILD_UNIT_TESTS OFF)
+option(BOX2D_BUILD_TESTBED OFF)
+option(BOX2D_BUILD_DOCS ON)
+option(BOX2D_USER_SETTINGS OFF)
 
 add_subdirectory(efsw)
 add_subdirectory(glm)
@@ -79,7 +86,11 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/glad/include)
 
 if(ENGINE_DEV)
-    add_executable(engine ${ENGINE_SRC})
+    if(NOT ANDROID)
+        add_executable(engine ${ENGINE_SRC})
+    else()
+        add_library(engine SHARED ${ENGINE_SRC})
+    endif()
     target_link_libraries(engine PRIVATE SDL3::SDL3-static)
     target_compile_definitions(engine PUBLIC ENGINE_DEV)
     target_compile_definitions(
@@ -103,11 +114,20 @@ if(ENGINE_DEV)
     target_include_directories(engine PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
     set_target_properties(engine PROPERTIES ENABLE_EXPORTS ON)
+
+    if(ANDROID)
+        target_link_libraries(
+            engine
+            PUBLIC android
+                   log
+                   EGL
+                   GLESv3)
+    endif()
 else()
 
     # Shared engine lib
     add_library(game-engine-shared SHARED ${ENGINE_SRC})
-    target_link_libraries(game-engine-shared PRIVATE SDL3::SDL3-static)
+    target_link_libraries(game-engine-shared PUBLIC SDL3::SDL3-static)
 
     target_link_libraries(game-engine-shared PRIVATE efsw)
     target_link_libraries(game-engine-shared PUBLIC glm::glm)
@@ -129,9 +149,18 @@ else()
 
     set_property(TARGET game-engine-shared PROPERTY POSITION_INDEPENDENT_CODE
                                                     ON)
+
+    if(ANDROID)
+        target_link_libraries(
+            game-engine-shared
+            PUBLIC android
+                   log
+                   EGL
+                   GLESv3)
+    endif()
     # Static engine lib
     add_library(game-engine-static STATIC ${ENGINE_SRC})
-    target_link_libraries(game-engine-static PRIVATE SDL3::SDL3-static)
+    target_link_libraries(game-engine-static PUBLIC SDL3::SDL3-static)
 
     target_link_libraries(game-engine-static PRIVATE efsw)
     target_link_libraries(game-engine-static PUBLIC glm::glm)
@@ -153,4 +182,13 @@ else()
 
     set_property(TARGET game-engine-static PROPERTY POSITION_INDEPENDENT_CODE
                                                     ON)
+
+    if(ANDROID)
+        target_link_libraries(
+            game-engine-static
+            PUBLIC android
+                   log
+                   EGL
+                   GLESv3)
+    endif()
 endif()

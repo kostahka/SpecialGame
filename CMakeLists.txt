@@ -60,7 +60,11 @@ set(GAME_SRC
 if(ENGINE_DEV)
     add_library(special-game SHARED ${GAME_SRC})
 else()
-    add_executable(special-game ${GAME_SRC})
+    if(ANDROID)
+        add_library(special-game SHARED ${GAME_SRC})
+    else()
+        add_executable(special-game ${GAME_SRC})
+    endif()
 endif()
 
 if(WIN32)

@@ -1,5 +1,4 @@
 #include "physics/physics.hxx"
-#include <numbers>
 
 namespace physics
 {
@@ -41,8 +40,7 @@ void update(std::chrono::duration<int, std::milli> delta_time)
         {
             float stand_angle =
                 std::atan2(direction_to_planet.y, direction_to_planet.x);
-            body.SetTransform(body.GetPosition(),
-                              (stand_angle + std::numbers::pi / 2.f));
+            body.SetTransform(body.GetPosition(), (stand_angle + 3.14f / 2.f));
         }
 
         if (distance_to_planet < 10)

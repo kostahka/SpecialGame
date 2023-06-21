@@ -4,11 +4,19 @@
 #include <filesystem>
 #include <iostream>
 #include <ratio>
+#include <streambuf>
 #include <string_view>
+
+#ifdef __ANDROID__
+#include <GLES3/gl3.h>
+#include <SDL3/SDL_main.h>
+#include <android/log.h>
+#else
+#include <glad/glad.h>
 #include <syncstream>
+#endif
 
 #include <SDL3/SDL.h>
-#include <glad/glad.h>
 #include <imgui.h>
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
@@ -24,7 +32,7 @@ namespace Kengine
 {
 
 class engine_impl;
-
+#ifndef __ANDROID__
 void APIENTRY debug_message(GLenum        source,
                             GLenum        type,
                             GLuint        id,
@@ -37,10 +45,51 @@ void APIENTRY debug_message(GLenum        source,
     sync_err.write(message, length);
     sync_err << std::endl;
 };
+#endif
 
 #ifdef ENGINE_DEV
 void reload_game(void* data);
 #endif
+
+class android_redirected_buf : public std::streambuf
+{
+public:
+    android_redirected_buf() = default;
+
+private:
+    // This android_redirected_buf buffer has no buffer. So every character
+    // "overflows" and can be put directly into the teed buffers.
+    int overflow(int c) override
+    {
+        if (c == EOF)
+        {
+            return !EOF;
+        }
+        else
+        {
+            if (c == '\n')
+            {
+#ifdef __ANDROID__
+                // android log function add '\n' on every print itself
+                __android_log_print(
+                    ANDROID_LOG_ERROR, "Kengine", "%s", message.c_str());
+#else
+                std::printf("%s\n", message.c_str()); // TODO test only
+#endif
+                message.clear();
+            }
+            else
+            {
+                message.push_back(static_cast<char>(c));
+            }
+            return c;
+        }
+    }
+
+    int sync() override { return 0; }
+
+    std::string message;
+};
 
 class engine_impl : public engine
 {
@@ -49,6 +98,16 @@ public:
 
     std::string_view initialize() override
     {
+        cout_buf = std::cout.rdbuf();
+        cerr_buf = std::cerr.rdbuf();
+        clog_buf = std::clog.rdbuf();
+
+#ifdef __ANDROID__
+        std::cout.rdbuf(&logcat);
+        std::cerr.rdbuf(&logcat);
+        std::clog.rdbuf(&logcat);
+#endif
+
         if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
         {
             std::cerr << "Error to initialize SDL. Error: " << SDL_GetError()
@@ -67,7 +126,7 @@ public:
         }
 
         int gl_major_version = 3;
-        int gl_minor_version = 2;
+        int gl_minor_version = 0;
         int gl_profile       = SDL_GL_CONTEXT_PROFILE_ES;
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_major_version);
@@ -92,7 +151,7 @@ public:
             return "failed to get GL versions";
         }
 
-        if (gl_major_version < 3 || gl_minor_version < 2)
+        if (gl_major_version < 3 || gl_minor_version < 0)
         {
             std::cerr << "Open GL context version is low. Minimum required: 3.2"
                       << std::endl;
@@ -101,7 +160,7 @@ public:
 
         std::clog << "Open GL version: " << gl_major_version << "."
                   << gl_minor_version << std::endl;
-
+#ifndef __ANDROID__
         auto load_gl_func = [](const char* func_name)
         { return reinterpret_cast<void*>(SDL_GL_GetProcAddress(func_name)); };
 
@@ -115,7 +174,11 @@ public:
         if (platform != "Mac OS X")
         {
             glEnable(GL_DEBUG_OUTPUT);
+#ifdef __ANDROID__
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+#else
             glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+#endif
             glDebugMessageCallback(&debug_message, nullptr);
             glDebugMessageControl(
                 GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
@@ -126,7 +189,7 @@ public:
                                   nullptr,
                                   GL_FALSE);
         }
-
+#endif
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
         glEnable(GL_BLEND);
@@ -158,6 +221,10 @@ public:
 
         SDL_Quit();
 
+        std::cout.rdbuf(cout_buf);
+        std::cerr.rdbuf(cerr_buf);
+        std::clog.rdbuf(clog_buf);
+
         return "good";
     };
 
@@ -167,9 +234,24 @@ public:
             return "game not set";
 
         SDL_SetWindowTitle(window, e_game->name.c_str());
-        SDL_SetWindowSize(window,
-                          e_game->configuration.screen_width,
-                          e_game->configuration.screen_height);
+
+        int desired_window_width  = e_game->configuration.screen_width;
+        int desired_window_height = e_game->configuration.screen_height;
+
+#ifdef __ANDROID__
+        {
+            const SDL_DisplayMode* dispale_mode = SDL_GetCurrentDisplayMode(1);
+            if (!dispale_mode)
+            {
+                std::cerr << "can't get current display mode: "
+                          << SDL_GetError() << std::endl;
+            }
+            desired_window_width  = dispale_mode->screen_w;
+            desired_window_height = dispale_mode->screen_h;
+        }
+#endif
+
+        SDL_SetWindowSize(window, desired_window_width, desired_window_height);
 
         glViewport(0,
                    0,
@@ -382,6 +464,12 @@ private:
     std::chrono::high_resolution_clock::time_point render_time;
 
     std::chrono::high_resolution_clock game_clock;
+
+    std::basic_streambuf<char>* cout_buf{ nullptr };
+    std::basic_streambuf<char>* cerr_buf{ nullptr };
+    std::basic_streambuf<char>* clog_buf{ nullptr };
+
+    android_redirected_buf logcat;
 };
 
 engine* engine_impl::instance = nullptr;
@@ -408,14 +496,13 @@ engine* engine::instance()
 }; // namespace Kengine
 
 #ifdef ENGINE_DEV
-int main()
+int main(int argc, char* argv[])
 {
     using namespace Kengine;
     engine* engine = engine::instance();
 
     if (engine->initialize() != "good")
         return EXIT_FAILURE;
-
     using namespace std::string_literals;
     std::string game_name = ENGINE_GAME_LIB_NAME;
     std::string lib_name  = SDL_GetPlatform() == "Windows"s
@@ -427,7 +514,6 @@ int main()
     engine->dev_initialization(lib_name, tmp_lib_name);
 
     engine->start_dev_game_loop();
-
     engine->uninitialize();
 
     return EXIT_SUCCESS;

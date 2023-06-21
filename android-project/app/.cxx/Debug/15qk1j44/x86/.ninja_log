@@ -1,0 +1,9 @@
+# ninja log v5
+4	41	0	CMakeFiles/copy_assets_shaders	dee8b47a09899cf7
+4	41	0	/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/15qk1j44/x86/CMakeFiles/copy_assets_shaders	dee8b47a09899cf7
+34	1751	1687368072823633531	engine/CMakeFiles/game-engine-shared.dir/src/render/vertex-array-object.cxx.o	38efb1b99d4d74b7
+13	3345	1687368074421623397	engine/CMakeFiles/game-engine-shared.dir/glad/src/glad.c.o	b71431884efa63bf
+19	3658	1687368074747621330	engine/CMakeFiles/game-engine-shared.dir/src/render/texture.cxx.o	91a54a3d4992d862
+41	4029	1687368075116618990	CMakeFiles/special-game.dir/src/game.cxx.o	b0b49689b3678eb3
+26	4205	1687368075301617817	engine/CMakeFiles/game-engine-shared.dir/src/render/shader-program.cxx.o	3a15b7cec50ae95d
+1754	4302	1687368075394617227	CMakeFiles/special-game.dir/src/landscape.cxx.o	195fc14b19e06c94

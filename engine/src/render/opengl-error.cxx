@@ -1,4 +1,8 @@
+#ifdef __ANDROID__
+#include <GLES3/gl3.h>
+#else
 #include "glad/glad.h"
+#endif
 #include <iostream>
 
 namespace Kengine
@@ -28,12 +32,14 @@ void gl_get_error(int line, const char* file)
             case GL_OUT_OF_MEMORY:
                 std::cerr << "GL_OUT_OF_MEMORY" << std::endl;
                 break;
+#ifndef __ANDROID__
             case GL_STACK_UNDERFLOW:
                 std::cerr << "GL_STACK_UNDERFLOW" << std::endl;
                 break;
             case GL_STACK_OVERFLOW:
                 std::cerr << "GL_STACK_OVERFLOW" << std::endl;
                 break;
+#endif
         }
     }
 };

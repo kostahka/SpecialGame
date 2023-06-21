@@ -2,7 +2,11 @@
 #include "picopng.hxx"
 
 #include "Kengine/transform3d.hxx"
+#ifdef __ANDROID__
+#include <GLES3/gl3.h>
+#else
 #include "glad/glad.h"
+#endif
 #include <cstddef>
 #include <fstream>
 #include <ios>

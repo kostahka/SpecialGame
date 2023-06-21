@@ -6,8 +6,14 @@
 #include <string>
 #include <vector>
 
+#ifdef ENGINE_DEV
 #include "efsw/efsw.hpp"
+#endif
+#ifdef __ANDROID__
+#include <GLES3/gl3.h>
+#else
 #include "glad/glad.h"
+#endif
 
 #include "Kengine/file-last-modify-listener.hxx"
 #include "glm/gtc/type_ptr.hpp"

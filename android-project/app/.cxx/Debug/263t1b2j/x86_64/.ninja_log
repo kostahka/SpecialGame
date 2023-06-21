@@ -1,0 +1,13 @@
+# ninja log v5
+2	27	0	CMakeFiles/copy_assets_shaders	bb657b74b5e68d64
+2	27	0	/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86_64/CMakeFiles/copy_assets_shaders	bb657b74b5e68d64
+19	218	1687361330243807442	engine/CMakeFiles/game-engine-shared.dir/src/event/user-events.cxx.o	9374668eb389d928
+3	1462	1687361331493799866	engine/CMakeFiles/game-engine-shared.dir/src/render/vertex-array-object.cxx.o	25f7178782379089
+15	2053	1687361332074796344	engine/CMakeFiles/game-engine-shared.dir/src/file-last-modify-listener.cxx.o	377cbe981c0fab6e
+1463	2406	1687361332432794174	CMakeFiles/special-game.dir/src/render/resources.cxx.o	5a62ab3574aedb70
+3	2873	1687361332897791356	engine/CMakeFiles/game-engine-shared.dir/src/render/shader-program.cxx.o	43a5273fa4a5cf1d
+28	3003	1687361333028790561	CMakeFiles/special-game.dir/src/game.cxx.o	2af47a0e7f7bbd9e
+218	3141	1687361333166789725	CMakeFiles/special-game.dir/src/landscape.cxx.o	df438ed639073c6b
+2406	4551	1687361334578781167	CMakeFiles/special-game.dir/src/render/cursor.cxx.o	bde3959bbd7a4d0c
+3003	4608	1687361334640780791	CMakeFiles/special-game.dir/src/scene/scene.cxx.o	d27e7c1b0cfb8593
+2875	4976	1687361335007778566	CMakeFiles/special-game.dir/src/scene/planet-scene.cxx.o	ec538d90bde6eb06

@@ -5,7 +5,6 @@
 #include "render/resources.hxx"
 
 #include <iostream>
-#include <numbers>
 
 constexpr float astronaut_size       = 10;
 constexpr float astronaut_density    = 0.1;
@@ -130,8 +129,7 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
 {
     float  astronaut_angle = astronaut_body->GetAngle();
     b2Vec2 astronaut_pos   = astronaut_body->GetPosition();
-    float  down_angle =
-        astronaut_angle - static_cast<float>(std::numbers::pi) / 2.f;
+    float  down_angle      = astronaut_angle - 3.14f / 2.f;
 
     astronaut_anim.set_current_animation("idle");
 
@@ -194,7 +192,7 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
     int   direction;
     if (std::cos(astronaut_angle - gun_angle) < 0)
     {
-        d_gun_angle = gun_angle - static_cast<float>(std::numbers::pi);
+        d_gun_angle = gun_angle - 3.14f;
         direction   = -1;
     }
     else
@@ -232,7 +230,7 @@ void astronaut::render(std::chrono::duration<int, std::milli> delta_time)
 
     hand_sprite.draw();
 
-    float  angle = astronaut_body->GetAngle() - std::numbers::pi / 2;
+    float  angle = astronaut_body->GetAngle() - 3.14f / 2;
     b2Vec2 pos   = astronaut_body->GetPosition();
 
     if (debug_draw)

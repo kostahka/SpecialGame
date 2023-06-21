@@ -1,0 +1,11 @@
+# ninja log v5
+4	80	0	CMakeFiles/copy_assets_shaders	c757173dd38e916c
+4	80	0	/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/armeabi-v7a/CMakeFiles/copy_assets_shaders	c757173dd38e916c
+62	487	1687361284223086388	engine/CMakeFiles/game-engine-shared.dir/src/event/user-events.cxx.o	27df0922ed6cde1
+7	2508	1687361286259074047	engine/CMakeFiles/game-engine-shared.dir/src/render/vertex-array-object.cxx.o	6eb02ffd688fe6b1
+2510	5066	1687361288819058530	CMakeFiles/special-game.dir/src/render/resources.cxx.o	44bc28e409ed8070
+14	5103	1687361288814058560	engine/CMakeFiles/game-engine-shared.dir/src/file-last-modify-listener.cxx.o	6d616b8d69211f93
+488	5814	1687361289561054033	CMakeFiles/special-game.dir/src/landscape.cxx.o	2bc759eb7e1b7783
+80	6271	1687361290013051293	CMakeFiles/special-game.dir/src/game.cxx.o	2024e49ec26fafc4
+7	6368	1687361290110050705	engine/CMakeFiles/game-engine-shared.dir/src/render/shader-program.cxx.o	98592a49d91831b8
+5103	6845	1687361290592047784	CMakeFiles/special-game.dir/src/render/cursor.cxx.o	8d2797ea2aac3bfb

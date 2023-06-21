@@ -4,7 +4,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __ANDROID__
+#include <GLES3/gl3.h>
+#else
 #include "glad/glad.h"
+#endif
 
 inline Kengine::transform3d vec_to_tr(const b2Vec2 v)
 {
@@ -76,8 +80,9 @@ void b2GLDraw::DrawSolidPolygon(const b2Vec2*  vertices,
                                 int32          vertexCount,
                                 const b2Color& color)
 {
-    Kengine::color fillColor(
-        0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f);
+    Kengine::color fillColor{
+        0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f
+    };
 
     const b2Vec2& v1 = vertices[0];
     for (int32 i = 1; i < vertexCount - 1; ++i)
@@ -138,8 +143,9 @@ void b2GLDraw::DrawSolidCircle(const b2Vec2&  center,
     b2Vec2         v0          = center;
     b2Vec2         r1(cosInc, sinInc);
     b2Vec2         v1 = center + radius * r1;
-    Kengine::color fillColor(
-        0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f);
+    Kengine::color fillColor{
+        0.5f * color.r, 0.5f * color.g, 0.5f * color.b, 0.5f
+    };
     for (int32 i = 0; i < k_segments; ++i)
     {
         // Perform rotation to avoid additional trigonometry.
@@ -188,8 +194,8 @@ void b2GLDraw::DrawSegment(const b2Vec2&  p1,
 void b2GLDraw::DrawTransform(const b2Transform& xf)
 {
     const float    k_axisScale = 0.4f;
-    Kengine::color red(1.0f, 0.0f, 0.0f);
-    Kengine::color green(0.0f, 1.0f, 0.0f);
+    Kengine::color red{ 1.0f, 0.0f, 0.0f };
+    Kengine::color green{ 0.0f, 1.0f, 0.0f };
     b2Vec2         p1 = xf.p, p2;
 
     r_lines->vertex(vec_to_tr(p1), red);

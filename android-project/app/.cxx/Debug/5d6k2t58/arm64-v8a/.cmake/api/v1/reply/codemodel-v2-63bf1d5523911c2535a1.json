@@ -1,0 +1,324 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.6.0"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						3,
+						8
+					]
+				},
+				{
+					"build" : "engine",
+					"childIndexes" : 
+					[
+						2,
+						3,
+						4,
+						6
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-engine-Debug-c354d3a0ab769c0fb88c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.5"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "engine",
+					"targetIndexes" : 
+					[
+						5,
+						6
+					]
+				},
+				{
+					"build" : "engine/SDL_",
+					"jsonFile" : "directory-engine.SDL_-Debug-b52dcfec5c23b7c6260b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.0.0"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 2,
+					"source" : "/home/povelitel/c++/SDL",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						9
+					]
+				},
+				{
+					"build" : "engine/efsw",
+					"jsonFile" : "directory-engine.efsw-Debug-006aa3d2ade2d88abac7.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.15"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 3,
+					"source" : "engine/efsw",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "engine/glm",
+					"childIndexes" : 
+					[
+						5
+					],
+					"jsonFile" : "directory-engine.glm-Debug-e24f34ff1e7f5ce89bba.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.2"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 4,
+					"source" : "engine/glm"
+				},
+				{
+					"build" : "engine/glm/glm",
+					"jsonFile" : "directory-engine.glm.glm-Debug-885110258d578cc6ca00.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.2"
+					},
+					"parentIndex" : 4,
+					"projectIndex" : 4,
+					"source" : "engine/glm/glm",
+					"targetIndexes" : 
+					[
+						7
+					]
+				},
+				{
+					"build" : "engine/box2d",
+					"childIndexes" : 
+					[
+						7
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-engine.box2d-Debug-074c8337225cf5134f35.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 5,
+					"source" : "engine/box2d"
+				},
+				{
+					"build" : "engine/box2d/src",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-engine.box2d.src-Debug-00c533fbeef0bac2dcc3.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 6,
+					"projectIndex" : 5,
+					"source" : "engine/box2d/src",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "special-game",
+					"targetIndexes" : 
+					[
+						3,
+						8
+					]
+				},
+				{
+					"childIndexes" : 
+					[
+						2,
+						3,
+						4,
+						5
+					],
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "engine",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						5,
+						6
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "SDL3",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						9
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						3
+					],
+					"name" : "efsw",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						4,
+						5
+					],
+					"name" : "glm",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						7
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						6,
+						7
+					],
+					"name" : "box2d",
+					"parentIndex" : 1,
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 2,
+					"id" : "SDL3-shared::@46b93e3bb1a04163d78a",
+					"jsonFile" : "target-SDL3-shared-Debug-38e6533d6b4a8457ded3.json",
+					"name" : "SDL3-shared",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "SDL3_test::@46b93e3bb1a04163d78a",
+					"jsonFile" : "target-SDL3_test-Debug-ca426d77b6619d56abb4.json",
+					"name" : "SDL3_test",
+					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 7,
+					"id" : "box2d::@b25f0aca2fafb169f200",
+					"jsonFile" : "target-box2d-Debug-b82f9b52d1543c2a0fdd.json",
+					"name" : "box2d",
+					"projectIndex" : 5
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "copy_assets_shaders::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-copy_assets_shaders-Debug-cddf38c3cdf639f60fd6.json",
+					"name" : "copy_assets_shaders",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "efsw::@e536b08ffdaff2adf450",
+					"jsonFile" : "target-efsw-Debug-19546d80f9e1e1132599.json",
+					"name" : "efsw",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "game-engine-shared::@4088515cb4035b412499",
+					"jsonFile" : "target-game-engine-shared-Debug-c57acd79952829d78668.json",
+					"name" : "game-engine-shared",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "game-engine-static::@4088515cb4035b412499",
+					"jsonFile" : "target-game-engine-static-Debug-a373755a22758fa9abb8.json",
+					"name" : "game-engine-static",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 5,
+					"id" : "glm_shared::@858e68d76873564c3d35",
+					"jsonFile" : "target-glm_shared-Debug-1d955a1f63753c665393.json",
+					"name" : "glm_shared",
+					"projectIndex" : 4
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "special-game::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-special-game-Debug-88d1c38640b75fc34e45.json",
+					"name" : "special-game",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "uninstall::@46b93e3bb1a04163d78a",
+					"jsonFile" : "target-uninstall-Debug-83f5ab04a1b086083d9c.json",
+					"name" : "uninstall",
+					"projectIndex" : 2
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/5d6k2t58/arm64-v8a",
+		"source" : "/home/povelitel/c++/SpecialGame"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

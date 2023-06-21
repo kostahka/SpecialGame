@@ -1,0 +1,81 @@
+{
+  "buildFiles": [
+    "/home/povelitel/c++/SDL/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/box2d/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/box2d/src/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/efsw/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/efsw/efswConfig.cmake.in",
+    "/home/povelitel/c++/SpecialGame/engine/glm/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/glm/glm/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/povelitel/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/povelitel/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "SDL3_test::@46b93e3bb1a04163d78a": {
+      "artifactName": "SDL3_test",
+      "abi": "x86",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86/engine/SDL_/libSDL3_test.a",
+      "runtimeFiles": []
+    },
+    "game-engine-static::@4088515cb4035b412499": {
+      "artifactName": "game-engine-static",
+      "abi": "x86",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86/engine/libgame-engine-static.a",
+      "runtimeFiles": []
+    },
+    "SDL3-static::@46b93e3bb1a04163d78a": {
+      "artifactName": "SDL3-static",
+      "abi": "x86",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86/engine/SDL_/libSDL3.a",
+      "runtimeFiles": []
+    },
+    "copy_assets_shaders::@6890427a1f51a3e7e1df": {
+      "artifactName": "copy_assets_shaders",
+      "abi": "x86",
+      "runtimeFiles": []
+    },
+    "uninstall::@46b93e3bb1a04163d78a": {
+      "artifactName": "uninstall",
+      "abi": "x86",
+      "runtimeFiles": []
+    },
+    "box2d::@b25f0aca2fafb169f200": {
+      "artifactName": "box2d",
+      "abi": "x86",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86/engine/box2d/bin/libbox2d.a",
+      "runtimeFiles": []
+    },
+    "efsw::@e536b08ffdaff2adf450": {
+      "artifactName": "efsw",
+      "abi": "x86",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/263t1b2j/x86/engine/efsw/libefsw.a",
+      "runtimeFiles": []
+    },
+    "special-game::@6890427a1f51a3e7e1df": {
+      "artifactName": "special-game",
+      "abi": "x86",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/263t1b2j/obj/x86/special-game",
+      "runtimeFiles": []
+    },
+    "game-engine-shared::@4088515cb4035b412499": {
+      "artifactName": "game-engine-shared",
+      "abi": "x86",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/263t1b2j/obj/x86/libgame-engine-shared.so",
+      "runtimeFiles": []
+    }
+  }
+}

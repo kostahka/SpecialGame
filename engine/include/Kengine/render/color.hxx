@@ -11,7 +11,7 @@ struct color
     float g;
     float b;
     float a;
-    operator b2Color() const { return { r, g, b, a }; };
+          operator b2Color() const { return { r, g, b, a }; };
 };
 
 } // namespace Kengine

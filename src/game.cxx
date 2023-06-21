@@ -12,6 +12,10 @@
 #include "scene/planet-scene.hxx"
 #include <iostream>
 
+#ifdef __ANDROID__
+#include <SDL3/SDL_main.h>
+#endif
+
 using namespace Kengine;
 
 bool debug_draw = false;
@@ -161,7 +165,7 @@ game* create_game(engine* e)
 }
 
 #ifndef ENGINE_DEV
-int main()
+int main(int argc, char* argv[])
 {
     using namespace Kengine;
     engine* engine = engine::instance();

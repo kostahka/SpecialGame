@@ -1,0 +1,96 @@
+{
+  "buildFiles": [
+    "/home/povelitel/c++/SDL/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/box2d/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/box2d/src/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/efsw/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/efsw/efswConfig.cmake.in",
+    "/home/povelitel/c++/SpecialGame/engine/glm/CMakeLists.txt",
+    "/home/povelitel/c++/SpecialGame/engine/glm/glm/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/home/povelitel/Android/Sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/186lv5h6/arm64-v8a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/home/povelitel/Android/Sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/186lv5h6/arm64-v8a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "SDL3-static::@e694bbf3235f51a992f6": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "SDL3-static",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/186lv5h6/arm64-v8a/engine/SDL_arm64-v8a/libSDL3.a"
+    },
+    "SDL3_test::@e694bbf3235f51a992f6": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "SDL3_test",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/186lv5h6/arm64-v8a/engine/SDL_arm64-v8a/libSDL3_test.a"
+    },
+    "box2d::@b25f0aca2fafb169f200": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "box2d",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/186lv5h6/arm64-v8a/engine/box2d/bin/libbox2d.a"
+    },
+    "copy_assets_shaders::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "copy_assets_shaders"
+    },
+    "efsw::@e536b08ffdaff2adf450": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "efsw",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/186lv5h6/arm64-v8a/engine/efsw/libefsw.a"
+    },
+    "game-engine-shared::@4088515cb4035b412499": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "game-engine-shared",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/186lv5h6/obj/arm64-v8a/libgame-engine-shared.so",
+      "runtimeFiles": []
+    },
+    "game-engine-static::@4088515cb4035b412499": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "game-engine-static",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/.cxx/Debug/186lv5h6/arm64-v8a/engine/libgame-engine-static.a"
+    },
+    "special-game::@6890427a1f51a3e7e1df": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "special-game",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/186lv5h6/obj/arm64-v8a/libspecial-game.so",
+      "runtimeFiles": []
+    },
+    "uninstall::@e694bbf3235f51a992f6": {
+      "toolchain": "toolchain",
+      "abi": "arm64-v8a",
+      "artifactName": "uninstall"
+    }
+  },
+  "toolchains": {
+    "toolchain": {
+      "cCompilerExecutable": "/home/povelitel/Android/Sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/clang.lld",
+      "cppCompilerExecutable": "/home/povelitel/Android/Sdk/ndk/25.2.9519653/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++.lld"
+    }
+  },
+  "cFileExtensions": [
+    "c"
+  ],
+  "cppFileExtensions": [
+    "cxx",
+    "cpp"
+  ]
+}

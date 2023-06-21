@@ -3,7 +3,9 @@
 
 #include <algorithm>
 #include <chrono>
+#ifdef ENGINE_DEV
 #include <efsw/efsw.hpp>
+#endif
 #include <filesystem>
 #include <vector>
 

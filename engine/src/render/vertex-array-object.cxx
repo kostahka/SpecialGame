@@ -2,7 +2,11 @@
 
 #include "Kengine/render/vertex.hxx"
 #include "Kengine/transform3d.hxx"
+#ifdef __ANDROID__
+#include <GLES3/gl3.h>
+#else
 #include "glad/glad.h"
+#endif
 #include "opengl-error.hxx"
 
 namespace Kengine
@@ -285,9 +289,13 @@ public:
     void draw_points(int count) override
     {
         glBindVertexArray(VAO);
+#ifndef __ANDROID__
         glEnable(GL_PROGRAM_POINT_SIZE);
+#endif
         glDrawArrays(GL_POINTS, 0, count);
+#ifndef __ANDROID__
         glDisable(GL_PROGRAM_POINT_SIZE);
+#endif
         glBindVertexArray(0);
     }
 

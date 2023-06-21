@@ -35,7 +35,7 @@ void init()
 
                 void main()
                 {
-                    fragColor = texture2D(s_texture, v_tex_coord);
+                    fragColor = texture(s_texture, v_tex_coord);
                 }
 )");
     local_sprite_program  = create_shader_program_from_code(R"(
@@ -66,7 +66,7 @@ void init()
 
                 void main()
                 {
-                    fragColor = texture2D(s_texture, v_tex_coord);
+                    fragColor = texture(s_texture, v_tex_coord);
                 }
 )");
     points_program        = create_shader_program_from_code(R"(
