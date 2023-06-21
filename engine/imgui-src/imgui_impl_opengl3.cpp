@@ -150,7 +150,7 @@
 #if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
 #include <stddef.h>                       // intptr_t
 #else
-#include <stdint.h>                       // intptr_t
+#include <stdint.h> // intptr_t
 #endif
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
@@ -160,7 +160,7 @@
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored                                               \
-    "-Wold-style-cast"  // warning: use of old-style cast
+    "-Wold-style-cast" // warning: use of old-style cast
 #pragma clang diagnostic ignored                                               \
     "-Wsign-conversion" // warning: implicit conversion changes signedness
 #pragma clang diagnostic ignored "-Wunused-macros" // warning: macro is not used
@@ -185,7 +185,7 @@
 #if (defined(__APPLE__) && (TARGET_OS_IOS || TARGET_OS_TV))
 #include <OpenGLES/ES2/gl.h> // Use GL ES 2
 #else
-#include <GLES2/gl2.h>       // Use GL ES 2
+#include <GLES2/gl2.h> // Use GL ES 2
 #endif
 #if defined(__EMSCRIPTEN__)
 #ifndef GL_GLEXT_PROTOTYPES
@@ -270,7 +270,7 @@
                     "GL error 0x%x returned from '%s'.\n",                     \
                     gl_err,                                                    \
                     #_CALL);                                                   \
-    } while (0)              // Call with error check
+    } while (0) // Call with error check
 #else
 #define GL_CALL(_CALL) _CALL // Call without error check
 #endif
@@ -288,7 +288,7 @@ struct ImGui_ImplOpenGL3_Data
     GLint        GlProfileMask;
     GLuint       FontTexture;
     GLuint       ShaderHandle;
-    GLint        AttribLocationTex;    // Uniforms location
+    GLint        AttribLocationTex; // Uniforms location
     GLint        AttribLocationProjMtx;
     GLuint       AttribLocationVtxPos; // Vertex attributes location
     GLuint       AttribLocationVtxUV;
@@ -379,7 +379,8 @@ bool ImGui_ImplOpenGL3_Init(const char* glsl_version)
     }
     bd->GlVersion = (GLuint)(major * 100 + minor * 10);
 #if defined(GL_CONTEXT_PROFILE_MASK)
-    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &bd->GlProfileMask);
+    if (bd->GlVersion >= 320)
+        glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &bd->GlProfileMask);
     bd->GlProfileIsCompat =
         (bd->GlProfileMask & GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) != 0;
 #endif
@@ -686,7 +687,7 @@ void ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
 
     // Will project scissor/clipping rectangles into framebuffer space
     ImVec2 clip_off =
-        draw_data->DisplayPos;       // (0,0) unless using multi-viewports
+        draw_data->DisplayPos; // (0,0) unless using multi-viewports
     ImVec2 clip_scale =
         draw_data->FramebufferScale; // (1,1) unless using retina display which
                                      // are often (2,2)

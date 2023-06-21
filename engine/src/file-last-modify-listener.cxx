@@ -11,7 +11,7 @@
 
 namespace Kengine
 {
-
+#ifdef ENGINE_DEV
 struct file_modify_listener_info
 {
     std::string          file_name;
@@ -126,5 +126,5 @@ file_last_modify_listener* file_last_modify_listener::get_instance()
         instance = new file_last_modify_listener_impl();
     return instance;
 };
-
+#endif
 }; // namespace Kengine

@@ -32,26 +32,26 @@ set(ENGINE_GAME_LIB_NAME "" CACHE STRING "game lib name to load")
 set(GLAD_SRC "glad/src/glad.c")
 
 set(ENGINE_SRC
-    "src/engine.cxx"
-    "src/render/shader-program.cxx"
-    "src/render/vertex-array-object.cxx"
-    "src/file-last-modify-listener.cxx"
-    "src/event/user-events.cxx"
-    "src/event/handle-user-event.hxx"
-    "src/handle-file-modify.hxx"
-    "src/render/picopng.hxx"
-    "src/render/texture.cxx"
-    "src/render/sprite.cxx"
-    "include/Kengine/render/sprite.hxx"
-    "include/Kengine/render/texture.hxx"
-    "include/Kengine/event/user-events.hxx"
-    "include/Kengine/file-last-modify-listener.hxx"
-    "include/Kengine/engine.hxx"
-    "include/Kengine/render/shader-program.hxx"
-    "include/Kengine/render/vertex-array-object.hxx"
-    "include/Kengine/render/color.hxx"
-    "include/Kengine/transform3d.hxx"
-    "include/Kengine/render/vertex.hxx"
+    src/engine.cxx
+    src/render/shader-program.cxx
+    src/render/vertex-array-object.cxx
+    src/file-last-modify-listener.cxx
+    src/event/user-events.cxx
+    src/event/handle-user-event.hxx
+    src/handle-file-modify.hxx
+    src/render/picopng.hxx
+    src/render/texture.cxx
+    src/render/sprite.cxx
+    include/Kengine/render/sprite.hxx
+    include/Kengine/render/texture.hxx
+    include/Kengine/event/user-events.hxx
+    include/Kengine/file-last-modify-listener.hxx
+    include/Kengine/engine.hxx
+    include/Kengine/render/shader-program.hxx
+    include/Kengine/render/vertex-array-object.hxx
+    include/Kengine/render/color.hxx
+    include/Kengine/transform3d.hxx
+    include/Kengine/render/vertex.hxx
     ${GLAD_SRC}
     src/render/opengl-error.hxx
     src/render/opengl-error.cxx
@@ -85,7 +85,7 @@ if(ENGINE_DEV)
     target_compile_definitions(
         engine PUBLIC ENGINE_GAME_LIB_NAME="${ENGINE_GAME_LIB_NAME}")
 
-    target_compile_definitions(engine PRIVATE IMGUI_IMPL_OPENGL_ES3)
+    target_compile_definitions(engine PUBLIC IMGUI_IMPL_OPENGL_ES3)
 
     if(WIN32)
         target_compile_definitions(engine
@@ -93,6 +93,7 @@ if(ENGINE_DEV)
     else()
         target_compile_definitions(engine PRIVATE "-DE_DECLSPEC=")
     endif()
+
     target_link_libraries(engine PRIVATE efsw)
     target_link_libraries(engine PUBLIC glm::glm)
     target_link_libraries(engine PUBLIC box2d)
@@ -112,11 +113,22 @@ else()
     target_link_libraries(game-engine-shared PUBLIC glm::glm)
     target_link_libraries(game-engine-shared PUBLIC box2d)
 
+    target_compile_definitions(game-engine-shared PUBLIC IMGUI_IMPL_OPENGL_ES3)
+
+    if(WIN32)
+        target_compile_definitions(game-engine-shared
+                                   PRIVATE "-DE_DECLSPEC=__declspec(dllexport)")
+    else()
+        target_compile_definitions(game-engine-shared PRIVATE "-DE_DECLSPEC=")
+    endif()
+
     target_include_directories(game-engine-shared
                                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src)
     target_include_directories(game-engine-shared
                                PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
 
+    set_property(TARGET game-engine-shared PROPERTY POSITION_INDEPENDENT_CODE
+                                                    ON)
     # Static engine lib
     add_library(game-engine-static STATIC ${ENGINE_SRC})
     target_link_libraries(game-engine-static PRIVATE SDL3::SDL3-static)
@@ -125,8 +137,20 @@ else()
     target_link_libraries(game-engine-static PUBLIC glm::glm)
     target_link_libraries(game-engine-static PUBLIC box2d)
 
+    target_compile_definitions(game-engine-static PUBLIC IMGUI_IMPL_OPENGL_ES3)
+
+    if(WIN32)
+        target_compile_definitions(game-engine-static
+                                   PRIVATE "-DE_DECLSPEC=__declspec(dllexport)")
+    else()
+        target_compile_definitions(game-engine-static PRIVATE "-DE_DECLSPEC=")
+    endif()
+
     target_include_directories(game-engine-static
                                PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui-src)
     target_include_directories(game-engine-static
                                PUBLIC ${CMAKE_CURRENT_LIST_DIR}/include)
+
+    set_property(TARGET game-engine-static PROPERTY POSITION_INDEPENDENT_CODE
+                                                    ON)
 endif()

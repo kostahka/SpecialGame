@@ -178,11 +178,13 @@ public:
         : vertex_path(vertex_path)
         , fragment_path(fragment_path)
     {
+#ifdef ENGINE_DEV
         auto f_listener = file_last_modify_listener::get_instance();
         vertex_listener_id =
             f_listener->add_file(vertex_path, &reload_shader, this);
         fragment_listener_id =
             f_listener->add_file(fragment_path, &reload_shader, this);
+#endif
         this->program = create_program_from_file(vertex_path.c_str(),
                                                  fragment_path.c_str());
     };
@@ -196,7 +198,7 @@ public:
     ~shader_program_impl() override
     {
         // glDeleteProgram(this->program);
-
+#ifdef ENGINE_DEV
         auto f_listener = file_last_modify_listener::get_instance();
         if (f_listener)
         {
@@ -205,6 +207,7 @@ public:
             if (fragment_listener_id)
                 f_listener->remove_file(fragment_listener_id);
         }
+#endif
     };
 
     void use() override { glUseProgram(this->program); };

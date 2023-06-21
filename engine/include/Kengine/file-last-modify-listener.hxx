@@ -6,7 +6,7 @@
 
 namespace Kengine
 {
-
+#ifdef ENGINE_DEV
 using file_modify_callback = void (*)(void* data);
 
 class file_last_modify_listener
@@ -24,5 +24,5 @@ public:
 
     static file_last_modify_listener* get_instance();
 };
-
+#endif
 }; // namespace Kengine

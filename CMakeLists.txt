@@ -11,14 +11,14 @@ if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
-set(ENGINE_DEV ON CACHE BOOL "engine load game dll with hot reload")
+set(ENGINE_DEV OFF CACHE BOOL "engine load game dll with hot reload")
 set(ENGINE_GAME_LIB_NAME "special-game" CACHE STRING "game lib name to load")
 
 set(GAME_SRC
-    "src/game.cxx"
-    "include/game.hxx"
-    "src/landscape.cxx"
-    "include/landscape.hxx"
+    src/game.cxx
+    include/game.hxx
+    src/landscape.cxx
+    include/landscape.hxx
     include/render/resources.hxx
     src/render/resources.cxx
     src/render/camera.cxx
@@ -57,7 +57,11 @@ set(GAME_SRC
     src/scene/main-menu.cxx
     include/scene/main-menu.hxx)
 
-add_library(special-game SHARED ${GAME_SRC})
+if(ENGINE_DEV)
+    add_library(special-game SHARED ${GAME_SRC})
+else()
+    add_executable(special-game ${GAME_SRC})
+endif()
 
 if(WIN32)
     target_compile_definitions(special-game
@@ -80,6 +84,10 @@ add_custom_target(
 
 add_dependencies(special-game copy_assets_shaders)
 
-target_link_libraries(special-game PRIVATE engine)
+if(ENGINE_DEV)
+    target_link_libraries(special-game PRIVATE engine)
+else()
+    target_link_libraries(special-game PRIVATE game-engine-static)
+endif()
 target_include_directories(special-game
                            PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)

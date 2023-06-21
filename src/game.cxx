@@ -10,6 +10,7 @@
 #include "render/resources.hxx"
 #include "scene/main-menu.hxx"
 #include "scene/planet-scene.hxx"
+#include <iostream>
 
 using namespace Kengine;
 
@@ -158,3 +159,26 @@ game* create_game(engine* e)
 
     return nullptr;
 }
+
+#ifndef ENGINE_DEV
+int main()
+{
+    using namespace Kengine;
+    engine* engine = engine::instance();
+
+    std::string_view init_error = engine->initialize();
+    if (init_error != "good")
+    {
+        std::cerr << "Failed to initialize engine. " << init_error << std::endl;
+        return EXIT_FAILURE;
+    }
+    current_game = new my_game(engine);
+    engine->set_game(current_game);
+
+    engine->start_game_loop();
+
+    engine->uninitialize();
+
+    return EXIT_SUCCESS;
+};
+#endif

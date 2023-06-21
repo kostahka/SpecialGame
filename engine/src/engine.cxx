@@ -175,9 +175,9 @@ public:
                    0,
                    e_game->configuration.screen_width,
                    e_game->configuration.screen_height);
-
+#ifdef ENGINE_DEV
         file_last_modify_listener::get_instance()->start_files_watch();
-
+#endif
         bool continue_loop = true;
 
         e_game->on_start();
@@ -187,9 +187,10 @@ public:
 
         while (continue_loop)
         {
+#ifdef ENGINE_DEV
             file_last_modify_listener::get_instance()
                 ->handle_file_modify_listeners();
-
+#endif
             continue_loop = event::poll_events(e_game);
 
             auto update_delta_time = game_clock.now() - update_time;

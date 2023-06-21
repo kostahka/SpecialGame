@@ -107,6 +107,7 @@ public:
             {
                 std::cerr << "Failed to convert wav audio. Error"
                           << SDL_GetError() << std::endl;
+                return;
             }
 
             SDL_free(buffer);
@@ -258,7 +259,7 @@ bool init()
     audio_device_spec.format   = AUDIO_S16LSB;
     audio_device_spec.channels = 2;
     audio_device_spec.samples  = 1024; // must be power of 2
-    audio_device_spec.callback = audio_callback;
+    audio_device_spec.callback = &audio_callback;
 
     SDL_AudioSpec returned_audio_device_spec;
     const char*   default_audio_device_name = nullptr;
