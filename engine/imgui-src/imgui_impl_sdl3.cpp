@@ -399,6 +399,8 @@ bool ImGui_ImplSDL3_ProcessEvent(const SDL_Event* event)
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
         case SDL_EVENT_MOUSE_BUTTON_UP:
         {
+            if(event->button.which == SDL_TOUCH_MOUSEID)
+                break;
             int mouse_button = -1;
             if (event->button.button == SDL_BUTTON_LEFT)
             {
@@ -422,15 +424,24 @@ bool ImGui_ImplSDL3_ProcessEvent(const SDL_Event* event)
             }
             if (mouse_button == -1)
                 break;
-            io.AddMouseSourceEvent(event->button.which == SDL_TOUCH_MOUSEID
-                                       ? ImGuiMouseSource_TouchScreen
-                                       : ImGuiMouseSource_Mouse);
+            io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);
             io.AddMouseButtonEvent(
                 mouse_button, (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN));
             bd->MouseButtonsDown =
                 (event->type == SDL_EVENT_MOUSE_BUTTON_DOWN)
                     ? (bd->MouseButtonsDown | (1 << mouse_button))
                     : (bd->MouseButtonsDown & ~(1 << mouse_button));
+            return true;
+        }
+        case SDL_EVENT_FINGER_UP:
+        case SDL_EVENT_FINGER_DOWN:
+        {
+            int mouse_button = 0;
+            io.AddMouseSourceEvent(ImGuiMouseSource_TouchScreen);
+            io.AddMouseButtonEvent(mouse_button, event->type==SDL_EVENT_FINGER_DOWN);
+            bd->MouseButtonsDown = (event->type == SDL_EVENT_FINGER_DOWN)
+                                   ? (bd->MouseButtonsDown | (1 << mouse_button))
+                                   : (bd->MouseButtonsDown & ~(1 << mouse_button));
             return true;
         }
         case SDL_EVENT_TEXT_INPUT:

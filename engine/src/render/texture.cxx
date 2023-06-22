@@ -1,4 +1,5 @@
 #include "Kengine/render/texture.hxx"
+#include "Kengine/io/file-manager.hxx"
 #include "picopng.hxx"
 
 #include "Kengine/transform3d.hxx"
@@ -21,34 +22,39 @@ class texture_impl : public texture_object
 public:
     texture_impl(std::string texture_path)
     {
-        std::vector<unsigned char> png_memory;
+        /*
+                std::vector<unsigned char> png_memory;
 
-        std::ifstream png_file;
+                std::ifstream png_file;
 
-        png_file.exceptions(std::ifstream::failbit);
+                png_file.exceptions(std::ifstream::failbit);
 
-        try
-        {
-            png_file.open(texture_path, std::ios_base::binary);
+                try
+                {
+                    png_file.open(texture_path, std::ios_base::binary);
 
-            png_file.seekg(0, std::ios_base::end);
-            auto png_file_end = png_file.tellg();
-            png_file.seekg(0, std::ios_base::beg);
+                    png_file.seekg(0, std::ios_base::end);
+                    auto png_file_end = png_file.tellg();
+                    png_file.seekg(0, std::ios_base::beg);
 
-            png_memory.resize(static_cast<size_t>(png_file_end));
+                    png_memory.resize(static_cast<size_t>(png_file_end));
 
-            png_file.read(reinterpret_cast<char*>(png_memory.data()),
-                          png_file_end);
+                    png_file.read(reinterpret_cast<char*>(png_memory.data()),
+                                  png_file_end);
 
-            png_file.close();
-        }
-        catch (std::ifstream::failure e)
-        {
-            std::cerr << "Failed to load texture from png file ["
-                      << texture_path << "]. Error: " << e.what() << std::endl;
-        }
+                    png_file.close();
+                }
+                catch (std::ifstream::failure e)
+                {
+                    std::cerr << "Failed to load texture from png file ["
+                              << texture_path << "]. Error: " << e.what() <<
+           std::endl;
+                }
 
-        // loadFile(png_memory, texture_path);
+                // loadFile(png_memory, texture_path);
+        */
+        file_manager::membuf texture_file =
+            file_manager::load_file(texture_path);
 
         std::vector<unsigned char> image_memory;
         unsigned long              image_width  = 0;
@@ -57,8 +63,8 @@ public:
         if (decodePNG(image_memory,
                       image_width,
                       image_height,
-                      &png_memory[0],
-                      png_memory.size(),
+                      reinterpret_cast<unsigned char*>(texture_file.begin()),
+                      texture_file.size(),
                       true))
         {
             std::cerr << "Failed to decode png texture" << std::endl;

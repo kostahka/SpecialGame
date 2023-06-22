@@ -137,13 +137,13 @@ void landscape::init()
     if (!program)
     {
         std::cout << "Init shader program..." << std::endl;
-        program = create_shader_program("./shaders/landscape-vertex.vert",
-                                        "./shaders/landscape-fragment.frag");
+        program = create_shader_program("shaders/landscape-vertex.vert",
+                                        "shaders/landscape-fragment.frag");
     }
     if (!ground_texture)
     {
         std::cout << "Init texture..." << std::endl;
-        ground_texture = create_texture("./assets/ground.png");
+        ground_texture = create_texture("assets/ground.png");
     }
     if (!l_lines)
     {

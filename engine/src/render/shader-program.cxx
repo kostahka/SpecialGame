@@ -16,6 +16,8 @@
 #endif
 
 #include "Kengine/file-last-modify-listener.hxx"
+#include "Kengine/io/file-manager.hxx"
+
 #include "glm/gtc/type_ptr.hpp"
 
 namespace Kengine
@@ -87,29 +89,37 @@ GLuint create_program_from_file(const GLchar* vertex_path,
     GLuint program;
 
     std::stringstream vertex_code;
-    std::ifstream     vertex_file;
 
     std::stringstream fragment_code;
-    std::ifstream     fragment_file;
 
-    vertex_file.exceptions(std::ifstream::failbit);
-    fragment_file.exceptions(std::ifstream::failbit);
+    /*
+        std::ifstream vertex_file;
+        std::ifstream fragment_file;
+        vertex_file.exceptions(std::ifstream::failbit);
+        fragment_file.exceptions(std::ifstream::failbit);
 
-    try
-    {
-        vertex_file.open(vertex_path);
-        vertex_code << vertex_file.rdbuf();
-        vertex_file.close();
+        try
+        {
+            vertex_file.open(vertex_path);
+            vertex_code << vertex_file.rdbuf();
+            vertex_file.close();
 
-        fragment_file.open(fragment_path);
-        fragment_code << fragment_file.rdbuf();
-        fragment_file.close();
-    }
-    catch (std::ifstream::failure e)
-    {
-        std::cerr << "Failed to load vertex code from file [" << vertex_path
-                  << "]. Error: " << e.what() << std::endl;
-    }
+            fragment_file.open(fragment_path);
+            fragment_code << fragment_file.rdbuf();
+            fragment_file.close();
+        }
+        catch (std::ifstream::failure e)
+        {
+            std::cerr << "Failed to load vertex code from file [" << vertex_path
+                      << "]. Error: " << e.what() << std::endl;
+        }
+    */
+
+    file_manager::membuf vertex_file   = file_manager::load_file(vertex_path);
+    file_manager::membuf fragment_file = file_manager::load_file(fragment_path);
+
+    vertex_code.write(vertex_file.begin(), vertex_file.size());
+    fragment_code.write(fragment_file.begin(), fragment_file.size());
 
     std::string vertex_string_code   = vertex_code.str();
     std::string fragment_string_code = fragment_code.str();

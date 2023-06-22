@@ -8,5 +8,5 @@ out vec4 f_color;
 uniform sampler2D ground_texture;
 
 void main(){
-	f_color = texture2D(ground_texture, t_position);
+	f_color = texture(ground_texture, t_position);
 }

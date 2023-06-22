@@ -71,7 +71,7 @@
       "toolchain": "toolchain",
       "abi": "x86_64",
       "artifactName": "special-game",
-      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/186lv5h6/obj/x86_64/special-game",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/186lv5h6/obj/x86_64/libspecial-game.so",
       "runtimeFiles": []
     },
     "uninstall::@9ce75f6fe92398e5cf27": {

@@ -6,18 +6,17 @@
 #include "Kengine/engine.hxx"
 #include "imgui_impl_sdl3.h"
 #include <SDL_events.h>
+#include <SDL_mouse.h>
 
 namespace Kengine::event
 {
-bool poll_events(game* game)
+bool poll_events(game* game, SDL_Window* window)
 {
     bool      no_quit = true;
     SDL_Event sdl_event;
 
     while (SDL_PollEvent(&sdl_event))
     {
-        ImGui_ImplSDL3_ProcessEvent(&sdl_event);
-
         game_event event;
         switch (sdl_event.type)
         {
@@ -44,6 +43,15 @@ bool poll_events(game* game)
                 event.mouse.x      = sdl_event.button.x;
                 event.mouse.y      = sdl_event.button.y;
                 break;
+            case SDL_EVENT_FINGER_DOWN:
+                SDL_WarpMouseInWindow(
+                    window,
+                    sdl_event.tfinger.x *
+                        engine::instance()->e_game->configuration.screen_width,
+                    sdl_event.tfinger.y *
+                        engine::instance()
+                            ->e_game->configuration.screen_height);
+                break;
             case SDL_EVENT_QUIT:
                 event.g_type = type::quit;
                 no_quit      = false;
@@ -55,9 +63,13 @@ bool poll_events(game* game)
                 event.g_type = type::unknown;
         }
 
+        ImGui_ImplSDL3_ProcessEvent(&sdl_event);
+
         if (event.g_type != type::unknown)
             engine::instance()->e_game->on_event(event);
     }
+
+    SDL_PumpEvents();
     input::keyboard::update();
     input::mouse::update();
 

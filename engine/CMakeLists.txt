@@ -80,7 +80,9 @@ set(ENGINE_SRC
     src/transform3d.cxx
     src/audio/audio.hxx
     src/audio/audio.cxx
-    include/Kengine/audio/audio.hxx)
+    include/Kengine/audio/audio.hxx
+    include/Kengine/io/file-manager.hxx
+    src/io/file-manager.cxx)
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 include_directories(${CMAKE_CURRENT_LIST_DIR}/glad/include)

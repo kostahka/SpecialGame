@@ -33,6 +33,8 @@ struct game_configuration
     // window sizes
     int screen_width;
     int screen_height;
+    int pixels_width;
+    int pixels_height;
 };
 
 // Engine configuration

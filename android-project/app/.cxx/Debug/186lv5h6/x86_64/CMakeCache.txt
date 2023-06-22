@@ -314,8 +314,8 @@ CMAKE_SYSTEM_NAME:UNINITIALIZED=Android
 //No help, variable specified on the command line.
 CMAKE_SYSTEM_VERSION:UNINITIALIZED=19
 
-//The CMake toolchain file
-CMAKE_TOOLCHAIN_FILE:FILEPATH=/home/povelitel/Android/Sdk/ndk/25.2.9519653/build/cmake/android.toolchain.cmake
+//No help, variable specified on the command line.
+CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/povelitel/Android/Sdk/ndk/25.2.9519653/build/cmake/android.toolchain.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -662,6 +662,9 @@ special-game_BINARY_DIR:STATIC=/home/povelitel/c++/SpecialGame/android-project/a
 
 //Value Computed by CMake
 special-game_IS_TOP_LEVEL:STATIC=ON
+
+//Dependencies for the target
+special-game_LIB_DEPENDS:STATIC=general;game-engine-static;
 
 //Value Computed by CMake
 special-game_SOURCE_DIR:STATIC=/home/povelitel/c++/SpecialGame

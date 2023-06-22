@@ -14,7 +14,7 @@ static Kengine::sprite*                     planet_sprite;
 
 void init()
 {
-    space_texture = Kengine::create_texture("./assets/space.png");
+    space_texture = Kengine::create_texture("assets/space.png");
     planet_sprite = new Kengine::sprite(resources::special_game_texture,
                                         { 2 * 64, 3 * 64, 128, 128 },
                                         { -150, 100 },
@@ -32,9 +32,8 @@ void init()
     space_vertices.push_back({ -1, -1, 1 });
     space_vao = Kengine::create_static_vao(space_vertices);
 
-    space_progam =
-        Kengine::create_shader_program("./shaders/background-vertex.vert",
-                                       "./shaders/background-fragment.frag");
+    space_progam = Kengine::create_shader_program(
+        "shaders/background-vertex.vert", "shaders/background-fragment.frag");
 }
 
 void render()

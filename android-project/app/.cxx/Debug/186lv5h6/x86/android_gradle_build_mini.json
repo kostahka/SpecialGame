@@ -68,7 +68,7 @@
     "special-game::@6890427a1f51a3e7e1df": {
       "artifactName": "special-game",
       "abi": "x86",
-      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/186lv5h6/obj/x86/special-game",
+      "output": "/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/186lv5h6/obj/x86/libspecial-game.so",
       "runtimeFiles": []
     },
     "game-engine-shared::@4088515cb4035b412499": {

@@ -129,6 +129,7 @@
 /home/povelitel/c++/SpecialGame/engine/include/Kengine/render/animation.hxx
 /home/povelitel/c++/SpecialGame/engine/src/audio/audio.hxx
 /home/povelitel/c++/SpecialGame/engine/include/Kengine/audio/audio.hxx
+/home/povelitel/c++/SpecialGame/engine/include/Kengine/io/file-manager.hxx
 /home/povelitel/c++/SpecialGame/include/game.hxx
 /home/povelitel/c++/SpecialGame/include/landscape.hxx
 /home/povelitel/c++/SpecialGame/include/render/resources.hxx

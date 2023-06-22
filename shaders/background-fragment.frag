@@ -8,5 +8,5 @@ out vec4 f_color;
 uniform sampler2D space_texture;
 
 void main() {
-    f_color = texture2D(space_texture, t_position) * 0.7;
+    f_color = texture(space_texture, t_position) * 0.7;
 }

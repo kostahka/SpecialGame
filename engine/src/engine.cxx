@@ -1,5 +1,6 @@
 #include "Kengine/engine.hxx"
 
+#include <SDL_video.h>
 #include <exception>
 #include <filesystem>
 #include <iostream>
@@ -235,28 +236,34 @@ public:
 
         SDL_SetWindowTitle(window, e_game->name.c_str());
 
-        int desired_window_width  = e_game->configuration.screen_width;
-        int desired_window_height = e_game->configuration.screen_height;
-
 #ifdef __ANDROID__
-        {
-            const SDL_DisplayMode* dispale_mode = SDL_GetCurrentDisplayMode(1);
-            if (!dispale_mode)
-            {
-                std::cerr << "can't get current display mode: "
-                          << SDL_GetError() << std::endl;
-            }
-            desired_window_width  = dispale_mode->screen_w;
-            desired_window_height = dispale_mode->screen_h;
-        }
-#endif
+        // {
+        //     const SDL_DisplayMode* display_mode =
+        //     SDL_GetCurrentDisplayMode(1); if (!display_mode)
+        //     {
+        //         std::cerr << "can't get current display mode: "
+        //                   << SDL_GetError() << std::endl;
+        //     }
+        //     e_game->configuration.screen_width  = display_mode->screen_w;
+        //     e_game->configuration.screen_height = display_mode->screen_h;
+        // }
 
-        SDL_SetWindowSize(window, desired_window_width, desired_window_height);
+        SDL_GetWindowSize(window,
+                          &e_game->configuration.screen_width,
+                          &e_game->configuration.screen_height);
+#else
+        SDL_SetWindowSize(window,
+                          e_game->configuration.screen_width,
+                          e_game->configuration.screen_height);
+#endif
+        SDL_GetWindowSizeInPixels(window,
+                                  &e_game->configuration.pixels_width,
+                                  &e_game->configuration.pixels_height);
 
         glViewport(0,
                    0,
-                   e_game->configuration.screen_width,
-                   e_game->configuration.screen_height);
+                   e_game->configuration.pixels_width,
+                   e_game->configuration.pixels_height);
 #ifdef ENGINE_DEV
         file_last_modify_listener::get_instance()->start_files_watch();
 #endif
@@ -273,7 +280,7 @@ public:
             file_last_modify_listener::get_instance()
                 ->handle_file_modify_listeners();
 #endif
-            continue_loop = event::poll_events(e_game);
+            continue_loop = event::poll_events(e_game, window);
 
             auto update_delta_time = game_clock.now() - update_time;
             if (update_delta_time > configuration.update_delta_time)

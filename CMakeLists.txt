@@ -76,16 +76,29 @@ endif()
 
 add_subdirectory(engine)
 
-add_custom_target(
-    copy_assets_shaders ALL
-    COMMAND
-        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/shaders/
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders
-    COMMAND
-        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
-        ${CMAKE_CURRENT_BINARY_DIR}/assets
-    COMMENT "Copying shaders and assets into binary directory")
-
+if(ANDROID)
+    add_custom_target(
+        copy_assets_shaders ALL
+        COMMAND
+            ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_LIST_DIR}/shaders/
+            ${CMAKE_CURRENT_LIST_DIR}/android-project/app/src/main/assets/shaders
+        COMMAND
+            ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
+            ${CMAKE_CURRENT_LIST_DIR}/android-project/app/src/main/assets/assets
+        COMMENT "Copying shaders and assets into binary directory")
+else()
+    add_custom_target(
+        copy_assets_shaders ALL
+        COMMAND
+            ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_LIST_DIR}/shaders/
+            ${CMAKE_CURRENT_BINARY_DIR}/shaders
+        COMMAND
+            ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
+            ${CMAKE_CURRENT_BINARY_DIR}/assets
+        COMMENT "Copying shaders and assets into binary directory")
+endif()
 add_dependencies(special-game copy_assets_shaders)
 
 if(ENGINE_DEV)

@@ -66,6 +66,7 @@ public:
         {
             std::cerr << "Failed to load wav from [" << path
                       << "] . Error: " << SDL_GetError() << std::endl;
+            return;
         }
 
         std::cout << "Audio format for: " << path << '\n'
