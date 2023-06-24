@@ -116,7 +116,8 @@ public:
             return "sdl init fail";
         }
 
-        window = SDL_CreateWindow("Engine init", 600, 400, SDL_WINDOW_OPENGL);
+        window = SDL_CreateWindow(
+            "Engine init", 600, 400, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
         if (window == nullptr)
         {
@@ -192,7 +193,7 @@ public:
         }
 #endif
         glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LEQUAL);
+        glDepthFunc(GL_ALWAYS);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         e_resources::init();

@@ -4,16 +4,17 @@
 #include "Kengine/render/texture.hxx"
 #include "glm/ext/matrix_clip_space.hpp"
 
+#include "joystick.hxx"
 #include "physics/physics.hxx"
 #include "render/background.hxx"
 #include "render/game-gui.hxx"
-#include "render/resources.hxx"
+#include "resources.hxx"
 #include "scene/main-menu.hxx"
 #include "scene/planet-scene.hxx"
 #include <iostream>
 
 #ifdef __ANDROID__
-#include <SDL3/SDL_main.h>
+#define main Game_main
 #endif
 
 using namespace Kengine;
@@ -53,6 +54,11 @@ void my_game::on_start()
     game_cursor = new cursor();
 
     game_cursor->set_cursor(cursor_type::simple);
+
+    aim_joystick  = new joystick({ configuration.screen_width / 2 - 100.f,
+                                   -configuration.screen_height / 2 + 100.f });
+    move_joystick = new joystick({ -configuration.screen_width / 2 + 100.f,
+                                   -configuration.screen_height / 2 + 100.f });
     physics::init();
 
     background::init();
@@ -75,6 +81,20 @@ void my_game::on_start()
 
 void my_game::on_event(event::game_event e)
 {
+    using namespace Kengine::event;
+    if (e.g_type == type::window_resize)
+    {
+        float proj_width_half =
+            static_cast<float>(configuration.screen_width) / 2.0f;
+        float proj_height_half =
+            static_cast<float>(configuration.screen_height) / 2.0f;
+        projection = glm::ortho(-proj_width_half,
+                                proj_width_half,
+                                -proj_height_half,
+                                proj_height_half,
+                                -50.0f,
+                                50.0f);
+    }
     current_scene->get_current_state()->on_event(e);
 }
 
@@ -97,9 +117,9 @@ void my_game::on_render(std::chrono::duration<int, std::milli> delta_time)
     }
 
     game_engine->draw_imgui();
-
+#ifndef __ANDROID__
     game_cursor->draw();
-
+#endif
     game_engine->swap_buffers();
 }
 
@@ -165,7 +185,7 @@ game* create_game(engine* e)
 }
 
 #ifndef ENGINE_DEV
-int main(int argc, char* argv[])
+extern "C" int main(int argc, char* argv[])
 {
     using namespace Kengine;
     engine* engine = engine::instance();

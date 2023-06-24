@@ -7,8 +7,10 @@ namespace resources
 {
 void init();
 
-extern Kengine::texture_object*      special_game_texture;
-extern Kengine::texture_object*      crosshairs_texture;
+extern Kengine::texture_object* special_game_texture;
+extern Kengine::texture_object* crosshairs_texture;
+extern Kengine::texture_object* joystick_texture;
+
 extern Kengine::audio::sound_buffer* main_theme_sound_buffer;
 extern Kengine::audio::sound_buffer* shooting_sound_buffer;
 extern Kengine::audio::sound_buffer* hurt_sound_buffer;

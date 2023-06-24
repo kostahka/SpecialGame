@@ -2,12 +2,13 @@
 
 #include "Kengine/engine.hxx"
 #include "Kengine/render/b2GLDraw.hxx"
+#include "Kengine/render/sprite.hxx"
+#include "Kengine/render/texture.hxx"
 #include "glm/fwd.hpp"
 #include <box2d/box2d.h>
 
-#include "Kengine/render/sprite.hxx"
-#include "Kengine/render/texture.hxx"
 #include "game-object/game-object.hxx"
+#include "joystick.hxx"
 #include "landscape.hxx"
 #include "render/cursor.hxx"
 #include "scene/scene.hxx"
@@ -46,7 +47,9 @@ public:
 
     ~my_game() override;
 
-    cursor* game_cursor;
+    cursor*   game_cursor;
+    joystick* aim_joystick;
+    joystick* move_joystick;
 
 private:
     std::map<std::string, int> scene_id;

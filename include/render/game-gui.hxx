@@ -19,7 +19,7 @@ namespace gui
 // clang-format on
 
 void draw_health_bar(int hp);
-void draw_selected_gun(int selected_gun);
+int  draw_selected_gun(int selected_gun);
 void draw_score(int score);
 void draw_training_hint();
 bool draw_end_menu(int score);

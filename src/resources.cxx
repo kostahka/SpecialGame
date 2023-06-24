@@ -1,9 +1,10 @@
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 namespace resources
 {
 Kengine::texture_object* special_game_texture{ nullptr };
 Kengine::texture_object* crosshairs_texture{ nullptr };
+Kengine::texture_object* joystick_texture{ nullptr };
 
 Kengine::audio::sound_buffer* main_theme_sound_buffer{ nullptr };
 Kengine::audio::sound_buffer* shooting_sound_buffer{ nullptr };
@@ -18,6 +19,7 @@ void init()
 {
     crosshairs_texture   = Kengine::create_texture("assets/crosshairs.png");
     special_game_texture = Kengine::create_texture("assets/SpecialGame.png");
+    joystick_texture     = Kengine::create_texture("assets/joysticks.png");
 
     main_theme_sound_buffer =
         Kengine::audio::create_sound_buffer("assets/SpaceSoundtrack.wav");

@@ -9,7 +9,7 @@
 #include "game.hxx"
 #include "physics/physics.hxx"
 #include "render/camera.hxx"
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 #include <cmath>
 #include <iostream>

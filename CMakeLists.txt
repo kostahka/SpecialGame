@@ -19,8 +19,8 @@ set(GAME_SRC
     include/game.hxx
     src/landscape.cxx
     include/landscape.hxx
-    include/render/resources.hxx
-    src/render/resources.cxx
+    include/resources.hxx
+    src/resources.cxx
     src/render/camera.cxx
     include/render/camera.hxx
     include/render/cursor.hxx
@@ -55,7 +55,9 @@ set(GAME_SRC
     include/render/background.hxx
     src/render/game-gui.cxx
     src/scene/main-menu.cxx
-    include/scene/main-menu.hxx)
+    include/scene/main-menu.hxx
+    include/joystick.hxx
+    src/joystick.cxx)
 
 if(ENGINE_DEV)
     add_library(special-game SHARED ${GAME_SRC})

@@ -9,6 +9,9 @@ enum class type
 {
     keyboard_event,
     mouse_button_event,
+    touch_event,
+    touch_move_event,
+    window_resize,
 
     quit,
 
@@ -27,6 +30,15 @@ struct keyboard_event
     input::keyboard::key key;
     bool                 pressed;
 };
+struct touch_event
+{
+    int64_t touch_id;
+    int64_t finger_id;
+    float   x;
+    float   y;
+    bool    pressed;
+};
+
 struct game_event
 {
     type g_type;
@@ -34,6 +46,7 @@ struct game_event
     {
         mouse_button_event mouse;
         keyboard_event     keyboard;
+        touch_event        touch;
     };
 };
 

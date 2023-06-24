@@ -1,7 +1,7 @@
 #include "render/cursor.hxx"
 
 #include "render/camera.hxx"
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 #include "Kengine/io/input.hxx"
 #include "Kengine/transform3d.hxx"

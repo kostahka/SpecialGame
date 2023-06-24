@@ -2,7 +2,7 @@
 #include "astronaut/bullet.hxx"
 #include "game.hxx"
 #include "physics/physics.hxx"
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 #include <iostream>
 
@@ -113,7 +113,7 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     d_lines->create();
 }
 
-void astronaut::move(int direction)
+void astronaut::move(float direction)
 {
     legs_fixture->SetFriction(1);
     move_direction = direction;
@@ -158,7 +158,7 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
 
         astronaut_anim.set_current_animation("run");
         astronaut_body->ApplyLinearImpulseToCenter(
-            static_cast<float>(move_direction) * d_impulse_vec, true);
+            move_direction * d_impulse_vec, true);
         legs_fixture->SetFriction(astronaut_friction);
         moving = false;
     }
@@ -324,6 +324,10 @@ void astronaut::destroy()
         std::cout << "Destroy enemy astronaut" << std::endl;
     else
         std::cout << "Destroy player astronaut" << std::endl;
+}
+float astronaut::get_angle() const
+{
+    return astronaut_body->GetAngle();
 }
 
 float astronaut::GroundRayCastCallback::ReportFixture(b2Fixture*    fixture,

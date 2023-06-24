@@ -2,6 +2,7 @@
 
 #include "astronaut/enemy_spawner.hxx"
 #include "astronaut/player.hxx"
+#include "joystick.hxx"
 #include "landscape.hxx"
 #include "scene.hxx"
 

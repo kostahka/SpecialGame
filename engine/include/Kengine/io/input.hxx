@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace Kengine::input
 {
 
@@ -283,4 +285,9 @@ void update();
 
 bool key_pressed(key);
 } // namespace keyboard
+
+namespace touch
+{
+// bool get_touch_pos(int64_t touch_id, int64_t finger_id, float* x, float* y);
+}
 } // namespace Kengine::input

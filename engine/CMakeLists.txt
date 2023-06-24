@@ -129,7 +129,7 @@ else()
 
     # Shared engine lib
     add_library(game-engine-shared SHARED ${ENGINE_SRC})
-    target_link_libraries(game-engine-shared PUBLIC SDL3::SDL3-static)
+    target_link_libraries(game-engine-shared PRIVATE SDL3::SDL3-static)
 
     target_link_libraries(game-engine-shared PRIVATE efsw)
     target_link_libraries(game-engine-shared PUBLIC glm::glm)
@@ -162,7 +162,7 @@ else()
     endif()
     # Static engine lib
     add_library(game-engine-static STATIC ${ENGINE_SRC})
-    target_link_libraries(game-engine-static PUBLIC SDL3::SDL3-static)
+    target_link_libraries(game-engine-static PRIVATE SDL3::SDL3-static)
 
     target_link_libraries(game-engine-static PRIVATE efsw)
     target_link_libraries(game-engine-static PUBLIC glm::glm)

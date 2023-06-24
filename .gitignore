@@ -10,4 +10,4 @@ bin
 /android-project/app/.cxx
 /android-project/local.properties
 /android-project/.idea
-/android-project/.gradle
+/android-project/.gradle/

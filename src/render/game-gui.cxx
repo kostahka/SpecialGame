@@ -1,6 +1,6 @@
 #include "render/game-gui.hxx"
 #include "game.hxx"
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 namespace gui
 {
@@ -71,62 +71,84 @@ void draw_health_bar(int hp)
     }
 }
 
-void draw_selected_gun(int selected_gun)
+int draw_selected_gun(int selected_gun)
 {
+    int reselect_gun = 0;
+    ImGui::SetNextWindowPos({ 20, 20 });
     if (ImGui::Begin("Guns", nullptr, gui::window_flags))
     {
         if (selected_gun == 1)
         {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg,
+            ImGui::PushStyleColor(ImGuiCol_Button,
                                   (ImVec4)ImColor(IM_COL32(55, 55, 155, 255)));
         }
         else
         {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg,
+            ImGui::PushStyleColor(ImGuiCol_Button,
                                   (ImVec4)ImColor(IM_COL32(55, 55, 55, 255)));
         }
 
-        if (ImGui::BeginChildFrame(1, { 84, 69 }))
+        if (ImGui::ImageButton("Pistol",
+                               reinterpret_cast<void*>(
+                                   resources::special_game_texture->get_id()),
+                               ImVec2(64, 44),
+                               ImVec2(3 * 64 / 640.f, (2 * 64 + 10) / 640.f),
+                               ImVec2(4 * 64 / 640.f, (3 * 64 - 10) / 640.f)))
         {
-
-            ImGui::Text("1. Pistol");
-            ImGui::Image(reinterpret_cast<void*>(
-                             resources::special_game_texture->get_id()),
-                         ImVec2(64, 44),
-                         ImVec2(3 * 64 / 640.f, (2 * 64 + 10) / 640.f),
-                         ImVec2(4 * 64 / 640.f, (3 * 64 - 10) / 640.f));
-
-            ImGui::EndChildFrame();
+            reselect_gun = 1;
         }
+        //        if (ImGui::BeginChildFrame(1, { 84, 69 }))
+        //        {
+        //            ImGui::Text("1. Pistol");
+        //            ImGui::Image(reinterpret_cast<void*>(
+        //                             resources::special_game_texture->get_id()),
+        //                         ImVec2(64, 44),
+        //                         ImVec2(3 * 64 / 640.f, (2 * 64 + 10) /
+        //                         640.f), ImVec2(4 * 64 / 640.f, (3 * 64 - 10)
+        //                         / 640.f));
+        //
+        //            ImGui::EndChildFrame();
+        //        }
         ImGui::SameLine();
         ImGui::PopStyleColor(1);
 
         if (selected_gun == 2)
         {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg,
+            ImGui::PushStyleColor(ImGuiCol_Button,
                                   (ImVec4)ImColor(IM_COL32(55, 55, 155, 255)));
         }
         else
         {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg,
+            ImGui::PushStyleColor(ImGuiCol_Button,
                                   (ImVec4)ImColor(IM_COL32(55, 55, 55, 255)));
         }
 
-        if (ImGui::BeginChildFrame(2, { 84, 69 }))
+        if (ImGui::ImageButton("Drill",
+                               reinterpret_cast<void*>(
+                                   resources::special_game_texture->get_id()),
+                               ImVec2(64, 44),
+                               ImVec2(2 * 64 / 640.f, (2 * 64 + 10) / 640.f),
+                               ImVec2(3 * 64 / 640.f, (3 * 64 - 10) / 640.f)))
         {
-            ImGui::Text("2. Drill");
-            ImGui::Image(reinterpret_cast<void*>(
-                             resources::special_game_texture->get_id()),
-                         ImVec2(64, 44),
-                         ImVec2(2 * 64 / 640.f, (2 * 64 + 10) / 640.f),
-                         ImVec2(3 * 64 / 640.f, (3 * 64 - 10) / 640.f));
-
-            ImGui::EndChildFrame();
+            reselect_gun = 2;
         }
+        //        if (ImGui::BeginChildFrame(2, { 84, 69 }))
+        //        {
+        //            ImGui::Text("2. Drill");
+        //            ImGui::Image(reinterpret_cast<void*>(
+        //                             resources::special_game_texture->get_id()),
+        //                         ImVec2(64, 44),
+        //                         ImVec2(2 * 64 / 640.f, (2 * 64 + 10) /
+        //                         640.f), ImVec2(3 * 64 / 640.f, (3 * 64 - 10)
+        //                         / 640.f));
+        //
+        //            ImGui::EndChildFrame();
+        //        }
         ImGui::PopStyleColor(1);
 
         ImGui::End();
     }
+    return reselect_gun;
 }
 void draw_score(int score)
 {

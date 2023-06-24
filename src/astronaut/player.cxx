@@ -5,11 +5,13 @@
 #include "physics/physics.hxx"
 #include "render/camera.hxx"
 
-constexpr int astronaut_id = 0;
+constexpr int astronaut_id       = 0;
+constexpr int player_reload_time = 200;
 
 player::player(const Kengine::transform2d& pos)
     : dead(false)
     , selected_gun(1)
+    , reload_time(0)
 {
     player_astronaut = new astronaut(pos, false);
     player_astronaut->add_destroy_listener(this, astronaut_id);
@@ -17,12 +19,39 @@ player::player(const Kengine::transform2d& pos)
 
 void player::control(std::chrono::duration<int, std::milli> delta_time)
 {
+    if (reload_time > 0)
+    {
+        reload_time -= delta_time.count();
+    }
     if (!dead)
     {
         Kengine::transform2d player_pos = player_astronaut->get_pos();
         camera::look_at(player_pos, player_pos - physics::land.get_center());
 
         using namespace Kengine::input;
+#ifdef __ANDROID__
+        if (current_game->move_joystick->active)
+        {
+            player_astronaut->move(current_game->move_joystick->axis_x);
+            if (current_game->move_joystick->axis_y > 0.2)
+            {
+                player_astronaut->fly();
+            }
+        }
+
+        if (current_game->aim_joystick->mod > 0.2)
+        {
+            float aim_angle = std::atan2(current_game->aim_joystick->axis_y,
+                                         current_game->aim_joystick->axis_x);
+            aim_angle += player_astronaut->get_angle();
+            player_astronaut->aim(aim_angle);
+            if (reload_time <= 0)
+            {
+                player_astronaut->shoot();
+                reload_time = player_reload_time;
+            }
+        }
+#else
         if (keyboard::key_pressed(keyboard::key::key_a))
         {
             player_astronaut->move(-1);
@@ -35,6 +64,7 @@ void player::control(std::chrono::duration<int, std::milli> delta_time)
         {
             player_astronaut->fly();
         }
+
         Kengine::transform2d mouse_pos =
             camera::screen_to_global({ mouse::x, mouse::y });
 
@@ -43,6 +73,15 @@ void player::control(std::chrono::duration<int, std::milli> delta_time)
         float mouse_angle = std::atan2(delta_pos.y, delta_pos.x);
         player_astronaut->aim(mouse_angle);
 
+        if (mouse::button_pressed(mouse::button::left))
+        {
+            if (reload_time <= 0)
+            {
+                player_astronaut->shoot();
+                reload_time = player_reload_time;
+            }
+        }
+#endif
         hp = player_astronaut->get_hp();
     }
 }
@@ -65,13 +104,6 @@ void player::on_event(Kengine::event::game_event e)
                 current_game->game_cursor->set_cursor(cursor_type::shovel);
                 selected_gun = 2;
                 player_astronaut->select_gun(gun::drill);
-            }
-        }
-        if (e.g_type == type::mouse_button_event && e.mouse.pressed)
-        {
-            if (e.mouse.button == mouse::button::left)
-            {
-                player_astronaut->shoot();
             }
         }
     }
@@ -97,4 +129,19 @@ int player::get_hp() const
 int player::get_selected_gun() const
 {
     return selected_gun;
+}
+void player::select_gun(int gun)
+{
+    if (gun == 1)
+    {
+        current_game->game_cursor->set_cursor(cursor_type::attack);
+        selected_gun = 1;
+        player_astronaut->select_gun(gun::pistol);
+    }
+    if (gun == 2)
+    {
+        current_game->game_cursor->set_cursor(cursor_type::shovel);
+        selected_gun = 2;
+        player_astronaut->select_gun(gun::drill);
+    }
 }

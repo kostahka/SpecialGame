@@ -1,9 +1,12 @@
 #include "Kengine/io/input.hxx"
+#include "Kengine/engine.hxx"
+#include "imgui.h"
 
 #include <array>
 
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
+#include <SDL_touch.h>
 
 namespace Kengine::input
 {
@@ -26,6 +29,7 @@ void update()
 
 bool button_pressed(button b)
 {
+
     return b_pressed[static_cast<int>(b) - 1];
 }
 } // namespace mouse
@@ -48,4 +52,25 @@ bool key_pressed(key k)
     return k_pressed[static_cast<int>(k)];
 };
 } // namespace keyboard
+
+namespace touch
+{
+// Not working, because SDL_GetTouchFinger await for finger index in array
+// implemented in SDL3 and not fingerId. SDL3 has no declaration to get
+// finger index
+//
+// bool get_touch_pos(int64_t touch_id, int64_t finger_id, float* x, float* y)
+//{
+//    SDL_Finger* finger = SDL_GetTouchFinger(touch_id, finger_id);
+//    if (finger)
+//    {
+//        *x = finger->x *
+//        engine::instance()->e_game->configuration.screen_width; *y =
+//            finger->y *
+//            engine::instance()->e_game->configuration.screen_height;
+//        return true;
+//    }
+//    return false;
+//}
+} // namespace touch
 } // namespace Kengine::input

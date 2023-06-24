@@ -12,7 +12,7 @@
 
 inline Kengine::transform3d vec_to_tr(const b2Vec2 v)
 {
-    return { v.x, v.y, 5 };
+    return { v.x, v.y, 10 };
 }
 
 //

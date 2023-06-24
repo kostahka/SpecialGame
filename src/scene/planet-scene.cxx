@@ -3,7 +3,7 @@
 #include "game.hxx"
 #include "physics/physics.hxx"
 #include "render/game-gui.hxx"
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 const std::string planet_scene::name = "planet_scene";
 
@@ -47,8 +47,9 @@ planet_start_state::planet_start_state(planet_scene* scene)
 
 void planet_start_state::on_event(const Kengine::event::game_event& event)
 {
-    if (event.g_type == Kengine::event::type::keyboard_event &&
-        event.keyboard.pressed)
+    using namespace Kengine::event;
+    if ((event.g_type == type::keyboard_event && event.keyboard.pressed) ||
+        (event.g_type == type::touch_event && event.touch.pressed))
     {
         state_scene->set_state(planet_play_state::name);
     }
@@ -87,8 +88,13 @@ void planet_play_state::on_event(const Kengine::event::game_event& e)
 {
     using namespace Kengine::event;
     using namespace Kengine::input;
+#ifdef __ANDROID__
+    current_game->aim_joystick->on_event(e);
+    current_game->move_joystick->on_event(e);
+#endif
     if (e.g_type == type::keyboard_event &&
-        e.keyboard.key == input::keyboard::key::key_escape &&
+        (e.keyboard.key == keyboard::key::key_escape ||
+         e.keyboard.key == keyboard::key::key_ac_back) &&
         e.keyboard.pressed)
     {
         state_scene->set_state(planet_pause_state::name);
@@ -101,7 +107,6 @@ void planet_play_state::update(
     std::chrono::duration<int, std::milli> delta_time)
 {
     physics::update(delta_time);
-
     state_scene->e_spawner.update(delta_time);
 
     state_scene->update_game_objects(delta_time);
@@ -120,13 +125,19 @@ void planet_play_state::render(
     state_scene->render_game_objects(delta_time);
 
     physics::land.draw();
+#ifdef __ANDROID__
+    current_game->aim_joystick->draw();
+    current_game->move_joystick->draw();
+#endif
 }
 
 void planet_play_state::imgui_render()
 {
     state_scene->e_spawner.imgui_render();
 
-    gui::draw_selected_gun(state_scene->game_player->get_selected_gun());
+    int reselect_gun =
+        gui::draw_selected_gun(state_scene->game_player->get_selected_gun());
+    state_scene->game_player->select_gun(reselect_gun);
     gui::draw_health_bar(state_scene->game_player->get_hp());
     gui::draw_score(state_scene->e_spawner.get_killed_enemies());
 }

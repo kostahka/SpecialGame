@@ -21,7 +21,7 @@ class astronaut : public physics_object,
 public:
     explicit astronaut(const Kengine::transform2d& pos, bool enemy = false);
 
-    void move(int direction);
+    void move(float direction);
     void fly();
 
     void aim(float angle);
@@ -42,6 +42,7 @@ public:
 
     Kengine::transform2d get_pos() const;
     int                  get_hp() const;
+    float                get_angle() const;
 
     ~astronaut() override;
 
@@ -75,9 +76,9 @@ private:
     Kengine::audio::sound_object* fly_sound;
     Kengine::audio::sound_object* walking_sound;
 
-    bool moving;
-    int  move_direction;
-    bool flying;
+    bool  moving;
+    float move_direction;
+    bool  flying;
 
     float gun_angle;
     gun   current_gun;

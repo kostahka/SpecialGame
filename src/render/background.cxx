@@ -3,7 +3,7 @@
 #include "Kengine/render/sprite.hxx"
 #include "Kengine/render/texture.hxx"
 
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 namespace background
 {

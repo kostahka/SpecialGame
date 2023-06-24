@@ -3,7 +3,7 @@
 
 #include "physics/collision_interface.hxx"
 #include "physics/physics.hxx"
-#include "render/resources.hxx"
+#include "resources.hxx"
 
 constexpr float bullet_size     = 6.f;
 constexpr float bullet_density  = 0.1f;
