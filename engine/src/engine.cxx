@@ -2,9 +2,7 @@
 
 #include <SDL_video.h>
 #include <exception>
-#include <filesystem>
 #include <iostream>
-#include <ratio>
 #include <streambuf>
 #include <string_view>
 
@@ -116,13 +114,11 @@ public:
             return "sdl init fail";
         }
 #ifdef __ANDROID__
-        window = SDL_CreateWindow(
-                "Engine init", 600, 400, SDL_WINDOW_OPENGL);
+        window = SDL_CreateWindow("Engine init", 600, 400, SDL_WINDOW_OPENGL);
 #else
         window = SDL_CreateWindow(
             "Engine init", 600, 400, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 #endif
-
 
         if (window == nullptr)
         {
@@ -177,15 +173,13 @@ public:
             return "failed to init glad";
         }
 
+#ifndef NDEBUG
         std::string_view platform{ SDL_GetPlatform() };
         if (platform != "Mac OS X")
         {
             glEnable(GL_DEBUG_OUTPUT);
-#ifdef __ANDROID__
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-#else
             glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-#endif
             glDebugMessageCallback(&debug_message, nullptr);
             glDebugMessageControl(
                 GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
@@ -197,10 +191,12 @@ public:
                                   GL_FALSE);
         }
 #endif
+#endif
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_ALWAYS);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        std::cout << "Init engine resource..." << std::endl;
         e_resources::init();
 
         IMGUI_CHECKVERSION();

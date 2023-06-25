@@ -10,7 +10,7 @@ cursor::cursor()
     : aim_sprite(resources::crosshairs_texture,
                  { 0, 0, 64, 64 },
                  { 0, 0 },
-                 { 40, 40 },
+                 { 10, 10 },
                  false)
 {
     aim_sprite.set_origin({ 0.5, 0.5 });

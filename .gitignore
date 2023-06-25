@@ -11,3 +11,4 @@ bin
 /android-project/local.properties
 /android-project/.idea
 /android-project/.gradle/
+/cmake-build-release/

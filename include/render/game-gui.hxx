@@ -4,6 +4,7 @@
 
 namespace gui
 {
+extern float gui_scale;
 // clang-format off
     constexpr ImGuiWindowFlags window_flags =
                                             ImGuiWindowFlags_NoMove |
@@ -18,6 +19,7 @@ namespace gui
 ;
 // clang-format on
 
+void debug_draw_menu();
 void draw_health_bar(int hp);
 int  draw_selected_gun(int selected_gun);
 void draw_score(int score);

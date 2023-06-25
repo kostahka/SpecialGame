@@ -4,7 +4,8 @@
 
 namespace camera
 {
-void                 look_at(const Kengine::transform2d& pos, float angle);
+void                 init();
+void                 window_resize();
 void                 look_at(const Kengine::transform2d& pos,
                              const Kengine::transform2d& up_vector);
 Kengine::transform2d get_pos();

@@ -17,8 +17,8 @@ void init()
     space_texture = Kengine::create_texture("assets/space.png");
     planet_sprite = new Kengine::sprite(resources::special_game_texture,
                                         { 2 * 64, 3 * 64, 128, 128 },
-                                        { -150, 100 },
-                                        { 150, 150 },
+                                        { -30, 20 },
+                                        { 30, 30 },
                                         false,
                                         -10);
     planet_sprite->set_origin({ 0.5, 0.5 });

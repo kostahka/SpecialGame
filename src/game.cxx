@@ -1,12 +1,12 @@
 #include "game.hxx"
 
 #include "Kengine/engine.hxx"
-#include "Kengine/render/texture.hxx"
 #include "glm/ext/matrix_clip_space.hpp"
 
 #include "joystick.hxx"
 #include "physics/physics.hxx"
 #include "render/background.hxx"
+#include "render/camera.hxx"
 #include "render/game-gui.hxx"
 #include "resources.hxx"
 #include "scene/main-menu.hxx"
@@ -19,8 +19,6 @@
 
 using namespace Kengine;
 
-bool debug_draw = false;
-
 my_game* current_game{ nullptr };
 
 std::chrono::high_resolution_clock game_clock;
@@ -29,6 +27,7 @@ my_game::my_game(engine* game_engine)
     : game("My game", game_engine)
     , game_cursor(nullptr)
     , current_scene(nullptr)
+    , debug_draw(false)
 {
     configuration.screen_width  = 1000;
     configuration.screen_height = 600;
@@ -39,34 +38,18 @@ void my_game::on_start()
     resources::init();
 
     start_point = game_clock.now();
-#ifdef __ANDROID__
-    float screen_k = static_cast<float>(configuration.screen_width) / static_cast<float>(configuration.screen_height);
-    float proj_width_half =
-            screen_k * 300;
-    float proj_height_half =
-            300;
-#else
-    float proj_width_half =
-        static_cast<float>(configuration.screen_width) / 2.0f;
-    float proj_height_half =
-        static_cast<float>(configuration.screen_height) / 2.0f;
-#endif
-    projection = glm::ortho(-proj_width_half,
-                            proj_width_half,
-                            -proj_height_half,
-                            proj_height_half,
-                            -50.0f,
-                            50.0f);
-    view       = glm::mat4(1);
+
+    aim_joystick  = new joystick();
+    move_joystick = new joystick();
+
+    camera::init();
+
+    view = glm::mat4(1);
 
     game_cursor = new cursor();
 
     game_cursor->set_cursor(cursor_type::simple);
 
-    aim_joystick  = new joystick({ configuration.screen_width / 2 - 100.f,
-                                   -configuration.screen_height / 2 + 100.f });
-    move_joystick = new joystick({ -configuration.screen_width / 2 + 100.f,
-                                   -configuration.screen_height / 2 + 100.f });
     physics::init();
 
     background::init();
@@ -93,16 +76,7 @@ void my_game::on_event(event::game_event e)
 #ifndef __ANDROID__
     if (e.g_type == type::window_resize)
     {
-        float proj_width_half =
-            static_cast<float>(configuration.screen_width) / 2.0f;
-        float proj_height_half =
-            static_cast<float>(configuration.screen_height) / 2.0f;
-        projection = glm::ortho(-proj_width_half,
-                                proj_width_half,
-                                -proj_height_half,
-                                proj_height_half,
-                                -50.0f,
-                                50.0f);
+        camera::window_resize();
     }
 #endif
     current_scene->get_current_state()->on_event(e);
@@ -137,17 +111,7 @@ void my_game::on_imgui_render()
 {
     current_scene->get_current_state()->imgui_render();
 
-    ImGui::SetNextWindowPos(
-        { static_cast<float>(configuration.screen_width - 150), 0 });
-    ImGui::SetNextWindowSize({ 150, 50 });
-
-    if (ImGui::Begin("Develop", nullptr, gui::window_flags))
-    {
-        ImGui::Checkbox("Debug draw", &debug_draw);
-
-        ImGui::End();
-    }
-
+    gui::debug_draw_menu();
     // ImGui::ShowDemoWindow();
 }
 

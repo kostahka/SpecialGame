@@ -36,6 +36,8 @@ void planet_scene::on_start()
     game_player = new player(physics::land.get_spawn_place(0));
     e_spawner.init(game_player->get_astronaut());
     current_game->game_cursor->set_cursor(cursor_type::attack);
+    current_game->aim_joystick->deactivate();
+    current_game->move_joystick->deactivate();
 }
 
 const std::string planet_start_state::name = "planet_start";

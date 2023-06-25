@@ -4,6 +4,7 @@
 
 namespace gui
 {
+float gui_scale = 1;
 
 bool ButtonCentered(const char* label, const ImVec2& size = { 0, 0 })
 {
@@ -43,18 +44,39 @@ void TextCentered(const std::string& text)
     ImGui::PopTextWrapPos();
 }
 
+void debug_draw_menu()
+{
+    ImGui::SetNextWindowPos(
+        { static_cast<float>(current_game->configuration.screen_width -
+                             150 * gui_scale),
+          0 });
+    ImGui::SetNextWindowSize({ 150 * gui_scale, 50 * gui_scale });
+
+    if (ImGui::Begin("Develop", nullptr, gui::window_flags))
+    {
+        ImGui::SetWindowFontScale(gui_scale);
+        
+        ImGui::Checkbox("Debug draw", &current_game->debug_draw);
+
+        ImGui::End();
+    }
+}
+
 void draw_health_bar(int hp)
 {
     ImGui::SetNextWindowPos(
-        { static_cast<float>(current_game->configuration.screen_width - 60),
-          60 });
-    ImGui::SetNextWindowSize({ ImGui::GetWindowSize().x, 200 });
+        { static_cast<float>(current_game->configuration.screen_width -
+                             60 * gui_scale),
+          60 * gui_scale });
+    ImGui::SetNextWindowSize({ ImGui::GetWindowSize().x, 200 * gui_scale });
     if (ImGui::Begin("HP", nullptr, gui::window_flags))
     {
+        ImGui::SetWindowFontScale(gui_scale);
+
         ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
         ImGui::Text("Health");
-        ImVec2 health_bar_size = ImVec2(30, 160);
+        ImVec2 health_bar_size = ImVec2(30 * gui_scale, 160 * gui_scale);
 
         float fill = static_cast<float>(hp) / 100.f;
 
@@ -91,7 +113,7 @@ int draw_selected_gun(int selected_gun)
         if (ImGui::ImageButton("Pistol",
                                reinterpret_cast<void*>(
                                    resources::special_game_texture->get_id()),
-                               ImVec2(64, 44),
+                               ImVec2(64 * gui_scale, 44 * gui_scale),
                                ImVec2(3 * 64 / 640.f, (2 * 64 + 10) / 640.f),
                                ImVec2(4 * 64 / 640.f, (3 * 64 - 10) / 640.f)))
         {
@@ -126,7 +148,7 @@ int draw_selected_gun(int selected_gun)
         if (ImGui::ImageButton("Drill",
                                reinterpret_cast<void*>(
                                    resources::special_game_texture->get_id()),
-                               ImVec2(64, 44),
+                               ImVec2(64 * gui_scale, 44 * gui_scale),
                                ImVec2(2 * 64 / 640.f, (2 * 64 + 10) / 640.f),
                                ImVec2(3 * 64 / 640.f, (3 * 64 - 10) / 640.f)))
         {
@@ -153,12 +175,14 @@ int draw_selected_gun(int selected_gun)
 void draw_score(int score)
 {
     ImGui::SetNextWindowPos(
-        { static_cast<float>(current_game->configuration.screen_width / 2 - 75),
-          10 });
-    ImGui::SetNextWindowSize({ 150, 30 });
+        { static_cast<float>(current_game->configuration.screen_width / 2 -
+                             75 * gui_scale),
+          10 * gui_scale });
+    ImGui::SetNextWindowSize({ 150 * gui_scale, 30 * gui_scale });
 
     if (ImGui::Begin("Score", nullptr, gui::window_flags))
     {
+        ImGui::SetWindowFontScale(gui_scale);
         TextCentered("Score: " + std::to_string(score));
         ImGui::End();
     }
@@ -168,13 +192,14 @@ void draw_training_hint()
 {
     ImGui::SetNextWindowPos(
         { static_cast<float>(current_game->configuration.screen_width / 2 -
-                             200),
+                             200 * gui_scale),
           static_cast<float>(current_game->configuration.screen_height / 2 -
-                             50) });
-    ImGui::SetNextWindowSize({ 400, 100 });
+                             50 * gui_scale) });
+    ImGui::SetNextWindowSize({ 400 * gui_scale, 100 * gui_scale });
 
     if (ImGui::Begin("Training", nullptr, gui::window_flags))
     {
+        ImGui::SetWindowFontScale(gui_scale);
 
         TextCentered("Move horizontal with [a], [d].\n"
                      "Fly with [w].\n"
@@ -190,23 +215,24 @@ bool draw_end_menu(int score)
     bool restart = false;
     ImGui::SetNextWindowPos(
         { static_cast<float>(current_game->configuration.screen_width / 2 -
-                             200),
+                             200 * gui_scale),
           static_cast<float>(current_game->configuration.screen_height / 2 -
-                             50) });
-    ImGui::SetNextWindowSize({ 400, 120 });
+                             50 * gui_scale) });
+    ImGui::SetNextWindowSize({ 400 * gui_scale, 120 * gui_scale });
 
     if (ImGui::Begin("End game", nullptr, gui::window_flags))
     {
-        ImGui::SetWindowFontScale(2);
+        ImGui::SetWindowFontScale(2 * gui_scale);
 
         TextCentered("Game Over");
-        ImGui::SetWindowFontScale(1);
+        ImGui::SetWindowFontScale(gui_scale);
         std::string score_str = "Score: " + std::to_string(score);
         TextCentered(score_str);
 
-        restart = ButtonCentered("Restart", { 100, 20 });
+        restart =
+            ButtonCentered("Restart", { 100 * gui_scale, 20 * gui_scale });
 
-        if (ButtonCentered("Exit", { 100, 20 }))
+        if (ButtonCentered("Exit", { 100 * gui_scale, 20 * gui_scale }))
         {
             current_game->game_engine->quit();
         }
@@ -222,21 +248,22 @@ bool draw_main_menu()
     bool start_game = false;
     ImGui::SetNextWindowPos(
         { static_cast<float>(current_game->configuration.screen_width / 2 -
-                             200),
+                             200 * gui_scale),
           static_cast<float>(current_game->configuration.screen_height / 2 -
-                             50) });
-    ImGui::SetNextWindowSize({ 400, 120 });
+                             50 * gui_scale) });
+    ImGui::SetNextWindowSize({ 400 * gui_scale, 120 * gui_scale });
 
     if (ImGui::Begin("Main menu", nullptr, gui::window_flags))
     {
-        ImGui::SetWindowFontScale(2);
+        ImGui::SetWindowFontScale(2 * gui_scale);
 
         TextCentered("Main menu");
-        ImGui::SetWindowFontScale(1);
+        ImGui::SetWindowFontScale(gui_scale);
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-        start_game = ButtonCentered("Play", { 100, 20 });
-        if (ButtonCentered("Exit", { 100, 20 }))
+        start_game =
+            ButtonCentered("Play", { 100 * gui_scale, 20 * gui_scale });
+        if (ButtonCentered("Exit", { 100 * gui_scale, 20 * gui_scale }))
         {
             current_game->game_engine->quit();
         }
@@ -251,28 +278,28 @@ int draw_pause_menu()
     int button = 0;
     ImGui::SetNextWindowPos(
         { static_cast<float>(current_game->configuration.screen_width / 2 -
-                             200),
+                             200 * gui_scale),
           static_cast<float>(current_game->configuration.screen_height / 2 -
-                             80) });
-    ImGui::SetNextWindowSize({ 400, 160 });
+                             80 * gui_scale) });
+    ImGui::SetNextWindowSize({ 400 * gui_scale, 160 * gui_scale });
 
     if (ImGui::Begin("Pause", nullptr, gui::window_flags))
     {
-        ImGui::SetWindowFontScale(2);
+        ImGui::SetWindowFontScale(2 * gui_scale);
 
         TextCentered("Pause");
-        ImGui::SetWindowFontScale(1);
+        ImGui::SetWindowFontScale(gui_scale);
 
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 20);
-        if (ButtonCentered("Resume", { 100, 20 }))
+        if (ButtonCentered("Resume", { 100 * gui_scale, 20 * gui_scale }))
         {
             button = 1;
         }
-        if (ButtonCentered("Restart", { 100, 20 }))
+        if (ButtonCentered("Restart", { 100 * gui_scale, 20 * gui_scale }))
         {
             button = 2;
         }
-        if (ButtonCentered("Exit", { 100, 20 }))
+        if (ButtonCentered("Exit", { 100 * gui_scale, 20 * gui_scale }))
         {
             current_game->game_engine->quit();
         }
@@ -287,15 +314,16 @@ void draw_wave_time(int current, int max)
 {
     ImGui::SetNextWindowPos(
         { static_cast<float>(current_game->configuration.screen_width / 2 -
-                             100),
-          40 });
-    ImGui::SetNextWindowSize({ 200, 60 });
+                             100 * gui_scale),
+          40 * gui_scale });
+    ImGui::SetNextWindowSize({ 200 * gui_scale, 60 * gui_scale });
 
     if (ImGui::Begin("Wave time", nullptr, gui::window_flags))
     {
+        ImGui::SetWindowFontScale(gui_scale);
         TextCentered("Time to next wave:");
 
-        ImVec2 time_bar_size = ImVec2(180, 20);
+        ImVec2 time_bar_size = ImVec2(180 * gui_scale, 20 * gui_scale);
 
         float fill = static_cast<float>(current) / static_cast<float>(max);
 
@@ -323,15 +351,17 @@ void draw_enemies_count(int current, int max)
 {
     ImGui::SetNextWindowPos(
         { static_cast<float>(current_game->configuration.screen_width / 2 -
-                             100),
-          40 });
-    ImGui::SetNextWindowSize({ 200, 60 });
+                             100 * gui_scale),
+          40 * gui_scale });
+    ImGui::SetNextWindowSize({ 200 * gui_scale, 60 * gui_scale });
 
     if (ImGui::Begin("Enemies count", nullptr, gui::window_flags))
     {
+        ImGui::SetWindowFontScale(gui_scale);
+
         TextCentered(std::to_string(current) + " enemies left.");
 
-        ImVec2 count_bar_size = ImVec2(180, 20);
+        ImVec2 count_bar_size = ImVec2(180 * gui_scale, 20 * gui_scale);
 
         float fill = static_cast<float>(current) / static_cast<float>(max);
 

@@ -233,7 +233,7 @@ void astronaut::render(std::chrono::duration<int, std::milli> delta_time)
     float  angle = astronaut_body->GetAngle() - 3.14f / 2;
     b2Vec2 pos   = astronaut_body->GetPosition();
 
-    if (debug_draw)
+    if (current_game->debug_draw)
     {
         d_lines->vertex({ pos.x, pos.y, 10 }, { 0, 100, 0, 0 });
         d_lines->vertex({ pos.x + std::cos(angle) * astronaut_size / 1.75f,

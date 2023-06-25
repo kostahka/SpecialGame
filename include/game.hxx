@@ -15,8 +15,6 @@
 
 using namespace Kengine;
 
-extern bool debug_draw;
-
 class my_game : public game
 {
 
@@ -50,6 +48,8 @@ public:
     cursor*   game_cursor;
     joystick* aim_joystick;
     joystick* move_joystick;
+
+    bool debug_draw;
 
 private:
     std::map<std::string, int> scene_id;
