@@ -39,10 +39,18 @@ void my_game::on_start()
     resources::init();
 
     start_point = game_clock.now();
+#ifdef __ANDROID__
+    float screen_k = static_cast<float>(configuration.screen_width) / static_cast<float>(configuration.screen_height);
+    float proj_width_half =
+            screen_k * 300;
+    float proj_height_half =
+            300;
+#else
     float proj_width_half =
         static_cast<float>(configuration.screen_width) / 2.0f;
     float proj_height_half =
         static_cast<float>(configuration.screen_height) / 2.0f;
+#endif
     projection = glm::ortho(-proj_width_half,
                             proj_width_half,
                             -proj_height_half,
@@ -82,6 +90,7 @@ void my_game::on_start()
 void my_game::on_event(event::game_event e)
 {
     using namespace Kengine::event;
+#ifndef __ANDROID__
     if (e.g_type == type::window_resize)
     {
         float proj_width_half =
@@ -95,6 +104,7 @@ void my_game::on_event(event::game_event e)
                                 -50.0f,
                                 50.0f);
     }
+#endif
     current_scene->get_current_state()->on_event(e);
 }
 

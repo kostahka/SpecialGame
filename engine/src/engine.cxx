@@ -115,9 +115,14 @@ public:
                       << std::endl;
             return "sdl init fail";
         }
-
+#ifdef __ANDROID__
+        window = SDL_CreateWindow(
+                "Engine init", 600, 400, SDL_WINDOW_OPENGL);
+#else
         window = SDL_CreateWindow(
             "Engine init", 600, 400, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+#endif
+
 
         if (window == nullptr)
         {
