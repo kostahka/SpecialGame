@@ -1,1 +1,0 @@
-/home/povelitel/c++/SpecialGame/android-project/app/build/intermediates/cxx/Debug/15qk1j44/obj/x86

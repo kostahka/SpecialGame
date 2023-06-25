@@ -1,9 +1,0 @@
-/home/povelitel/c++/SDL/CMakeLists.txt
-/home/povelitel/c++/SpecialGame/CMakeLists.txt
-/home/povelitel/c++/SpecialGame/engine/CMakeLists.txt
-/home/povelitel/c++/SpecialGame/engine/box2d/CMakeLists.txt
-/home/povelitel/c++/SpecialGame/engine/box2d/src/CMakeLists.txt
-/home/povelitel/c++/SpecialGame/engine/efsw/CMakeLists.txt
-/home/povelitel/c++/SpecialGame/engine/efsw/efswConfig.cmake.in
-/home/povelitel/c++/SpecialGame/engine/glm/CMakeLists.txt
-/home/povelitel/c++/SpecialGame/engine/glm/glm/CMakeLists.txt
