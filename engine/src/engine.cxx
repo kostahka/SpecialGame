@@ -314,6 +314,7 @@ public:
             ImGui::GetIO().ConfigFlags ^= ImGuiConfigFlags_NoMouseCursorChange;
         }
         else
+
         {
             failure = SDL_HideCursor();
             ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;

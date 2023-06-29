@@ -26,4 +26,5 @@ private:
     bool       dead;
     astronaut* player_astronaut;
     int        selected_gun;
+    bool       drill;
 };

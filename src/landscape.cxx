@@ -45,7 +45,7 @@ float interpolate_ground(float g1, float g2)
     else
         t = 1.0f - g1 - g2 + ground_value;
     if (t < 0.05f)
-        t = 0.05f;
+        t = 0.1f;
 
     return t;
 }
@@ -80,7 +80,7 @@ void landscape::init()
                                           ? ground / ground_value * map_fill
                                           : (ground / ground_value - 1) * (1 - map_fill) +
                                    ground_value;
-                g_table[y][x].value = ground;
+                g_table[y][x].value = ground > ground_value ? 1 : 0;
             }
             else
             {

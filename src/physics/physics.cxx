@@ -2,8 +2,8 @@
 
 namespace physics
 {
-constexpr int velocity_iterations = 10;
-constexpr int position_iterations = 8;
+constexpr int velocity_iterations = 15;
+constexpr int position_iterations = 10;
 
 landscape                    land;
 b2World                      physics_world({ 0.0f, 0.0f });

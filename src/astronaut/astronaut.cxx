@@ -1,6 +1,7 @@
 #include "astronaut/astronaut.hxx"
 #include "astronaut/bullet.hxx"
 #include "game.hxx"
+#include "physics/collision_interface.hxx"
 #include "physics/physics.hxx"
 #include "resources.hxx"
 
@@ -12,7 +13,11 @@ constexpr float astronaut_move_speed = 0.1f;
 constexpr float astronaut_fly_speed  = 0.2f;
 constexpr float astronaut_friction   = 0.1f;
 
-constexpr float bullet_distance = 10.0f;
+constexpr float bullet_distance    = 10.0f;
+constexpr float drill_max_distance = 50.0f;
+
+constexpr float drill_damage        = 0.0005f;
+constexpr float drill_damage_radius = 6;
 
 astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     : astronaut_anim(resources::special_game_texture,
@@ -37,6 +42,11 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
                    pos,
                    { astronaut_size, astronaut_size },
                    true)
+    , drill_beam_sprite(resources::special_game_texture,
+                        { 64 * 4, 64 * 2, 64, 64 },
+                        pos,
+                        { drill_max_distance, astronaut_size },
+                        true)
     , current_gun_sprite(&pistol_sprite)
     , gun_angle(0)
     , hp(100)
@@ -44,6 +54,8 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     , enemy(enemy)
     , on_ground(false)
     , ground_ray_cast_callback(this)
+    , drill_ray_cast_callback(this)
+    , drilling(false)
 {
     astronaut_anim.set_origin({ 0.5, 0.5 });
     astronaut_anim.set_angle(0);
@@ -51,6 +63,7 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     hand_sprite.set_origin({ 0.3, 0.5 });
     pistol_sprite.set_origin({ 0.3, 0.5 });
     drill_sprite.set_origin({ 0.3, 0.5 });
+    drill_beam_sprite.set_origin({ 0, 0.5 });
 
     std::vector<Kengine::irect> idle_anim;
     std::vector<Kengine::irect> run_anim;
@@ -221,10 +234,44 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
     hand_sprite.set_pos({ astronaut_pos.x, astronaut_pos.y });
     pistol_sprite.set_pos({ astronaut_pos.x, astronaut_pos.y });
     drill_sprite.set_pos({ astronaut_pos.x, astronaut_pos.y });
+
+    drill_beam_sprite.set_pos({ astronaut_pos.x, astronaut_pos.y });
+    drill_beam_sprite.set_angle(gun_angle);
+    if (drilling)
+    {
+        drill_beam_sprite.set_size({ drill_max_distance, astronaut_size });
+
+        drill_ray_cast_callback.drill_collision_info = 0;
+        physics::physics_world.RayCast(
+            &drill_ray_cast_callback,
+            astronaut_pos,
+            { astronaut_pos.x + std::cos(gun_angle) * drill_max_distance,
+              astronaut_pos.y + std::sin(gun_angle) * drill_max_distance });
+
+        if (drill_ray_cast_callback.drill_collision_info)
+        {
+            auto collision_object = reinterpret_cast<collision_interface*>(
+                drill_ray_cast_callback.drill_collision_info);
+            collision_object->Hurt(
+                drill_damage_radius,
+                drill_damage * delta_time.count(),
+                { drill_ray_cast_callback.drill_collision_point.x,
+                  drill_ray_cast_callback.drill_collision_point.y });
+            collision_object->Hurt(drill_damage * delta_time.count());
+
+            drill_beam_sprite.set_size(
+                { drill_ray_cast_callback.drill_distance, astronaut_size });
+        }
+    }
 }
 
 void astronaut::render(std::chrono::duration<int, std::milli> delta_time)
 {
+    if (drilling)
+    {
+        drill_beam_sprite.draw();
+    }
+
     astronaut_anim.draw(delta_time);
     current_gun_sprite->draw();
 
@@ -275,14 +322,23 @@ void astronaut::select_gun(gun g)
 
 void astronaut::shoot()
 {
-    b2Vec2               astronaut_pos = astronaut_body->GetPosition();
-    Kengine::transform2d bullet_pos = { std::cos(gun_angle) * bullet_distance,
-                                        std::sin(gun_angle) * bullet_distance };
-    new bullet(
-        { bullet_pos.x + astronaut_pos.x, bullet_pos.y + astronaut_pos.y },
-        gun_angle);
+    if (current_gun == gun::pistol)
+    {
+        b2Vec2               astronaut_pos = astronaut_body->GetPosition();
+        Kengine::transform2d bullet_pos    = {
+            std::cos(gun_angle) * bullet_distance,
+            std::sin(gun_angle) * bullet_distance
+        };
+        new bullet(
+            { bullet_pos.x + astronaut_pos.x, bullet_pos.y + astronaut_pos.y },
+            gun_angle);
 
-    shooting_sound->play();
+        shooting_sound->play();
+    }
+    else
+    {
+        drilling = !drilling;
+    }
 }
 
 void astronaut::Hurt(int damage)
@@ -336,10 +392,34 @@ float astronaut::GroundRayCastCallback::ReportFixture(b2Fixture*    fixture,
                                                       float         fraction)
 {
     astro->on_ground = fixture->GetBody() == physics::land.get_body();
-    return -1;
+    return 0;
 }
 
 astronaut::GroundRayCastCallback::GroundRayCastCallback(astronaut* astro)
+    : astro(astro)
+{
+}
+
+float astronaut::DrillRayCastCallback::ReportFixture(b2Fixture*    fixture,
+                                                     const b2Vec2& point,
+                                                     const b2Vec2& normal,
+                                                     float         fraction)
+{
+    if (fixture->GetBody() != astro->astronaut_body)
+    {
+        b2Vec2 astro_pos = astro->astronaut_body->GetPosition();
+        b2Vec2 delta_pos = point - astro_pos;
+        float  length    = delta_pos.Normalize();
+        drill_distance   = length;
+
+        drill_collision_info  = fixture->GetBody()->GetUserData().pointer;
+        drill_collision_point = point;
+        return fraction;
+    }
+    return 1;
+}
+
+astronaut::DrillRayCastCallback::DrillRayCastCallback(astronaut* astro)
     : astro(astro)
 {
 }

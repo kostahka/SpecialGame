@@ -12,6 +12,7 @@ player::player(const Kengine::transform2d& pos)
     : dead(false)
     , selected_gun(1)
     , reload_time(0)
+    , drill(false)
 {
     player_astronaut = new astronaut(pos, false);
     player_astronaut->add_destroy_listener(this, astronaut_id);
@@ -45,11 +46,27 @@ void player::control(std::chrono::duration<int, std::milli> delta_time)
                                          current_game->aim_joystick->axis_x);
             aim_angle += player_astronaut->get_angle();
             player_astronaut->aim(aim_angle);
-            if (reload_time <= 0)
+            if (selected_gun == 1)
             {
-                player_astronaut->shoot();
-                reload_time = player_reload_time;
+                if (reload_time <= 0)
+                {
+                    player_astronaut->shoot();
+                    reload_time = player_reload_time;
+                }
             }
+            else
+            {
+                if (!drill)
+                {
+                    player_astronaut->shoot();
+                    drill = true;
+                }
+            }
+        }
+        else if (selected_gun == 2 && drill)
+        {
+            player_astronaut->shoot();
+            drill = false;
         }
 #else
         if (keyboard::key_pressed(keyboard::key::key_a))
@@ -75,11 +92,27 @@ void player::control(std::chrono::duration<int, std::milli> delta_time)
 
         if (mouse::button_pressed(mouse::button::left))
         {
-            if (reload_time <= 0)
+            if (selected_gun == 1)
             {
-                player_astronaut->shoot();
-                reload_time = player_reload_time;
+                if (reload_time <= 0)
+                {
+                    player_astronaut->shoot();
+                    reload_time = player_reload_time;
+                }
             }
+            else
+            {
+                if (!drill)
+                {
+                    player_astronaut->shoot();
+                    drill = true;
+                }
+            }
+        }
+        else if (selected_gun == 2 && drill)
+        {
+            player_astronaut->shoot();
+            drill = false;
         }
 #endif
         hp = player_astronaut->get_hp();

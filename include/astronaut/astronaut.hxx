@@ -7,6 +7,7 @@
 #include "game-object/game-object.hxx"
 #include "physics/collision_interface.hxx"
 #include "physics/physic-object.hxx"
+#include <cstdint>
 
 enum class gun
 {
@@ -60,7 +61,24 @@ private:
     private:
         astronaut* astro;
     } ground_ray_cast_callback;
-    //    GroundRayCastCallback ground_ray_cast_callback;
+
+    class DrillRayCastCallback : public b2RayCastCallback
+    {
+    public:
+        explicit DrillRayCastCallback(astronaut* astro);
+
+        float ReportFixture(b2Fixture*    fixture,
+                            const b2Vec2& point,
+                            const b2Vec2& normal,
+                            float         fraction) override;
+
+        uintptr_t drill_collision_info;
+        b2Vec2    drill_collision_point;
+        float     drill_distance;
+
+    private:
+        astronaut* astro;
+    } drill_ray_cast_callback;
 
     Kengine::animation_controller astronaut_anim;
     b2Body*                       astronaut_body;
@@ -69,6 +87,7 @@ private:
     Kengine::sprite  hand_sprite;
     Kengine::sprite  pistol_sprite;
     Kengine::sprite  drill_sprite;
+    Kengine::sprite  drill_beam_sprite;
     Kengine::sprite* current_gun_sprite;
 
     Kengine::audio::sound_object* shooting_sound;
@@ -80,10 +99,12 @@ private:
     float move_direction;
     bool  flying;
 
+    bool drilling;
+
     float gun_angle;
     gun   current_gun;
 
-    int hp;
+    float hp;
 
     bool on_ground;
 
