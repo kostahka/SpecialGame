@@ -130,13 +130,14 @@ void player::on_event(Kengine::event::game_event e)
             {
                 current_game->game_cursor->set_cursor(cursor_type::attack);
                 selected_gun = 1;
-                player_astronaut->select_gun(gun::pistol);
+                drill        = false;
+                player_astronaut->select_gun(gun_type::pistol);
             }
             else if (e.keyboard.key == keyboard::key::key_2)
             {
                 current_game->game_cursor->set_cursor(cursor_type::shovel);
                 selected_gun = 2;
-                player_astronaut->select_gun(gun::drill);
+                player_astronaut->select_gun(gun_type::drill);
             }
         }
     }
@@ -169,12 +170,13 @@ void player::select_gun(int gun)
     {
         current_game->game_cursor->set_cursor(cursor_type::attack);
         selected_gun = 1;
-        player_astronaut->select_gun(gun::pistol);
+        drill        = false;
+        player_astronaut->select_gun(gun_type::pistol);
     }
     if (gun == 2)
     {
         current_game->game_cursor->set_cursor(cursor_type::shovel);
         selected_gun = 2;
-        player_astronaut->select_gun(gun::drill);
+        player_astronaut->select_gun(gun_type::drill);
     }
 }

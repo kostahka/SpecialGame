@@ -44,8 +44,10 @@ float interpolate_ground(float g1, float g2)
         t = g1 + g2 - ground_value;
     else
         t = 1.0f - g1 - g2 + ground_value;
-    if (t < 0.05f)
+    if (t < 0.1f)
         t = 0.1f;
+    if (t > 0.9f)
+        t = 0.9f;
 
     return t;
 }
@@ -580,9 +582,19 @@ void landscape::set_cell_shape(size_t x, size_t y, int count, ...)
     va_end(vertices_list);
 }
 void landscape::Hurt(int damage) {}
-void landscape::Hurt(float radius, float damage, const transform2d& pos)
+void landscape::Hurt(float              radius,
+                     float              damage,
+                     const transform2d& pos,
+                     gun_type           g)
 {
-    damage_sound->play();
+    switch (g)
+    {
+        case gun_type::pistol:
+            damage_sound->play();
+            break;
+        case gun_type::drill:
+            break;
+    }
     change_ground(pos.x, pos.y, radius, -damage);
 }
 Kengine::transform2d landscape::get_spawn_place(float angle) const

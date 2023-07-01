@@ -19,7 +19,7 @@ struct irect
     int h;
 };
 
-typedef void (*shader_program_use_func)(shader_program*);
+typedef void (*shader_program_use_func)(const glm::mat4& model);
 
 class sprite
 {
@@ -39,12 +39,14 @@ public:
     void set_angle(const float);
     void set_size(const transform2d&);
 
-    transform2d     get_origin() const;
-    irect           get_uv() const;
-    texture_object* get_texture() const;
-    transform2d     get_pos() const;
-    float           get_angle() const;
-    transform2d     get_size() const;
+    [[nodiscard]] transform2d     get_origin() const;
+    [[nodiscard]] irect           get_uv() const;
+    [[nodiscard]] texture_object* get_texture() const;
+    [[nodiscard]] transform2d     get_pos() const;
+    [[nodiscard]] float           get_angle() const;
+    [[nodiscard]] transform2d     get_size() const;
+
+    void set_program_use_func(shader_program_use_func use_func);
 
 private:
     void set_texture_coords();
@@ -60,6 +62,5 @@ private:
     shader_program_use_func use_func;
     vertex_array_object*    vao;
     vertex_text2d_array     vertices;
-    shader_program*         program;
 };
 } // namespace Kengine

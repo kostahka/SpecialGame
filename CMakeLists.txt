@@ -57,7 +57,8 @@ set(GAME_SRC
     src/scene/main-menu.cxx
     include/scene/main-menu.hxx
     include/joystick.hxx
-    src/joystick.cxx)
+    src/joystick.cxx
+    include/astronaut/gun.hxx)
 
 if(ENGINE_DEV)
     add_library(special-game SHARED ${GAME_SRC})

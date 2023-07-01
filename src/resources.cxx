@@ -15,6 +15,8 @@ Kengine::audio::sound_buffer* ground_damage_sound_buffer{ nullptr };
 
 Kengine::audio::sound_object* main_theme_sound{ nullptr };
 
+Kengine::shader_program* drill_beam_program{ nullptr };
+
 void init()
 {
     crosshairs_texture   = Kengine::create_texture("assets/crosshairs.png");
@@ -35,5 +37,8 @@ void init()
 
     main_theme_sound =
         Kengine::audio::create_sound_object(main_theme_sound_buffer);
+
+    drill_beam_program = Kengine::create_shader_program(
+        "shaders/drill-beam-vertex.vert", "shaders/drill-beam-fragment.frag");
 };
 }; // namespace resources

@@ -5,15 +5,11 @@
 #include "Kengine/render/draw-primitives.hxx"
 
 #include "game-object/game-object.hxx"
+#include "gun.hxx"
 #include "physics/collision_interface.hxx"
 #include "physics/physic-object.hxx"
-#include <cstdint>
 
-enum class gun
-{
-    pistol,
-    drill
-};
+#include <cstdint>
 
 class astronaut : public physics_object,
                   public game_object,
@@ -26,13 +22,14 @@ public:
     void fly();
 
     void aim(float angle);
-    void select_gun(gun);
+    void select_gun(gun_type);
     void shoot();
 
     void Hurt(int damage) override;
     void Hurt(float                       radius,
               float                       damage,
-              const Kengine::transform2d& pos) override;
+              const Kengine::transform2d& pos,
+              gun_type                    g) override;
 
     void update(std::chrono::duration<int, std::milli> delta_time) override;
     void render(std::chrono::duration<int, std::milli> delta_time) override;
@@ -101,8 +98,8 @@ private:
 
     bool drilling;
 
-    float gun_angle;
-    gun   current_gun;
+    float    gun_angle;
+    gun_type current_gun;
 
     float hp;
 

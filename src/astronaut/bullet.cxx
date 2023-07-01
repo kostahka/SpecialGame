@@ -62,7 +62,8 @@ void bullet::update(std::chrono::duration<int, std::milli> delta_time)
                 col_interface->Hurt(bullet_damage);
                 col_interface->Hurt(bullet_damage_radius,
                                     bullet_ground_damage,
-                                    { bullet_pos.x, bullet_pos.y });
+                                    { bullet_pos.x, bullet_pos.y },
+                                    gun_type::pistol);
             }
             destroy();
             return;

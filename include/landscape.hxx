@@ -62,7 +62,8 @@ public:
     void Hurt(int damage) override;
     void Hurt(float                       radius,
               float                       damage,
-              const Kengine::transform2d& pos) override;
+              const Kengine::transform2d& pos,
+              gun_type                    g) override;
 
     [[nodiscard]] Kengine::transform2d get_center() const;
     [[nodiscard]] Kengine::transform2d get_spawn_place(float angle) const;

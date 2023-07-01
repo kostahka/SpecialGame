@@ -15,19 +15,22 @@ constexpr transform3d v2 = { 0, 1, 0 };
 constexpr transform3d v3 = { 1, 1, 0 };
 constexpr transform3d v4 = { 1, 0, 0 };
 
-void world_sprite_program_use(shader_program* program)
+void world_sprite_program_use(const glm::mat4& model)
 {
-    program->use();
-    program->set_uniform_matrix4fv("projection",
-                                   engine::instance()->e_game->projection);
-    program->set_uniform_matrix4fv("view", engine::instance()->e_game->view);
+    e_resources::global_sprite_program->use();
+    e_resources::global_sprite_program->set_uniform_matrix4fv(
+        "projection", engine::instance()->e_game->projection);
+    e_resources::global_sprite_program->set_uniform_matrix4fv(
+        "view", engine::instance()->e_game->view);
+    e_resources::global_sprite_program->set_uniform_matrix4fv("model", model);
 }
 
-void local_sprite_program_use(shader_program* program)
+void local_sprite_program_use(const glm::mat4& model)
 {
-    program->use();
-    program->set_uniform_matrix4fv("projection",
-                                   engine::instance()->e_game->projection);
+    e_resources::local_sprite_program->use();
+    e_resources::local_sprite_program->set_uniform_matrix4fv(
+        "projection", engine::instance()->e_game->projection);
+    e_resources::local_sprite_program->set_uniform_matrix4fv("model", model);
 }
 
 sprite::sprite(texture_object*    texture,
@@ -69,25 +72,22 @@ sprite::sprite(texture_object*    texture,
     if (world_sprite)
     {
         use_func = world_sprite_program_use;
-        program  = e_resources::global_sprite_program;
     }
     else
     {
         use_func = local_sprite_program_use;
-        program  = e_resources::local_sprite_program;
     }
 };
 
 void sprite::draw() const
 {
     texture->bind();
-    use_func(program);
     glm::mat4 model(1);
     model = glm::translate(model, glm::vec3(pos.x, pos.y, z));
     model = glm::rotate(model, angle, glm::vec3(0.0, 0.0, 1.0));
     model = glm::scale(model, glm::vec3(size.x, size.y, 1));
     model = glm::translate(model, glm::vec3(-origin.x, -origin.y, 0));
-    program->set_uniform_matrix4fv("model", model);
+    use_func(model);
     vao->draw_triangles(2);
 };
 
@@ -166,5 +166,10 @@ void sprite::set_texture_coords()
 
     vao->set_vertices(
         vertices.data(), 0, vertices.size() * sizeof(vertex_text2d));
+}
+
+void sprite::set_program_use_func(shader_program_use_func use_func)
+{
+    this->use_func = use_func;
 }
 } // namespace Kengine

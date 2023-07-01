@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Kengine/audio/audio.hxx"
+#include "Kengine/render/shader-program.hxx"
 #include "Kengine/render/texture.hxx"
 
 namespace resources
@@ -19,5 +20,7 @@ extern Kengine::audio::sound_buffer* walking_sound_buffer;
 extern Kengine::audio::sound_buffer* ground_damage_sound_buffer;
 
 extern Kengine::audio::sound_object* main_theme_sound;
+
+extern Kengine::shader_program* drill_beam_program;
 
 }; // namespace resources

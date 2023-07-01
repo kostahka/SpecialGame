@@ -13,10 +13,10 @@ public:
     virtual void use() = 0;
 
     virtual void set_uniform1f(std::string uniform_name, float value) = 0;
-    virtual void set_uniform_matrix3fv(std::string uniform_name,
-                                       glm::mat3&  matrix)             = 0;
-    virtual void set_uniform_matrix4fv(std::string uniform_name,
-                                       glm::mat4&  matrix)             = 0;
+    virtual void set_uniform_matrix3fv(std::string      uniform_name,
+                                       const glm::mat3& matrix)       = 0;
+    virtual void set_uniform_matrix4fv(std::string      uniform_name,
+                                       const glm::mat4& matrix)       = 0;
 
     virtual ~shader_program();
 };

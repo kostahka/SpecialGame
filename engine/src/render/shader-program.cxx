@@ -235,8 +235,8 @@ public:
         glUniform1f(uniform_location, value);
     };
 
-    void set_uniform_matrix3fv(std::string uniform_name,
-                               glm::mat3&  matrix) override
+    void set_uniform_matrix3fv(std::string      uniform_name,
+                               const glm::mat3& matrix) override
     {
         auto uniform_location =
             glGetUniformLocation(program, uniform_name.data());
@@ -244,8 +244,8 @@ public:
             uniform_location, 1, GL_FALSE, glm::value_ptr(matrix));
     };
 
-    void set_uniform_matrix4fv(std::string uniform_name,
-                               glm::mat4&  matrix) override
+    void set_uniform_matrix4fv(std::string      uniform_name,
+                               const glm::mat4& matrix) override
     {
         auto uniform_location =
             glGetUniformLocation(program, uniform_name.data());

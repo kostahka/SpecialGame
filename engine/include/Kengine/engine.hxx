@@ -68,6 +68,8 @@ public:
     virtual void swap_buffers()                   = 0;
     virtual void draw_imgui()                     = 0;
 
+    virtual std::chrono::duration<int, std::milli> get_time() = 0;
+
     virtual void quit() = 0;
 
     engine_configuration configuration{

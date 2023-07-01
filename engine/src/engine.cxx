@@ -351,6 +351,12 @@ public:
         gl_get_error(__LINE__, __FILE__);
     };
 
+    std::chrono::duration<int, std::milli> get_time() override
+    {
+        return std::chrono::duration_cast<std::chrono::milliseconds>(
+            game_clock.now().time_since_epoch());
+    };
+
     void quit() override
     {
         SDL_Event* quit = new SDL_Event();
