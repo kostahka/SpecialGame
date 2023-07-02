@@ -59,8 +59,8 @@ void bullet::update(std::chrono::duration<int, std::milli> delta_time)
             if (p)
             {
                 auto* col_interface = reinterpret_cast<collision_interface*>(p);
-                col_interface->Hurt(bullet_damage);
-                col_interface->Hurt(bullet_damage_radius,
+                col_interface->hurt(bullet_damage);
+                col_interface->hurt(bullet_damage_radius,
                                     bullet_ground_damage,
                                     { bullet_pos.x, bullet_pos.y },
                                     gun_type::pistol);

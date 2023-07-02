@@ -59,8 +59,8 @@ public:
     void draw() const;
     void change_ground(float x, float y, float radius, float delta_value);
 
-    void Hurt(int damage) override;
-    void Hurt(float                       radius,
+    void hurt(int damage) override;
+    bool hurt(float                       radius,
               float                       damage,
               const Kengine::transform2d& pos,
               gun_type                    g) override;

@@ -135,6 +135,15 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
         Kengine::audio::create_sound_object(resources::fly_sound_buffer);
     walking_sound =
         Kengine::audio::create_sound_object(resources::walking_sound_buffer);
+    drill_start_sound = Kengine::audio::create_sound_object(
+        resources::drill_start_sound_buffer);
+    drill_shooting_sound = Kengine::audio::create_sound_object(
+        resources::drill_shooting_sound_buffer);
+    drill_shooting_sound->set_loop(true);
+    drill_shooting_sound->set_volume(0.3f);
+    ground_drilling_sound = Kengine::audio::create_sound_object(
+        resources::ground_drilling_sound_buffer);
+    ground_drilling_sound->set_loop(true);
 
     // fly_sound->set_volume(0.3f);
 
@@ -271,18 +280,29 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
         {
             auto collision_object = reinterpret_cast<collision_interface*>(
                 drill_ray_cast_callback.drill_collision_info);
-            collision_object->Hurt(
-                drill_damage_radius,
-                drill_damage * delta_time.count(),
-                { drill_ray_cast_callback.drill_collision_point.x,
-                  drill_ray_cast_callback.drill_collision_point.y },
-                gun_type::drill);
-            collision_object->Hurt(drill_damage * delta_time.count());
+            if (collision_object->hurt(
+                    drill_damage_radius,
+                    drill_damage * delta_time.count(),
+                    { drill_ray_cast_callback.drill_collision_point.x,
+                      drill_ray_cast_callback.drill_collision_point.y },
+                    gun_type::drill))
+            {
+                if (!ground_drilling_sound->get_is_playing())
+                {
+                    ground_drilling_sound->play();
+                }
+            }
+
+            collision_object->hurt(drill_damage * delta_time.count());
 
             drill_beam_sprite.set_size(
                 { drill_ray_cast_callback.drill_distance -
                       drill_beam_start_distance,
                   drill_size });
+        }
+        else
+        {
+            ground_drilling_sound->stop();
         }
     }
 }
@@ -336,6 +356,8 @@ void astronaut::select_gun(gun_type g)
         case gun_type::pistol:
             current_gun_sprite = &pistol_sprite;
             drilling           = false;
+            drill_shooting_sound->stop();
+            ground_drilling_sound->stop();
             break;
         case gun_type::drill:
             current_gun_sprite = &drill_sprite;
@@ -361,10 +383,20 @@ void astronaut::shoot()
     else
     {
         drilling = !drilling;
+        if (drilling)
+        {
+            drill_start_sound->play();
+            drill_shooting_sound->play();
+        }
+        else
+        {
+            drill_shooting_sound->stop();
+            ground_drilling_sound->stop();
+        }
     }
 }
 
-void astronaut::Hurt(int damage)
+void astronaut::hurt(int damage)
 {
     hurt_sound->play();
     hp -= damage;
@@ -377,11 +409,12 @@ int astronaut::get_hp() const
 {
     return hp;
 }
-void astronaut::Hurt(float                       radius,
+bool astronaut::hurt(float                       radius,
                      float                       damage,
                      const Kengine::transform2d& pos,
                      gun_type                    g)
 {
+    return false;
 }
 astronaut::~astronaut()
 {
@@ -394,6 +427,9 @@ astronaut::~astronaut()
     delete hurt_sound;
     delete fly_sound;
     delete walking_sound;
+    delete drill_shooting_sound;
+    delete drill_start_sound;
+    delete ground_drilling_sound;
     d_lines->destroy();
     delete d_lines;
 }

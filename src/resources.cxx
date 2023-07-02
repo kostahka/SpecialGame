@@ -12,6 +12,9 @@ Kengine::audio::sound_buffer* hurt_sound_buffer{ nullptr };
 Kengine::audio::sound_buffer* fly_sound_buffer{ nullptr };
 Kengine::audio::sound_buffer* walking_sound_buffer{ nullptr };
 Kengine::audio::sound_buffer* ground_damage_sound_buffer{ nullptr };
+Kengine::audio::sound_buffer* drill_start_sound_buffer{ nullptr };
+Kengine::audio::sound_buffer* drill_shooting_sound_buffer{ nullptr };
+Kengine::audio::sound_buffer* ground_drilling_sound_buffer{ nullptr };
 
 Kengine::audio::sound_object* main_theme_sound{ nullptr };
 
@@ -34,6 +37,12 @@ void init()
         Kengine::audio::create_sound_buffer("assets/Walking.wav");
     ground_damage_sound_buffer =
         Kengine::audio::create_sound_buffer("assets/GroundDamage.wav");
+    drill_start_sound_buffer =
+        Kengine::audio::create_sound_buffer("assets/DrillStart.wav");
+    drill_shooting_sound_buffer =
+        Kengine::audio::create_sound_buffer("assets/DrillShooting.wav");
+    ground_drilling_sound_buffer =
+        Kengine::audio::create_sound_buffer("assets/GroundDrilling.wav");
 
     main_theme_sound =
         Kengine::audio::create_sound_object(main_theme_sound_buffer);

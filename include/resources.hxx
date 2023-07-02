@@ -18,6 +18,9 @@ extern Kengine::audio::sound_buffer* hurt_sound_buffer;
 extern Kengine::audio::sound_buffer* fly_sound_buffer;
 extern Kengine::audio::sound_buffer* walking_sound_buffer;
 extern Kengine::audio::sound_buffer* ground_damage_sound_buffer;
+extern Kengine::audio::sound_buffer* drill_start_sound_buffer;
+extern Kengine::audio::sound_buffer* drill_shooting_sound_buffer;
+extern Kengine::audio::sound_buffer* ground_drilling_sound_buffer;
 
 extern Kengine::audio::sound_object* main_theme_sound;
 

@@ -581,11 +581,11 @@ void landscape::set_cell_shape(size_t x, size_t y, int count, ...)
 
     va_end(vertices_list);
 }
-void landscape::Hurt(int damage) {}
-void landscape::Hurt(float              radius,
-                     float              damage,
-                     const transform2d& pos,
-                     gun_type           g)
+void landscape::hurt(int damage) {}
+bool landscape::hurt(float                       radius,
+                     float                       damage,
+                     const Kengine::transform2d& pos,
+                     gun_type                    g)
 {
     switch (g)
     {
@@ -596,6 +596,7 @@ void landscape::Hurt(float              radius,
             break;
     }
     change_ground(pos.x, pos.y, radius, -damage);
+    return true;
 }
 Kengine::transform2d landscape::get_spawn_place(float angle) const
 {

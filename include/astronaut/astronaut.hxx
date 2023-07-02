@@ -25,8 +25,8 @@ public:
     void select_gun(gun_type);
     void shoot();
 
-    void Hurt(int damage) override;
-    void Hurt(float                       radius,
+    void hurt(int damage) override;
+    bool hurt(float                       radius,
               float                       damage,
               const Kengine::transform2d& pos,
               gun_type                    g) override;
@@ -91,6 +91,9 @@ private:
     Kengine::audio::sound_object* hurt_sound;
     Kengine::audio::sound_object* fly_sound;
     Kengine::audio::sound_object* walking_sound;
+    Kengine::audio::sound_object* drill_shooting_sound;
+    Kengine::audio::sound_object* drill_start_sound;
+    Kengine::audio::sound_object* ground_drilling_sound;
 
     bool  moving;
     float move_direction;
