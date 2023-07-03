@@ -227,12 +227,12 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
     int y_start = std::round((y - radius) / cell_size);
     int y_end   = std::round((y + radius) / cell_size);
 
-    if (y_start < 0)
-        y_start = 0;
-    if (y_end >= ground_h_count)
-        y_end = ground_h_count - 1;
+    if (y_start < 1)
+        y_start = 1;
+    if (y_end >= ground_h_count - 1)
+        y_end = ground_h_count - 2;
 
-    for (int gy = y_start; gy <= y_end; gy++)
+    for (int gy = y_start; gy < y_end; gy++)
     {
         float r = std::sqrt(
             std::abs(radius * radius - std::pow(y - gy * cell_size, 2)));
@@ -240,10 +240,10 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
         int x_start = std::round((x - r) / cell_size);
         int x_end   = std::round((x + r) / cell_size);
 
-        if (x_start < 0)
-            x_start = 0;
-        if (x_end >= ground_w_count)
-            x_end = ground_w_count - 1;
+        if (x_start < 1)
+            x_start = 1;
+        if (x_end >= ground_w_count - 1)
+            x_end = ground_w_count - 2;
 
         for (int gx = x_start; gx <= x_end; gx++)
         {
@@ -252,8 +252,44 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
                 g_table[gy][gx].value = 1.0;
             if (g_table[gy][gx].value < 0.0)
                 g_table[gy][gx].value = 0.0;
-            recalculate_vertices(gx, gy);
-            recalculate_indexes(gx, gy);
+            recalculate_horizontal_vertex(gx - 1, gy);
+            recalculate_vertical_vertex(gx, gy - 1);
+            recalculate_indexes(gx - 1, gy - 1);
+        }
+        recalculate_horizontal_vertex(x_end, gy);
+        recalculate_indexes(x_end, gy - 1);
+    }
+    {
+        int gy = y_end;
+
+        float r = std::sqrt(
+            std::abs(radius * radius - std::pow(y - gy * cell_size, 2)));
+
+        int x_start = std::round((x - r) / cell_size);
+        int x_end   = std::round((x + r) / cell_size);
+
+        if (x_start < 1)
+            x_start = 1;
+        if (x_end >= ground_w_count - 1)
+            x_end = ground_w_count - 2;
+
+        for (int gx = x_start; gx <= x_end; gx++)
+        {
+            g_table[gy][gx].value += delta_value;
+            if (g_table[gy][gx].value > 1.0)
+                g_table[gy][gx].value = 1.0;
+            if (g_table[gy][gx].value < 0.0)
+                g_table[gy][gx].value = 0.0;
+            recalculate_horizontal_vertex(gx - 1, gy);
+            recalculate_vertical_vertex(gx, gy - 1);
+            recalculate_indexes(gx - 1, gy - 1);
+        }
+        recalculate_horizontal_vertex(x_end, gy);
+        recalculate_indexes(x_end, gy - 1);
+        for (int gx = x_start; gx <= x_end; gx++)
+        {
+            recalculate_vertical_vertex(gx, gy);
+            recalculate_indexes(gx - 1, gy);
         }
     }
 };
@@ -460,70 +496,28 @@ void landscape::calculate_indexes()
     }
 };
 
-void landscape::recalculate_vertices(size_t x, size_t y)
+void landscape::recalculate_horizontal_vertex(size_t x, size_t y)
 {
-    int left_i =
-        ground_horizontal_vertices_index + y * (ground_w_count - 1) + x - 1;
+    int index = ground_vertical_vertices_index + (y) * (ground_w_count) + x;
 
-    int right_i = left_i + 1;
+    float t = interpolate_ground(g_table[y][x].value, g_table[y + 1][x].value);
+    l_vertices[index] = { x * cell_size, (y + t) * cell_size };
+    set_vao_vertices(index);
+}
 
-    int down_i =
-        ground_vertical_vertices_index + (y - 1) * (ground_w_count) + x;
+void landscape::recalculate_vertical_vertex(size_t x, size_t y)
+{
+    int index = ground_horizontal_vertices_index + y * (ground_w_count - 1) + x;
 
-    int up_i = ground_vertical_vertices_index + (y) * (ground_w_count) + x;
-
-    if (x > 0)
-    {
-        float t =
-            interpolate_ground(g_table[y][x - 1].value, g_table[y][x].value);
-        l_vertices[left_i] = { (x - 1 + t) * cell_size, y * cell_size };
-        set_vao_vertices(left_i);
-    }
-    if (x < ground_w_count - 1)
-    {
-        float t =
-            interpolate_ground(g_table[y][x].value, g_table[y][x + 1].value);
-        l_vertices[right_i] = { (x + t) * cell_size, y * cell_size };
-        set_vao_vertices(right_i);
-    }
-    if (y > 0)
-    {
-        float t =
-            interpolate_ground(g_table[y - 1][x].value, g_table[y][x].value);
-        l_vertices[down_i] = { x * cell_size, (y - 1 + t) * cell_size };
-        set_vao_vertices(down_i);
-    }
-    if (y < ground_h_count - 1)
-    {
-        float t =
-            interpolate_ground(g_table[y][x].value, g_table[y + 1][x].value);
-        l_vertices[up_i] = { x * cell_size, (y + t) * cell_size };
-        set_vao_vertices(up_i);
-    }
+    float t = interpolate_ground(g_table[y][x].value, g_table[y][x + 1].value);
+    l_vertices[index] = { (x + t) * cell_size, y * cell_size };
+    set_vao_vertices(index);
 };
 
 void landscape::recalculate_indexes(size_t x, size_t y)
 {
-    if (x > 0 && y > 0)
-    {
-        calculate_cell_indexes(x - 1, y - 1);
-        set_vao_indexes(x - 1, y - 1);
-    }
-    if (x > 0 && y < ground_h_count - 1)
-    {
-        calculate_cell_indexes(x - 1, y);
-        set_vao_indexes(x - 1, y);
-    }
-    if (y > 0 && x < ground_w_count - 1)
-    {
-        calculate_cell_indexes(x, y - 1);
-        set_vao_indexes(x, y - 1);
-    }
-    if (x < ground_w_count - 1 && y < ground_h_count - 1)
-    {
-        calculate_cell_indexes(x, y);
-        set_vao_indexes(x, y);
-    }
+    calculate_cell_indexes(x, y);
+    set_vao_indexes(x, y);
 };
 
 void landscape::set_vao_indexes(size_t x, size_t y)
@@ -620,4 +614,4 @@ float landscape::get_distance_to(const transform2d& pos) const
 b2Body* landscape::get_body() const
 {
     return l_body;
-};
+}

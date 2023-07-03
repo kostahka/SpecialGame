@@ -275,6 +275,7 @@ public:
 
         update_time = game_clock.now();
         render_time = game_clock.now();
+        start_time  = game_clock.now();
 
         while (continue_loop)
         {
@@ -354,7 +355,7 @@ public:
     std::chrono::duration<int, std::milli> get_time() override
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
-            game_clock.now().time_since_epoch());
+            game_clock.now() - start_time);
     };
 
     void quit() override
@@ -478,6 +479,7 @@ private:
     // Time from init SDL in miliseconds
     std::chrono::high_resolution_clock::time_point update_time;
     std::chrono::high_resolution_clock::time_point render_time;
+    std::chrono::high_resolution_clock::time_point start_time;
 
     std::chrono::high_resolution_clock game_clock;
 

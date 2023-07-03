@@ -37,29 +37,39 @@ GLuint create_program_from_code(const GLchar* vertex_code,
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertex_code, nullptr);
     glCompileShader(vertex);
+
+    glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &info_len);
+    if (info_len > 1)
+    {
+        info_log.resize(info_len);
+        glGetShaderInfoLog(vertex, info_len, nullptr, info_log.data());
+        std::cerr << "Vertex shader log: " << info_log.data() << std::endl;
+    }
+
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &succes);
     if (!succes)
     {
-        glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &info_len);
-        info_log.resize(info_len);
-        glGetShaderInfoLog(vertex, info_len, nullptr, info_log.data());
         glDeleteShader(vertex);
-        std::cerr << "Failed to compile vertex shader. Log: " << info_log.data()
-                  << std::endl;
+        std::cerr << "Failed to compile vertex shader." << std::endl;
     }
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragment_code, nullptr);
     glCompileShader(fragment);
+
+    glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &info_len);
+    if (info_len > 1)
+    {
+        info_log.resize(info_len);
+        glGetShaderInfoLog(fragment, info_len, nullptr, info_log.data());
+        std::cerr << "Fragment shader log: " << info_log.data() << std::endl;
+    }
+
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &succes);
     if (!succes)
     {
-        glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &info_len);
-        info_log.resize(info_len);
-        glGetShaderInfoLog(fragment, info_len, nullptr, info_log.data());
         glDeleteShader(fragment);
-        std::cerr << "Failed to compile fragment shader. Log: "
-                  << info_log.data() << std::endl;
+        std::cerr << "Failed to compile fragment shader." << std::endl;
     }
 
     program = glCreateProgram();
@@ -136,29 +146,39 @@ GLuint create_program_from_file(const GLchar* vertex_path,
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vertex_shader_code, nullptr);
     glCompileShader(vertex);
+
+    glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &info_len);
+    if (info_len > 1)
+    {
+        info_log.resize(info_len);
+        glGetShaderInfoLog(vertex, info_len, nullptr, info_log.data());
+        std::cerr << "Vertex shader log: " << info_log.data() << std::endl;
+    }
+
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &succes);
     if (!succes)
     {
-        glGetShaderiv(vertex, GL_INFO_LOG_LENGTH, &info_len);
-        info_log.resize(info_len);
-        glGetShaderInfoLog(vertex, info_len, nullptr, info_log.data());
         glDeleteShader(vertex);
-        std::cerr << "Failed to compile vertex shader. Log: " << info_log.data()
-                  << std::endl;
+        std::cerr << "Failed to compile vertex shader." << std::endl;
     }
 
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fragment_shader_code, nullptr);
     glCompileShader(fragment);
+
+    glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &info_len);
+    if (info_len > 1)
+    {
+        info_log.resize(info_len);
+        glGetShaderInfoLog(fragment, info_len, nullptr, info_log.data());
+        std::cerr << "Fragment shader log: " << info_log.data() << std::endl;
+    }
+
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &succes);
     if (!succes)
     {
-        glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &info_len);
-        info_log.resize(info_len);
-        glGetShaderInfoLog(fragment, info_len, nullptr, info_log.data());
         glDeleteShader(fragment);
-        std::cerr << "Failed to compile fragment shader. Log: "
-                  << info_log.data() << std::endl;
+        std::cerr << "Failed to compile fragment shader." << std::endl;
     }
 
     program = glCreateProgram();

@@ -166,11 +166,7 @@ public:
         is_playing = false;
     };
 
-    bool get_is_playing() override
-    {
-        std::lock_guard<std::mutex> lock(sound_mutex);
-        return is_playing;
-    };
+    bool get_is_playing() override { return is_playing; };
 
     void set_loop(bool loop) override
     {

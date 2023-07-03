@@ -78,7 +78,8 @@ public:
 private:
     void calculate_vertices();
     void calculate_indexes();
-    void recalculate_vertices(size_t x, size_t y);
+    void recalculate_horizontal_vertex(size_t x, size_t y);
+    void recalculate_vertical_vertex(size_t x, size_t y);
     void recalculate_indexes(size_t x, size_t y);
 
     void set_indexes(size_t                  x,
