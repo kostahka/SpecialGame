@@ -80,7 +80,6 @@ private:
     void calculate_indexes();
     void recalculate_horizontal_vertex(size_t x, size_t y);
     void recalculate_vertical_vertex(size_t x, size_t y);
-    void recalculate_indexes(size_t x, size_t y);
 
     void set_indexes(size_t                  x,
                      size_t                  y,
@@ -90,8 +89,8 @@ private:
                      const triangle_indexes& t3 = { 0, 0, 0 });
     void calculate_cell_indexes(size_t x, size_t y);
 
-    void set_vao_vertices(size_t index);
-    void set_vao_indexes(size_t x, size_t y);
+    void set_vao_vertices(size_t index, int count);
+    void set_vao_indexes(size_t x, size_t y, int count);
 
     void set_cell_shape(size_t x, size_t y, int count, ...);
 

@@ -29,8 +29,8 @@ void drill_beam_program_use(const glm::mat4& model)
     resources::drill_beam_program->set_uniform_matrix4fv(
         "view", engine::instance()->e_game->view);
     resources::drill_beam_program->set_uniform_matrix4fv("model", model);
-    float time =
-        static_cast<float>(current_game->game_engine->get_time().count());
+    float time = static_cast<float>(
+        current_game->game_engine->get_time().count() % 10000);
     resources::drill_beam_program->set_uniform1f("time", time);
 }
 

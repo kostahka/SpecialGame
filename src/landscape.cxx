@@ -254,10 +254,18 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
                 g_table[gy][gx].value = 0.0;
             recalculate_horizontal_vertex(gx - 1, gy);
             recalculate_vertical_vertex(gx, gy - 1);
-            recalculate_indexes(gx - 1, gy - 1);
+            calculate_cell_indexes(gx - 1, gy - 1);
         }
         recalculate_horizontal_vertex(x_end, gy);
-        recalculate_indexes(x_end, gy - 1);
+        calculate_cell_indexes(x_end, gy - 1);
+
+        int horizontal_v_index = ground_horizontal_vertices_index +
+                                 gy * (ground_w_count - 1) + x_start - 1;
+        set_vao_vertices(horizontal_v_index, x_end - x_start + 2);
+        int vertical_v_index = ground_vertical_vertices_index +
+                               (gy - 1) * (ground_w_count) + x_start;
+        set_vao_vertices(vertical_v_index, x_end - x_start + 1);
+        set_vao_indexes(x_start - 1, gy - 1, x_end - x_start + 2);
     }
     {
         int gy = y_end;
@@ -282,15 +290,27 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
                 g_table[gy][gx].value = 0.0;
             recalculate_horizontal_vertex(gx - 1, gy);
             recalculate_vertical_vertex(gx, gy - 1);
-            recalculate_indexes(gx - 1, gy - 1);
+            calculate_cell_indexes(gx - 1, gy - 1);
         }
         recalculate_horizontal_vertex(x_end, gy);
-        recalculate_indexes(x_end, gy - 1);
+        calculate_cell_indexes(x_end, gy - 1);
+
+        int horizontal_v_index = ground_horizontal_vertices_index +
+                                 gy * (ground_w_count - 1) + x_start - 1;
+        set_vao_vertices(horizontal_v_index, x_end - x_start + 2);
+        int vertical_v_index = ground_vertical_vertices_index +
+                               (gy - 1) * (ground_w_count) + x_start;
+        set_vao_vertices(vertical_v_index, x_end - x_start + 1);
+        set_vao_indexes(x_start - 1, gy - 1, x_end - x_start + 2);
         for (int gx = x_start; gx <= x_end; gx++)
         {
             recalculate_vertical_vertex(gx, gy);
-            recalculate_indexes(gx - 1, gy);
+            calculate_cell_indexes(gx - 1, gy);
         }
+        vertical_v_index =
+            ground_vertical_vertices_index + (gy) * (ground_w_count) + x_start;
+        set_vao_vertices(vertical_v_index, x_end - x_start + 1);
+        set_vao_indexes(x_start - 1, gy, x_end - x_start + 2);
     }
 };
 
@@ -498,45 +518,20 @@ void landscape::calculate_indexes()
 
 void landscape::recalculate_horizontal_vertex(size_t x, size_t y)
 {
-    int index = ground_vertical_vertices_index + (y) * (ground_w_count) + x;
-
-    float t = interpolate_ground(g_table[y][x].value, g_table[y + 1][x].value);
-    l_vertices[index] = { x * cell_size, (y + t) * cell_size };
-    set_vao_vertices(index);
-}
-
-void landscape::recalculate_vertical_vertex(size_t x, size_t y)
-{
     int index = ground_horizontal_vertices_index + y * (ground_w_count - 1) + x;
 
     float t = interpolate_ground(g_table[y][x].value, g_table[y][x + 1].value);
     l_vertices[index] = { (x + t) * cell_size, y * cell_size };
-    set_vao_vertices(index);
-};
-
-void landscape::recalculate_indexes(size_t x, size_t y)
-{
-    calculate_cell_indexes(x, y);
-    set_vao_indexes(x, y);
-};
-
-void landscape::set_vao_indexes(size_t x, size_t y)
-{
-    const size_t cell_i = (y * (ground_w_count - 1) + x) * 4 * 3;
-
-    uint32_t* data   = &l_indexes[cell_i];
-    size_t    offset = cell_i * sizeof(uint32_t);
-    size_t    size   = sizeof(uint32_t) * 4 * 3;
-    vao->set_indexes(data, offset, size);
-};
-
-void landscape::set_vao_vertices(size_t index)
-{
-    transform2d* data   = &l_vertices[index];
-    size_t       offset = index * sizeof(transform2d);
-    size_t       size   = sizeof(transform2d);
-    vao->set_vertices(data, offset, size);
 }
+
+void landscape::recalculate_vertical_vertex(size_t x, size_t y)
+{
+    int index = ground_vertical_vertices_index + (y) * (ground_w_count) + x;
+
+    float t = interpolate_ground(g_table[y][x].value, g_table[y + 1][x].value);
+    l_vertices[index] = { x * cell_size, (y + t) * cell_size };
+};
+
 Kengine::transform2d landscape::get_center() const
 {
     return { ground_w_count * cell_size / 2, ground_h_count * cell_size / 2 };
@@ -614,4 +609,20 @@ float landscape::get_distance_to(const transform2d& pos) const
 b2Body* landscape::get_body() const
 {
     return l_body;
+}
+void landscape::set_vao_vertices(size_t index, int count)
+{
+    transform2d* data   = &l_vertices[index];
+    size_t       offset = index * sizeof(transform2d);
+    size_t       size   = sizeof(transform2d) * count;
+    vao->set_vertices(data, offset, size);
+}
+void landscape::set_vao_indexes(size_t x, size_t y, int count)
+{
+    const size_t cell_i = (y * (ground_w_count - 1) + x) * 4 * 3;
+
+    uint32_t* data   = &l_indexes[cell_i];
+    size_t    offset = cell_i * sizeof(uint32_t);
+    size_t    size   = sizeof(uint32_t) * 4 * 3 * count;
+    vao->set_indexes(data, offset, size);
 }
