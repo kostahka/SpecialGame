@@ -12,3 +12,5 @@ bin
 /android-project/.idea
 /android-project/.gradle/
 /cmake-build-release/
+/android-project/app/release/
+/android-project/app/src/main/assets/
