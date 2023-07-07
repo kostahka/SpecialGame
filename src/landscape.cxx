@@ -183,6 +183,9 @@ void landscape::draw() const
     int x_end = static_cast<int>(
         std::roundf((camera_pos.x + render_size / 2) / cell_size));
 
+    if (y_end < 0 || x_end < 0 || x_start > ground_w_count - 2 ||
+        y_start > ground_h_count - 2)
+        return;
     if (y_start < 0)
         y_start = 0;
     if (x_start < 0)
