@@ -4,6 +4,7 @@
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/glm.hpp"
+#include "render/background.hxx"
 #include "render/game-gui.hxx"
 
 namespace camera
@@ -12,11 +13,11 @@ static glm::vec3 camera_pos(0.f, 0.f, 10.f);
 static glm::vec3 camera_target(0.f, 0.f, 0.f);
 static glm::vec3 camera_up(0.f, 1.f, 0.f);
 #ifdef __ANDROID__
-    static float     scale        = 8.f;
+static float scale = 8.f;
 #else
-    static float     scale        = 5.f;
+static float scale = 5.f;
 #endif
-float            camera_angle = 0;
+float camera_angle = 0;
 
 float proj_width_half;
 float proj_height_half;
@@ -39,7 +40,7 @@ void init()
     proj_height_half =
         static_cast<float>(current_game->configuration.screen_height) / 2.0f;
 #endif
-    
+
     proj_width_half /= scale;
     proj_height_half /= scale;
 
@@ -69,6 +70,17 @@ void init()
         (static_cast<float>(current_game->configuration.screen_width) +
          static_cast<float>(current_game->configuration.screen_height)) /
         gui_scale_m;
+
+    float background_scale =
+        static_cast<float>(current_game->configuration.screen_width) /
+        static_cast<float>(current_game->configuration.screen_height);
+    background::projection =
+        glm::ortho(-proj_width_half - 5000 * background_scale,
+                   proj_width_half + 5000 * background_scale,
+                   -proj_height_half - 5000,
+                   proj_height_half + 5000,
+                   -50.0f,
+                   50.0f);
 }
 
 void window_resize()
@@ -90,6 +102,17 @@ void window_resize()
         (static_cast<float>(current_game->configuration.screen_width) +
          static_cast<float>(current_game->configuration.screen_height)) /
         gui_scale_m;
+
+    float background_scale =
+        static_cast<float>(current_game->configuration.screen_width) /
+        static_cast<float>(current_game->configuration.screen_height);
+    background::projection =
+        glm::ortho(-proj_width_half - 5000 * background_scale,
+                   proj_width_half + 5000 * background_scale,
+                   -proj_height_half - 5000,
+                   proj_height_half + 5000,
+                   -50.0f,
+                   50.0f);
 }
 
 void look_at(const Kengine::transform2d& pos,

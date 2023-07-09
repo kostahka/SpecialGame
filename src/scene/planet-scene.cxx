@@ -33,7 +33,7 @@ void planet_scene::on_start()
 {
     physics::land.init();
 
-    game_player = new player(physics::land.get_spawn_place(0));
+    game_player = new player(physics::land.get_spawn_place(1.57f));
     e_spawner.init(game_player->get_astronaut());
     current_game->game_cursor->set_cursor(cursor_type::attack);
     current_game->aim_joystick->deactivate();
