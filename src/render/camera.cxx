@@ -115,18 +115,6 @@ void window_resize()
                    50.0f);
 }
 
-void look_at(const Kengine::transform2d& pos,
-             const Kengine::transform2d& up_vector)
-{
-    camera_pos    = glm::vec3(pos.x, pos.y, 10.f);
-    camera_target = glm::vec3(pos.x, pos.y, 0.f);
-    camera_up     = glm::vec3(up_vector.x, up_vector.y, 0.f);
-    camera_angle  = std::atan2(up_vector.y, up_vector.x) / 3.14f;
-    glm::mat4 view(1);
-
-    view               = glm::lookAt(camera_pos, camera_target, camera_up);
-    current_game->view = view;
-};
 float get_angle()
 {
     return camera_angle;
