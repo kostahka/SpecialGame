@@ -58,7 +58,6 @@ private:
     transform2d     size;
     float           angle;
     float           z;
-    color           col;
 
     shader_program_use_func use_func;
     vertex_array_object*    vao;
