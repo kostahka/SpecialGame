@@ -23,6 +23,7 @@ enum class button
 void update();
 
 bool button_pressed(button);
+void set_button_pressed(button, bool pressed);
 
 } // namespace mouse
 
@@ -284,6 +285,7 @@ enum class key
 void update();
 
 bool key_pressed(key);
+void set_key_pressed(key, bool pressed);
 } // namespace keyboard
 
 namespace touch

@@ -29,9 +29,14 @@ void update()
 
 bool button_pressed(button b)
 {
-
     return b_pressed[static_cast<int>(b) - 1];
 }
+
+void set_button_pressed(button b, bool pressed)
+{
+    b_pressed[static_cast<int>(b) - 1] = pressed;
+};
+
 } // namespace mouse
 
 namespace keyboard
@@ -45,6 +50,11 @@ void update()
     {
         k_pressed[i] = state[i];
     }
+};
+
+void set_key_pressed(key k, bool pressed)
+{
+    k_pressed[static_cast<int>(k)] = pressed;
 };
 
 bool key_pressed(key k)

@@ -20,7 +20,6 @@
 #include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl3.h>
 
-#include "Kengine/file-last-modify-listener.hxx"
 #include "Kengine/render/engine-resources.hxx"
 #include "audio/audio.hxx"
 #include "event/event-engine.hxx"
@@ -43,7 +42,7 @@ void APIENTRY debug_message(GLenum        source,
     std::osyncstream sync_err(std::cerr);
     sync_err.write(message, length);
     sync_err << std::endl;
-};
+}
 #endif
 
 #ifdef ENGINE_DEV
@@ -273,9 +272,8 @@ public:
 
         e_game->on_start();
 
-        update_time = game_clock.now();
-        render_time = game_clock.now();
-        start_time  = game_clock.now();
+        start_time = render_time = update_time =
+            std::chrono::high_resolution_clock::now();
 
         while (continue_loop)
         {
@@ -285,19 +283,21 @@ public:
 #endif
             continue_loop = event::poll_events(e_game, window);
 
-            auto update_delta_time = game_clock.now() - update_time;
+            current_time = std::chrono::high_resolution_clock::now();
+
+            auto update_delta_time = current_time - update_time;
             if (update_delta_time > configuration.update_delta_time)
             {
                 e_game->on_update(duration_cast<std::chrono::milliseconds>(
                     update_delta_time));
-                update_time = game_clock.now();
+                update_time = current_time;
             }
-            auto render_delta_time = game_clock.now() - render_time;
+            auto render_delta_time = current_time - render_time;
             if (render_delta_time > configuration.render_delta_time)
             {
                 e_game->on_render(duration_cast<std::chrono::milliseconds>(
                     render_delta_time));
-                render_time = game_clock.now();
+                render_time = current_time;
             }
         }
 
@@ -355,13 +355,13 @@ public:
     std::chrono::duration<int, std::milli> get_time() override
     {
         return std::chrono::duration_cast<std::chrono::milliseconds>(
-            game_clock.now() - start_time);
+            current_time - start_time);
     };
 
     void quit() override
     {
-        SDL_Event* quit = new SDL_Event();
-        quit->type      = SDL_EVENT_QUIT;
+        auto* quit = new SDL_Event();
+        quit->type = SDL_EVENT_QUIT;
         SDL_PushEvent(quit);
     };
 
@@ -476,12 +476,11 @@ private:
     SDL_Window*   window  = nullptr;
     SDL_GLContext context = nullptr;
 
-    // Time from init SDL in miliseconds
+    // Time from init SDL in milliseconds
     std::chrono::high_resolution_clock::time_point update_time;
     std::chrono::high_resolution_clock::time_point render_time;
     std::chrono::high_resolution_clock::time_point start_time;
-
-    std::chrono::high_resolution_clock game_clock;
+    std::chrono::high_resolution_clock::time_point current_time;
 
     std::basic_streambuf<char>* cout_buf{ nullptr };
     std::basic_streambuf<char>* cerr_buf{ nullptr };
@@ -509,9 +508,8 @@ engine* engine::instance()
         engine_impl::instance = new engine_impl();
 
     return engine_impl::instance;
-    ;
 }
-}; // namespace Kengine
+} // namespace Kengine
 
 #ifdef ENGINE_DEV
 int main(int argc, char* argv[])

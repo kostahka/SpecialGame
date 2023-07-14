@@ -54,6 +54,9 @@ bool poll_events(game* game, SDL_Window* window)
                 event.keyboard.key = static_cast<input::keyboard::key>(
                     sdl_event.key.keysym.scancode);
                 event.keyboard.pressed = sdl_event.type == SDL_EVENT_KEY_DOWN;
+
+                input::keyboard::set_key_pressed(event.keyboard.key,
+                                                 event.keyboard.pressed);
                 break;
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
             case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -70,6 +73,15 @@ bool poll_events(game* game, SDL_Window* window)
                 event.mouse.clicks = sdl_event.button.clicks;
                 event.mouse.x      = sdl_event.button.x;
                 event.mouse.y      = sdl_event.button.y;
+
+                input::mouse::set_button_pressed(event.mouse.button,
+                                                 event.mouse.pressed);
+                input::mouse::x = event.mouse.x;
+                input::mouse::y = event.mouse.y;
+                break;
+            case SDL_EVENT_MOUSE_MOTION:
+                input::mouse::x = sdl_event.motion.x;
+                input::mouse::y = sdl_event.button.y;
                 break;
             case SDL_EVENT_FINGER_MOTION:
                 SDL_GetWindowSize(window, &screen_width, &screen_height);
@@ -115,9 +127,9 @@ bool poll_events(game* game, SDL_Window* window)
             engine::instance()->e_game->on_event(event);
     }
 
-    SDL_PumpEvents();
-    input::keyboard::update();
-    input::mouse::update();
+    // SDL_PumpEvents();
+    // input::keyboard::update();
+    // input::mouse::update();
 
     return no_quit;
 };

@@ -14,3 +14,4 @@ bin
 /cmake-build-release/
 /android-project/app/release/
 /android-project/app/src/main/assets/
+/cmake-build-relwithdebinfo/
