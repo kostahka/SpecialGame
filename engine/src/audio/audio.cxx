@@ -67,7 +67,12 @@ public:
         //        }
 
         SDL_AudioSpec file_audio_spec;
-        if (!SDL_LoadWAV(path.data(), &file_audio_spec, &buffer, &length))
+
+        if (!SDL_LoadWAV_RW(SDL_RWFromFile(path.data(), "rb"),
+                            SDL_bool::SDL_TRUE,
+                            &file_audio_spec,
+                            &buffer,
+                            &length))
         {
             std::cerr << "Failed to load wav from [" << path
                       << "] . Error: " << SDL_GetError() << std::endl;

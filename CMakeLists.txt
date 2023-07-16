@@ -96,13 +96,13 @@ else()
         COMMAND
             ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_LIST_DIR}/shaders/
-            ${CMAKE_CURRENT_BINARY_DIR}/shaders
+            $<TARGET_FILE_DIR:special-game>/shaders
         COMMAND
             ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
-            ${CMAKE_CURRENT_BINARY_DIR}/assets
-        COMMENT "Copying shaders and assets into binary directory")
+            $<TARGET_FILE_DIR:special-game>/assets
+        COMMENT "Copying shaders and assets into game directory: [$<TARGET_FILE_DIR:special-game>]")
 endif()
-add_dependencies(special-game copy_assets_shaders)
+#add_dependencies(special-game copy_assets_shaders)
 
 if(ENGINE_DEV)
     target_link_libraries(special-game PRIVATE engine)

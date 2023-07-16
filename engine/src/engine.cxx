@@ -45,6 +45,21 @@ void APIENTRY debug_message(GLenum        source,
 }
 #endif
 
+bool gl_extension_support(const char* name)
+{
+    GLint n = 0;
+    glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+    for (GLint i = 0; i < n; i++)
+    {
+        const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
+        if (!strcmp(name, extension))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 #ifdef ENGINE_DEV
 void reload_game(void* data);
 #endif
@@ -131,6 +146,15 @@ public:
         int gl_minor_version = 0;
         int gl_profile       = SDL_GL_CONTEXT_PROFILE_ES;
 
+        // Could not create GL context: The operation completed successfully.
+        // TODO: What is happening?
+        // #ifndef NDEBUG
+        //         gl_minor_version = 3;
+        //         gl_major_version = 2;
+        //         SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,
+        //         SDL_GL_CONTEXT_DEBUG_FLAG);
+        // #endif
+
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_major_version);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, gl_minor_version);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, gl_profile);
@@ -146,7 +170,8 @@ public:
         if (SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,
                                 &gl_major_version) ||
             SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,
-                                &gl_minor_version))
+                                &gl_minor_version) ||
+            SDL_GL_GetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, &gl_profile))
         {
             std::cerr << "Failed to get GL versions. Error: " << SDL_GetError()
                       << std::endl;
@@ -155,13 +180,14 @@ public:
 
         if (gl_major_version < 3 || gl_minor_version < 0)
         {
-            std::cerr << "Open GL context version is low. Minimum required: 3.2"
+            std::cerr << "Open GL context version is low. Minimum required: 3.0"
                       << std::endl;
             return "open gl version is low";
         }
 
         std::clog << "Open GL version: " << gl_major_version << "."
                   << gl_minor_version << std::endl;
+
 #ifndef __ANDROID__
         auto load_gl_func = [](const char* func_name)
         { return reinterpret_cast<void*>(SDL_GL_GetProcAddress(func_name)); };
@@ -172,23 +198,43 @@ public:
             return "failed to init glad";
         }
 
-#ifndef NDEBUG
-        std::string_view platform{ SDL_GetPlatform() };
-        if (platform != "Mac OS X")
+        GLint n = 0;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+
+        for (GLint i = 0; i < n; i++)
         {
-            glEnable(GL_DEBUG_OUTPUT);
-            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            glDebugMessageCallback(&debug_message, nullptr);
-            glDebugMessageControl(
-                GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-            glDebugMessageControl(GL_DONT_CARE,
-                                  GL_DONT_CARE,
-                                  GL_DEBUG_SEVERITY_NOTIFICATION,
-                                  0,
-                                  nullptr,
-                                  GL_FALSE);
+            const char* extension = (const char*)glGetStringi(GL_EXTENSIONS, i);
+            std::clog << "Ext " << i << ": " << extension << "\n";
         }
+#ifndef NDEBUG
+        int flags;
+        glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+
+        if ((((gl_major_version == 3 && gl_minor_version >= 2) ||
+              (gl_major_version > 3)) &&
+             gl_profile == SDL_GL_CONTEXT_PROFILE_ES) ||
+            (((gl_major_version == 4 && gl_minor_version >= 3) ||
+              (gl_major_version > 4)) &&
+             gl_profile == SDL_GL_CONTEXT_PROFILE_CORE))
+            if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+            {
+                glEnable(GL_DEBUG_OUTPUT);
+                glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+                glDisable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+                glDebugMessageCallback(&debug_message, nullptr);
+                glDebugMessageControl(GL_DONT_CARE,
+                                      GL_DONT_CARE,
+                                      GL_DONT_CARE,
+                                      0,
+                                      nullptr,
+                                      GL_TRUE);
+                glDebugMessageControl(GL_DONT_CARE,
+                                      GL_DONT_CARE,
+                                      GL_DEBUG_SEVERITY_NOTIFICATION,
+                                      0,
+                                      nullptr,
+                                      GL_FALSE);
+            }
 #endif
 #endif
         glEnable(GL_DEPTH_TEST);
