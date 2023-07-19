@@ -77,7 +77,7 @@ else()
     target_compile_definitions(special-game PRIVATE "-DE_DECLSPEC=")
 endif()
 
-add_subdirectory(engine)
+add_subdirectory(external/Kengine)
 
 if(ANDROID)
     add_custom_target(
@@ -100,14 +100,16 @@ else()
         COMMAND
             ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
             $<TARGET_FILE_DIR:special-game>/assets
-        COMMENT "Copying shaders and assets into game directory: [$<TARGET_FILE_DIR:special-game>]")
+        COMMENT
+            "Copying shaders and assets into game directory: [$<TARGET_FILE_DIR:special-game>]"
+        )
 endif()
 #add_dependencies(special-game copy_assets_shaders)
 
 if(ENGINE_DEV)
-    target_link_libraries(special-game PRIVATE engine)
+    target_link_libraries(special-game PRIVATE kengine)
 else()
-    target_link_libraries(special-game PRIVATE game-engine-static)
+    target_link_libraries(special-game PRIVATE kengine-static)
 endif()
 target_include_directories(special-game
                            PRIVATE ${CMAKE_CURRENT_LIST_DIR}/include)

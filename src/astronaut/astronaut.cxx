@@ -8,7 +8,7 @@
 #include <iostream>
 
 constexpr float astronaut_size       = 10;
-constexpr float astronaut_density    = 0.1;
+constexpr float astronaut_density    = 0.1f;
 constexpr float astronaut_move_speed = 0.1f;
 constexpr float astronaut_fly_speed  = 0.2f;
 constexpr float astronaut_friction   = 0.1f;
@@ -75,10 +75,10 @@ astronaut::astronaut(const Kengine::transform2d& pos, bool enemy)
     astronaut_anim.set_origin({ 0.5, 0.5 });
     astronaut_anim.set_angle(0);
 
-    hand_sprite.set_origin({ 0.3, 0.5 });
-    pistol_sprite.set_origin({ 0.3, 0.5 });
-    drill_sprite.set_origin({ 0.3, 0.5 });
-    drill_beam_sprite.set_origin({ 0, 0.5 });
+    hand_sprite.set_origin({ 0.3f, 0.5f });
+    pistol_sprite.set_origin({ 0.3f, 0.5f });
+    drill_sprite.set_origin({ 0.3f, 0.5f });
+    drill_beam_sprite.set_origin({ 0.f, 0.5f });
     drill_beam_sprite.set_program_use_func(&drill_beam_program_use);
 
     std::vector<Kengine::irect> idle_anim;
@@ -293,7 +293,7 @@ void astronaut::update(std::chrono::duration<int, std::milli> delta_time)
                 }
             }
 
-            collision_object->hurt(drill_damage * delta_time.count());
+            collision_object->hurt((int)drill_damage * delta_time.count());
 
             drill_beam_sprite.set_size(
                 { drill_ray_cast_callback.drill_distance -
@@ -328,7 +328,7 @@ void astronaut::render(std::chrono::duration<int, std::milli> delta_time)
         d_lines->vertex({ pos.x + std::cos(angle) * astronaut_size / 1.75f,
                           pos.y + std::sin(angle) * astronaut_size / 1.75f,
                           10 },
-                        { 0, 0.7, 0, 1.0 });
+                        { 0.f, 0.7f, 0.f, 1.0f });
         d_lines->draw();
     }
 }
@@ -407,7 +407,7 @@ void astronaut::hurt(int damage)
 }
 int astronaut::get_hp() const
 {
-    return hp;
+    return static_cast<int>(hp);
 }
 bool astronaut::hurt(float                       radius,
                      float                       damage,

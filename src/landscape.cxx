@@ -57,9 +57,9 @@ void landscape::init()
     std::cout << "Land init:" << std::endl;
 
     std::cout << "Init ground values..." << std::endl;
-    const siv::PerlinNoise::seed_type seed = time(nullptr);
-    const siv::PerlinNoise            perlin{ seed };
-    const float                       map_fill = 0.55;
+    const auto seed = static_cast<siv::PerlinNoise::seed_type>(time(nullptr));
+    const siv::PerlinNoise perlin{ seed };
+    const float            map_fill = 0.55f;
 
     const size_t planet_x = ground_w_count / 2;
     const size_t planet_y = ground_h_count / 2;
@@ -82,11 +82,11 @@ void landscape::init()
                                           ? ground / ground_value * map_fill
                                           : (ground / ground_value - 1) * (1 - map_fill) +
                                    ground_value;
-                g_table[y][x].value = ground > ground_value ? 1 : 0;
+                g_table[y][x].value = ground > ground_value ? 1.f : 0.f;
             }
             else
             {
-                g_table[y][x].value = 0.1;
+                g_table[y][x].value = 0.1f;
             }
         }
     }
@@ -227,8 +227,8 @@ void landscape::draw() const
 
 void landscape::change_ground(float x, float y, float radius, float delta_value)
 {
-    int y_start = std::round((y - radius) / cell_size);
-    int y_end   = std::round((y + radius) / cell_size);
+    int y_start = (int)std::round((y - radius) / cell_size);
+    int y_end   = (int)std::round((y + radius) / cell_size);
 
     if (y_start < 1)
         y_start = 1;
@@ -237,11 +237,11 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
 
     for (int gy = y_start; gy < y_end; gy++)
     {
-        float r = std::sqrt(
+        float r = (float)std::sqrt(
             std::abs(radius * radius - std::pow(y - gy * cell_size, 2)));
 
-        int x_start = std::round((x - r) / cell_size);
-        int x_end   = std::round((x + r) / cell_size);
+        int x_start = (int)std::round((x - r) / cell_size);
+        int x_end   = (int)std::round((x + r) / cell_size);
 
         if (x_start < 1)
             x_start = 1;
@@ -273,11 +273,11 @@ void landscape::change_ground(float x, float y, float radius, float delta_value)
     {
         int gy = y_end;
 
-        float r = std::sqrt(
+        float r = (float)std::sqrt(
             std::abs(radius * radius - std::pow(y - gy * cell_size, 2)));
 
-        int x_start = std::round((x - r) / cell_size);
-        int x_end   = std::round((x + r) / cell_size);
+        int x_start = (int)std::round((x - r) / cell_size);
+        int x_end   = (int)std::round((x + r) / cell_size);
 
         if (x_start < 1)
             x_start = 1;
@@ -388,20 +388,20 @@ void landscape::calculate_cell_indexes(size_t x, size_t y)
     if (g_table[y + 1][x].value > ground_value)
         code += 0b1000;
 
-    const uint32_t v_i0 = x + y * ground_w_count;
-    const uint32_t v_i1 = x + 1 + y * ground_w_count;
-    const uint32_t v_i2 = x + 1 + (y + 1) * ground_w_count;
-    const uint32_t v_i3 = x + (y + 1) * ground_w_count;
+    const uint32_t v_i0 = (int)x + (int)y * ground_w_count;
+    const uint32_t v_i1 = (int)x + 1 + (int)y * ground_w_count;
+    const uint32_t v_i2 = (int)x + 1 + ((int)y + 1) * ground_w_count;
+    const uint32_t v_i3 = (int)x + ((int)y + 1) * ground_w_count;
 
-    const uint32_t v_hi0 =
-        ground_horizontal_vertices_index + x + y * (ground_w_count - 1);
-    const uint32_t v_hi1 =
-        ground_horizontal_vertices_index + x + (y + 1) * (ground_w_count - 1);
+    const uint32_t v_hi0 = ground_horizontal_vertices_index + (int)x +
+                           (int)y * (ground_w_count - 1);
+    const uint32_t v_hi1 = ground_horizontal_vertices_index + (int)x +
+                           ((int)y + 1) * (ground_w_count - 1);
 
     const uint32_t v_vi0 =
-        ground_vertical_vertices_index + x + y * ground_w_count;
+        ground_vertical_vertices_index + (int)x + (int)y * ground_w_count;
     const uint32_t v_vi1 =
-        ground_vertical_vertices_index + x + 1 + y * ground_w_count;
+        ground_vertical_vertices_index + (int)x + 1 + (int)y * ground_w_count;
 
     const transform2d& v0 = l_vertices[v_i0];
     const transform2d& v1 = l_vertices[v_i1];
@@ -521,7 +521,8 @@ void landscape::calculate_indexes()
 
 void landscape::recalculate_horizontal_vertex(size_t x, size_t y)
 {
-    int index = ground_horizontal_vertices_index + y * (ground_w_count - 1) + x;
+    int index =
+        (int)(ground_horizontal_vertices_index + y * (ground_w_count - 1) + x);
 
     float t = interpolate_ground(g_table[y][x].value, g_table[y][x + 1].value);
     l_vertices[index] = { (x + t) * cell_size, y * cell_size };
@@ -529,7 +530,8 @@ void landscape::recalculate_horizontal_vertex(size_t x, size_t y)
 
 void landscape::recalculate_vertical_vertex(size_t x, size_t y)
 {
-    int index = ground_vertical_vertices_index + (y) * (ground_w_count) + x;
+    int index =
+        (int)(ground_vertical_vertices_index + (y) * (ground_w_count) + x);
 
     float t = interpolate_ground(g_table[y][x].value, g_table[y + 1][x].value);
     l_vertices[index] = { x * cell_size, (y + t) * cell_size };
