@@ -49,7 +49,7 @@ with section("format"):
 
     # If an argument group contains more than this many sub-groups (parg or kwarg
     # groups) then force it to a vertical layout.
-    max_subgroups_hwrap = 5
+    max_subgroups_hwrap = 2
 
     # If a positional argument group contains more than this many arguments, then
     # force it to a vertical layout.
@@ -67,13 +67,13 @@ with section("format"):
 
     # If a statement is wrapped to more than one line, than dangle the closing
     # parenthesis on its own line.
-    dangle_parens = False
+    dangle_parens = True
 
     # If the trailing parenthesis must be 'dangled' on its on line, then align it
     # to this reference: `prefix`: the start of the statement,  `prefix-indent`:
     # the start of the statement, plus one indentation  level, `child`: align to
     # the column of the arguments
-    dangle_align = "child"
+    dangle_align = "prefix"
 
     # If the statement spelling length (including space and parenthesis) is
     # smaller than this amount, then force reject nested layouts.
@@ -95,7 +95,7 @@ with section("format"):
     command_case = "lower"
 
     # Format keywords consistently as 'lower' or 'upper' case
-    keyword_case = "UPPER"
+    keyword_case = "upper"
 
     # A list of command names which should always be wrapped
     always_wrap = []

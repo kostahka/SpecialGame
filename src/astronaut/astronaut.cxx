@@ -348,6 +348,7 @@ void astronaut::aim(float angle)
 {
     gun_angle = angle;
 }
+
 void astronaut::select_gun(gun_type g)
 {
     current_gun = g;
@@ -405,10 +406,12 @@ void astronaut::hurt(int damage)
         destroy();
     }
 }
+
 int astronaut::get_hp() const
 {
     return static_cast<int>(hp);
 }
+
 bool astronaut::hurt(float                       radius,
                      float                       damage,
                      const Kengine::transform2d& pos,
@@ -416,6 +419,7 @@ bool astronaut::hurt(float                       radius,
 {
     return false;
 }
+
 astronaut::~astronaut()
 {
     physics::physics_world.DestroyBody(astronaut_body);
@@ -433,6 +437,7 @@ astronaut::~astronaut()
     d_lines->destroy();
     delete d_lines;
 }
+
 void astronaut::destroy()
 {
     game_object::destroy();
@@ -441,6 +446,7 @@ void astronaut::destroy()
     else
         std::cout << "Destroy player astronaut" << std::endl;
 }
+
 float astronaut::get_angle() const
 {
     return astronaut_body->GetAngle();
