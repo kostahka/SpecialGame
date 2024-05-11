@@ -3,6 +3,9 @@
 #include "Kengine/system/system.hxx"
 #include "astronaut/gun.hxx"
 #include "system/astronaut-system.hxx"
+#include "system/bullet-system.hxx"
+#include "system/enemy-spawner-system.hxx"
+#include "system/enemy-system.hxx"
 #include "system/landscape-system.hxx"
 #include "system/player-system.hxx"
 
@@ -26,7 +29,10 @@ public:
     Kengine::scene& sc;
 
 private:
-    astronaut_system astr_system;
-    player_system    pl_system;
-    landscape_system land_system;
+    astronaut_system     astr_system;
+    player_system        pl_system;
+    landscape_system     land_system;
+    bullet_system        bul_system;
+    enemy_system         en_system;
+    enemy_spawner_system en_spawn_system;
 };

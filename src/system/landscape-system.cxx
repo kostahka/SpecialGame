@@ -148,8 +148,8 @@ void landscape_system::on_start(Kengine::scene& sc)
 
     b2BodyDef land_body_def;
     land_body_def.position.Set(0, 0);
-    // land_body_def.userData.pointer =
-    //     reinterpret_cast<uintptr_t>(static_cast<collision_interface*>(this));
+    land_body_def.userData.pointer =
+        reinterpret_cast<uintptr_t>(static_cast<damage_interface*>(this));
     l_body = sc.get_world().CreateBody(&land_body_def);
     l_fixtures.fill(nullptr);
 
@@ -217,9 +217,8 @@ void landscape_system::on_render(Kengine::scene& sc, int delta_ms)
     }
     else
     {
-        auto cam     = sc.get_camera();
-        camera_pos.x = -cam.view[3][0];
-        camera_pos.y = -cam.view[3][1];
+        auto& cam  = sc.get_camera();
+        camera_pos = cam.get_position();
     }
     int y_start = static_cast<int>(
         std::roundf((camera_pos.y - render_size / 2) / cell_size));
@@ -324,6 +323,7 @@ void landscape_system::change_ground(float x,
         recalculate_horizontal_vertex(x_end, gy);
         calculate_cell_indexes(x_end, gy - 1);
 
+        vbo->bind();
         int horizontal_v_index = ground_horizontal_vertices_index +
                                  gy * (ground_w_count - 1) + x_start - 1;
         vbo->set_vertices(&l_vertices[horizontal_v_index],
@@ -668,7 +668,10 @@ bool landscape_system::hurt(float                radius,
     switch (g)
     {
         case gun_type::pistol:
-            Kengine::audio::play_one_shot(damage_audio, { 1.0f, 1.0f });
+            if (damage_audio)
+            {
+                Kengine::audio::play_one_shot(damage_audio, { 1.0f, 1.0f });
+            }
             break;
         case gun_type::drill:
             break;
@@ -696,7 +699,7 @@ float landscape_system::get_angle_to(const Kengine::vec2& pos) const
 float landscape_system::get_distance_to(const Kengine::vec2& pos) const
 {
     Kengine::vec2 center_pos = get_center();
-    return static_cast<float>((center_pos - pos).length());
+    return static_cast<float>(glm::length(glm::vec2(center_pos - pos)));
 }
 
 b2Body* landscape_system::get_body() const
@@ -710,6 +713,7 @@ void landscape_system::set_vao_indexes(size_t x, size_t y, int count)
 
     uint32_t* data = &l_indexes[cell_i];
     size_t    size = 4 * 3 * count;
+    ebo->bind();
     ebo->set_indexes(
         data, static_cast<uint32_t>(cell_i), static_cast<uint32_t>(size));
 }

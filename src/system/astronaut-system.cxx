@@ -3,25 +3,50 @@
 #include "Kengine/components/animation-component.hxx"
 #include "Kengine/components/audio-component.hxx"
 #include "Kengine/components/physics-component.hxx"
+#include "Kengine/components/sprite-component.hxx"
 #include "Kengine/components/transform-component.hxx"
 #include "Kengine/log/log.hxx"
+#include "Kengine/scene/scene-manager.hxx"
 #include "Kengine/scene/scene.hxx"
 
 #include "components/astronaut-component.hxx"
+#include "game.hxx"
 
+#include "box2d/b2_body.h"
 #include "box2d/b2_fixture.h"
 
 static Kengine::string_id astronaut_idle_animation_id{};
 static Kengine::string_id astronaut_walk_animation_id{};
 static Kengine::string_id astronaut_fly_animation_id{};
 
+std::shared_ptr<Kengine::scene> astronaut_system::bullet_scene = nullptr;
+
+constexpr float drill_max_distance  = 50.0f;
+constexpr float drill_damage        = 0.0005f;
+constexpr float drill_damage_radius = 6;
+
 astronaut_system::astronaut_system(Kengine::scene& sc)
     : system(name, Kengine::system_update_type)
     , sc(sc)
 {
+    sc.registry.on_construct<astronaut_component>()
+        .connect<&astronaut_system::bind_damage_interface>(*this);
+    sc.registry.on_construct<Kengine::physics_component>()
+        .connect<&astronaut_system::bind_damage_interface>(*this);
+
+    bullet_scene =
+        special_game::instance->load_scene(Kengine::hash_string("bullet"));
 }
 
-astronaut_system::~astronaut_system() {}
+astronaut_system::~astronaut_system()
+{
+    sc.registry.on_construct<astronaut_component>()
+        .disconnect<&astronaut_system::bind_damage_interface>(*this);
+    sc.registry.on_construct<Kengine::physics_component>()
+        .disconnect<&astronaut_system::bind_damage_interface>(*this);
+
+    bullet_scene = nullptr;
+}
 
 std::size_t astronaut_system::serialize(std::ostream& os) const
 {
@@ -38,7 +63,7 @@ std::size_t astronaut_system::serialize_size() const
     return 0;
 }
 
-void astronaut_system::on_start(Kengine::scene&)
+void astronaut_system::on_start(Kengine::scene& sc)
 {
     astronaut_idle_animation_id = Kengine::hash_string("idle");
     astronaut_walk_animation_id = Kengine::hash_string("walk");
@@ -95,8 +120,8 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
             const float delta_impulse =
                 static_cast<float>(delta_ms) * astr_ent.move_speed;
             const b2Vec2 d_impulse_vec(
-                -delta_impulse * astr_ent.to_earth_center.y,
-                delta_impulse * astr_ent.to_earth_center.x);
+                -delta_impulse * astr_ent.to_earth_center_norm.y,
+                delta_impulse * astr_ent.to_earth_center_norm.x);
 
             ph_ent->ApplyLinearImpulseToCenter(
                 astr_ent.move_direction * d_impulse_vec, true);
@@ -138,8 +163,8 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
             const float delta_fly_impulse =
                 static_cast<float>(delta_ms) * astr_ent.fly_speed;
             const b2Vec2 d_fly_vec(
-                delta_fly_impulse * -astr_ent.to_earth_center.x,
-                delta_fly_impulse * -astr_ent.to_earth_center.y);
+                delta_fly_impulse * -astr_ent.to_earth_center_norm.x,
+                delta_fly_impulse * -astr_ent.to_earth_center_norm.y);
 
             ph_ent->ApplyLinearImpulseToCenter(d_fly_vec, true);
             astr_ent.flying = false;
@@ -150,14 +175,14 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
 
         float d_gun_angle;
         int   direction;
-        if (std::cos(astronaut_angle - astr_ent.gun_angle) < 0)
+        if (std::cos(astr_ent.gun_angle - astronaut_angle) > 0)
         {
-            d_gun_angle = astr_ent.gun_angle - 3.14f;
+            d_gun_angle = astr_ent.gun_angle - astronaut_angle;
             direction   = -1;
         }
         else
         {
-            d_gun_angle = astr_ent.gun_angle;
+            d_gun_angle = astr_ent.gun_angle - astronaut_angle - 3.14f;
             direction   = 1;
         }
 
@@ -179,55 +204,76 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
             }
         }
 
-        // drill_beam_sprite.set_pos(
-        //     { astronaut_pos.x + drill_beam_start_distance *
-        //     std::cos(gun_angle),
-        //       astronaut_pos.y +
-        //           drill_beam_start_distance * std::sin(gun_angle) });
-        // drill_beam_sprite.set_angle(gun_angle);
-        // if (drilling)
-        // {
-        //     drill_beam_sprite.set_size({ drill_max_distance, drill_size });
+        if (astr_ent.drill_beam_entity != entt::null &&
+            sc.registry.all_of<Kengine::transform_component,
+                               Kengine::sprite_component>(
+                astr_ent.drill_beam_entity))
+        {
+            auto [beam_trans_ent, beam_sprite_ent] =
+                sc.registry.get<Kengine::transform_component,
+                                Kengine::sprite_component>(
+                    astr_ent.drill_beam_entity);
+            // beam_trans_ent.transf.position = {
+            //     astronaut_pos.x +
+            //         trans_ent.transf.scale.y / 2 *
+            //         std::cos(astr_ent.gun_angle),
+            //     astronaut_pos.y +
+            //         trans_ent.transf.scale.y / 2 *
+            //         std::sin(astr_ent.gun_angle)
+            // };
+            // beam_trans_ent.transf.angle = astr_ent.gun_angle;
+            beam_sprite_ent.visible = astr_ent.drilling;
+            if (astr_ent.drilling)
+            {
+                beam_trans_ent.transf.scale.x =
+                    drill_max_distance / trans_ent.transf.scale.y;
 
-        //     drill_ray_cast_callback.drill_collision_info = 0;
-        //     physics::physics_world.RayCast(
-        //         &drill_ray_cast_callback,
-        //         astronaut_pos,
-        //         { astronaut_pos.x + std::cos(gun_angle) * drill_max_distance,
-        //           astronaut_pos.y + std::sin(gun_angle) * drill_max_distance
-        //           });
+                astr_ent.drill_ray_cast_callback.drill_collision_info = 0;
+                sc.get_world().RayCast(
+                    &astr_ent.drill_ray_cast_callback,
+                    astronaut_pos,
+                    { astronaut_pos.x +
+                          std::cos(astr_ent.gun_angle) * drill_max_distance,
+                      astronaut_pos.y +
+                          std::sin(astr_ent.gun_angle) * drill_max_distance });
 
-        //     if (drill_ray_cast_callback.drill_collision_info)
-        //     {
-        //         auto collision_object =
-        //         reinterpret_cast<collision_interface*>(
-        //             drill_ray_cast_callback.drill_collision_info);
-        //         if (collision_object->hurt(
-        //                 drill_damage_radius,
-        //                 drill_damage * delta_time.count(),
-        //                 { drill_ray_cast_callback.drill_collision_point.x,
-        //                   drill_ray_cast_callback.drill_collision_point.y },
-        //                 gun_type::drill))
-        //         {
-        //             if (!ground_drilling_sound->get_is_playing())
-        //             {
-        //                 ground_drilling_sound->play();
-        //             }
-        //         }
+                if (astr_ent.drill_ray_cast_callback.drill_collision_info)
+                {
+                    auto collision_object = reinterpret_cast<damage_interface*>(
+                        astr_ent.drill_ray_cast_callback.drill_collision_info);
+                    if (collision_object->hurt(
+                            drill_damage_radius,
+                            drill_damage * delta_ms,
+                            { astr_ent.drill_ray_cast_callback
+                                  .drill_collision_point.x,
+                              astr_ent.drill_ray_cast_callback
+                                  .drill_collision_point.y },
+                            gun_type::drill))
+                    {
+                        // if (!ground_drilling_sound->get_is_playing())
+                        // {
+                        //     ground_drilling_sound->play();
+                        // }
+                    }
 
-        //         collision_object->hurt((int)drill_damage *
-        //         delta_time.count());
+                    collision_object->hurt((int)drill_damage * delta_ms);
 
-        //         drill_beam_sprite.set_size(
-        //             { drill_ray_cast_callback.drill_distance -
-        //                   drill_beam_start_distance,
-        //               drill_size });
-        //     }
-        //     else
-        //     {
-        //         ground_drilling_sound->stop();
-        //     }
-        // }
+                    beam_trans_ent.transf.scale.x =
+                        (astr_ent.drill_ray_cast_callback.drill_distance -
+                         trans_ent.transf.scale.y / 2) /
+                        trans_ent.transf.scale.y;
+                }
+                else
+                {
+                    // ground_drilling_sound->stop();
+                }
+            }
+        }
+
+        if (astr_ent.hp <= 0)
+        {
+            sc.registry.destroy(ent);
+        }
     }
 }
 
@@ -270,5 +316,18 @@ void astronaut_system::process_animation(astronaut_component&          astr_ent,
                 anim_ent.set_current_animation(astronaut_idle_animation_id);
             }
         }
+    }
+}
+
+void astronaut_system::bind_damage_interface(entt::registry& reg,
+                                             entt::entity    ent)
+{
+    if (reg.all_of<Kengine::physics_component, astronaut_component>(ent))
+    {
+        auto [ph_ent, astr_ent] =
+            reg.get<Kengine::physics_component, astronaut_component>(ent);
+
+        ph_ent->GetUserData().pointer = reinterpret_cast<uintptr_t>(
+            static_cast<damage_interface*>(&astr_ent));
     }
 }

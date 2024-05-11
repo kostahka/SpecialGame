@@ -6,10 +6,14 @@
 #include "astronaut/gun.hxx"
 #include "components/astronaut-component.hxx"
 
+#include <memory>
+
 class astronaut_system : public Kengine::system
 {
 public:
     static constexpr auto name = "astronaut_system";
+
+    static std::shared_ptr<Kengine::scene> bullet_scene;
 
     astronaut_system(Kengine::scene&);
     ~astronaut_system();
@@ -27,4 +31,6 @@ public:
 private:
     void process_animation(astronaut_component&          astr_ent,
                            Kengine::animation_component& anim_ent);
+
+    void bind_damage_interface(entt::registry& reg, entt::entity ent);
 };

@@ -2,6 +2,7 @@
 
 #include "Kengine/components/transform-component.hxx"
 #include "Kengine/io/input.hxx"
+#include "Kengine/log/log.hxx"
 #include "Kengine/scene/scene.hxx"
 
 #include "components/astronaut-component.hxx"
@@ -50,15 +51,15 @@ void player_system::on_event(Kengine::scene&                   sc,
                 if (g_event.keyboard.key == keyboard::key::key_1)
                 {
                     // current_game->game_cursor->set_cursor(cursor_type::attack);
-                    pl_ent.selected_gun  = 1;
-                    pl_ent.drill         = false;
-                    astr_ent.current_gun = gun_type::pistol;
+                    pl_ent.selected_gun = 1;
+                    pl_ent.drill        = false;
+                    astr_ent.select_gun(gun_type::pistol);
                 }
                 else if (g_event.keyboard.key == keyboard::key::key_2)
                 {
                     // current_game->game_cursor->set_cursor(cursor_type::shovel);
-                    pl_ent.selected_gun  = 2;
-                    astr_ent.current_gun = gun_type::drill;
+                    pl_ent.selected_gun = 2;
+                    astr_ent.select_gun(gun_type::drill);
                 }
             }
         }

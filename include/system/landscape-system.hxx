@@ -2,6 +2,8 @@
 
 #include "astronaut/gun.hxx"
 
+#include "components/damage-interface.hxx"
+
 #include "Kengine/graphics/draw-primitives.hxx"
 #include "Kengine/graphics/vertex-array.hxx"
 #include "Kengine/graphics/vertex-buffer.hxx"
@@ -60,7 +62,7 @@ struct triangle_indexes
     uint32_t i2;
 };
 
-class landscape_system : public Kengine::system
+class landscape_system : public Kengine::system, public damage_interface
 {
 public:
     static constexpr auto name = "landscape_system";
@@ -77,8 +79,11 @@ public:
     void on_update(Kengine::scene&, int delta_ms) override;
 
     void change_ground(float x, float y, float radius, float delta_value);
-    void hurt(int damage);
-    bool hurt(float radius, float damage, const Kengine::vec2& pos, gun_type g);
+    void hurt(int damage) override;
+    bool hurt(float                radius,
+              float                damage,
+              const Kengine::vec2& pos,
+              gun_type             g) override;
 
     [[nodiscard]] Kengine::vec2 get_center() const;
     [[nodiscard]] Kengine::vec2 get_spawn_place(float angle) const;

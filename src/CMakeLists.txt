@@ -1,12 +1,19 @@
 cmake_minimum_required(VERSION 3.5)
 
+set(CMAKE_UNITY_BUILD ON)
+
 set(SPECIAL_GAME_SOURCES
     # cmake-format: sortable
     components/astronaut-component.cxx
+    components/bullet-component.cxx
+    components/enemy-component.cxx
     components/player-controller.cxx
     game.cxx
     resources/resources.cxx
     system/astronaut-system.cxx
+    system/bullet-system.cxx
+    system/enemy-spawner-system.cxx
+    system/enemy-system.cxx
     system/landscape-system.cxx
     system/planet-gameplay-system.cxx
     system/player-system.cxx
@@ -16,10 +23,16 @@ set(SPECIAL_GAME_HEADERS
     # cmake-format: sortable
     ../include/astronaut/gun.hxx
     ../include/components/astronaut-component.hxx
+    ../include/components/bullet-component.hxx
+    ../include/components/damage-interface.hxx
+    ../include/components/enemy-component.hxx
     ../include/components/player-controller.hxx
     ../include/game.hxx
     ../include/resources/resources.hxx
     ../include/system/astronaut-system.hxx
+    ../include/system/bullet-system.hxx
+    ../include/system/enemy-spawner-system.hxx
+    ../include/system/enemy-system.hxx
     ../include/system/landscape-system.hxx
     ../include/system/planet-gameplay-system.hxx
     ../include/system/player-system.hxx

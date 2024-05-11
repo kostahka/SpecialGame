@@ -14,5 +14,9 @@ namespace resources
             Kengine::static_resource_cast<Kengine::material_resource>(
                 Kengine::resource_manager::load_resource(
                     "resources/materials/landscape-material.kpkg"));
+        landscape_damage_audio =
+            Kengine::static_resource_cast<Kengine::audio_resource>(
+                Kengine::resource_manager::load_resource(
+                    "resources/audio/ground-damage-sound.kpkg"));
     }
 } // namespace resources

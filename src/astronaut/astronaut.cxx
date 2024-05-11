@@ -13,8 +13,7 @@ constexpr float astronaut_move_speed = 0.1f;
 constexpr float astronaut_fly_speed  = 0.2f;
 constexpr float astronaut_friction   = 0.1f;
 
-constexpr float bullet_distance    = 10.0f;
-constexpr float drill_max_distance = 50.0f;
+constexpr float bullet_distance = 10.0f;
 
 constexpr float drill_damage              = 0.0005f;
 constexpr float drill_damage_radius       = 6;

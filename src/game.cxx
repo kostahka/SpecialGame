@@ -1,6 +1,8 @@
 #include "game.hxx"
 
 #include "components/astronaut-component.hxx"
+#include "components/bullet-component.hxx"
+#include "components/enemy-component.hxx"
 #include "components/player-controller.hxx"
 #include "resources/resources.hxx"
 #include "system/astronaut-system.hxx"
@@ -32,11 +34,17 @@ special_game::special_game()
     system_container::register_system<planet_gameplay_system>(
         planet_gameplay_system::name);
 
+    component_container::register_component<enemy_component>(
+        enemy_component::name);
     component_container::register_component<player_controller>(
         player_controller::name);
+    component_container::register_component<bullet_component>(
+        bullet_component::name);
     component_container::register_component(
         Kengine::hash_string(astronaut_component::name),
         astronaut_component::info);
+
+    instance = this;
 }
 
 void special_game::on_start()
