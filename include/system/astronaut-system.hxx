@@ -13,9 +13,8 @@ class astronaut_system : public Kengine::system
 public:
     static constexpr auto name = "astronaut_system";
 
-    static std::shared_ptr<Kengine::scene> bullet_scene;
-
     astronaut_system(Kengine::scene&);
+
     ~astronaut_system();
 
     std::size_t serialize(std::ostream& os) const override;
@@ -29,6 +28,8 @@ public:
     Kengine::scene& sc;
 
 private:
+    std::shared_ptr<Kengine::scene> bullet_scene = nullptr;
+
     void process_animation(astronaut_component&          astr_ent,
                            Kengine::animation_component& anim_ent);
 

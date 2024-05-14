@@ -5,6 +5,8 @@
 
 #include "entt/entt.hpp"
 
+#include <memory>
+
 class landscape_system;
 
 class enemy_spawner_system : public Kengine::system
@@ -27,6 +29,8 @@ public:
     Kengine::scene& sc;
 
 private:
+    std::shared_ptr<Kengine::scene> enemy_sc = nullptr;
+
     void on_enemy_destroy(entt::registry& reg, entt::entity ent);
 
     static int   get_random_wave_time();

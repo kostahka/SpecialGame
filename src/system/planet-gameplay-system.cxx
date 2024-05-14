@@ -1,10 +1,14 @@
 #include "system/planet-gameplay-system.hxx"
 
 #include "Kengine/components/camera-component.hxx"
+#include "Kengine/components/rect-transform-component.hxx"
 #include "Kengine/components/transform-component.hxx"
 #include "Kengine/scene/scene.hxx"
 
 #include "components/astronaut-component.hxx"
+#include "components/game-over-menu-component.hxx"
+#include "components/game-tutorial-menu-component.hxx"
+#include "components/pause-menu-component.hxx"
 #include "components/player-controller.hxx"
 
 #include <cstdlib>
@@ -88,21 +92,82 @@ void planet_gameplay_system::on_start(Kengine::scene& sc)
             land_system.get_spawn_place(rand() / static_cast<float>(RAND_MAX));
         sc.set_camera(ent);
     }
+
+    sc.instansiate(Kengine::hash_string("tutorial-menu"));
+    sc.instansiate(Kengine::hash_string("pause-menu"));
+    sc.instansiate(Kengine::hash_string("game-over-menu"));
+    sc.instansiate(Kengine::hash_string("background"));
+
+    set_state(planet_gameplay_state::tutorial);
 }
 
 void planet_gameplay_system::on_event(Kengine::scene&                   sc,
                                       const Kengine::event::game_event& g_event)
 {
     pl_system.on_event(sc, g_event);
+
+    switch (state)
+    {
+        case planet_gameplay_state::game_over:
+        {
+        }
+        break;
+        case planet_gameplay_state::pause:
+        {
+            if (g_event.g_type == Kengine::event::type::keyboard_event)
+            {
+                if (g_event.keyboard.pressed &&
+                    g_event.keyboard.key ==
+                        Kengine::input::keyboard::key::key_escape)
+                {
+                    set_state(planet_gameplay_state::play);
+                }
+            }
+        }
+        break;
+        case planet_gameplay_state::play:
+        {
+            if (g_event.g_type == Kengine::event::type::keyboard_event)
+            {
+                if (g_event.keyboard.pressed &&
+                    g_event.keyboard.key ==
+                        Kengine::input::keyboard::key::key_escape)
+                {
+                    set_state(planet_gameplay_state::pause);
+                }
+            }
+        }
+        break;
+        case planet_gameplay_state::tutorial:
+        {
+            if (g_event.g_type == Kengine::event::type::keyboard_event)
+            {
+                if (g_event.keyboard.pressed)
+                {
+                    set_state(planet_gameplay_state::play);
+                }
+            }
+            if (g_event.g_type == Kengine::event::type::mouse_button_event)
+            {
+                if (g_event.mouse.pressed)
+                {
+                    set_state(planet_gameplay_state::play);
+                }
+            }
+        }
+        break;
+    }
 }
 
 void planet_gameplay_system::on_render(Kengine::scene& sc, int delta_ms)
 {
     land_system.on_render(sc, delta_ms);
+    en_spawn_system.on_render(sc, delta_ms);
 }
 
 void planet_gameplay_system::on_update(Kengine::scene& sc, int delta_ms)
 {
+
     auto astr_view = sc.registry.view<Kengine::transform_component,
                                       Kengine::physics_component,
                                       astronaut_component>();
@@ -135,4 +200,47 @@ void planet_gameplay_system::on_update(Kengine::scene& sc, int delta_ms)
     bul_system.on_update(sc, delta_ms);
     en_system.on_update(sc, delta_ms);
     en_spawn_system.on_update(sc, delta_ms);
+
+    if (state == planet_gameplay_state::play)
+    {
+        if (pl_system.get_players_count() <= 0)
+        {
+            set_state(planet_gameplay_state::game_over);
+        }
+    }
+}
+
+void planet_gameplay_system::enable_menu_with_state()
+{
+    auto tutorial_menu_view =
+        sc.registry.view<Kengine::rect_transform_component,
+                         game_tutorial_menu_component>();
+    for (auto [ent, rect_trans_ent, tutor_ent] : tutorial_menu_view.each())
+    {
+        rect_trans_ent.transf.enabled =
+            state == planet_gameplay_state::tutorial;
+    }
+
+    auto game_over_menu_view =
+        sc.registry.view<Kengine::rect_transform_component,
+                         game_over_menu_component>();
+    for (auto [ent, rect_trans_ent, game_over_ent] : game_over_menu_view.each())
+    {
+        rect_trans_ent.transf.enabled =
+            state == planet_gameplay_state::game_over;
+    }
+
+    auto pause_menu_view =
+        sc.registry
+            .view<Kengine::rect_transform_component, pause_menu_component>();
+    for (auto [ent, rect_trans_ent, pause_ent] : pause_menu_view.each())
+    {
+        rect_trans_ent.transf.enabled = state == planet_gameplay_state::pause;
+    }
+}
+
+void planet_gameplay_system::set_state(planet_gameplay_state state)
+{
+    this->state = state;
+    enable_menu_with_state();
 }

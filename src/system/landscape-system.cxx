@@ -179,6 +179,7 @@ void landscape_system::on_start(Kengine::scene& sc)
         vao->bind();
         vao->add_vertex_buffer(vbo);
         vao->set_elements(ebo);
+        vao->unbind();
     }
     else
     {
@@ -204,7 +205,6 @@ void landscape_system::on_render(Kengine::scene& sc, int delta_ms)
 {
     Kengine::graphics::update_matrices(sc.get_camera().get_projection(),
                                        sc.get_camera().view);
-    Kengine::graphics::bind_material(material);
 
     Kengine::vec2 camera_pos = { 0, 0 };
     auto          cam_ent    = sc.get_camera_entity();
@@ -245,10 +245,14 @@ void landscape_system::on_render(Kengine::scene& sc, int delta_ms)
     {
         int          count  = (x_end - x_start + 1) * 4 * 3;
         const size_t offset = (y * (ground_w_count - 1) + x_start) * 4 * 3;
-        vao->bind();
-        vao->draw(Kengine::graphics::draw_mode::triangles,
-                  count,
-                  static_cast<uint32_t>(offset));
+        Kengine::graphics::render_packet packet(material);
+        packet.vao             = vao;
+        packet.instances_count = 1;
+        packet.layer           = 0;
+        packet.mode            = Kengine::graphics::draw_mode::triangles;
+        packet.vertices_count  = count;
+        packet.vertices_start  = static_cast<uint32_t>(offset);
+        sc.get_main_pass().add_render_packet(packet);
     }
 
     // l_lines->vertex({ x_start * cell_size, y_start * cell_size, 0 },
@@ -272,11 +276,11 @@ void landscape_system::on_render(Kengine::scene& sc, int delta_ms)
     Kengine::vec3 right_center  = { center_planet.x + 10, center_planet.y, 0 };
     Kengine::vec3 top_center    = { center_planet.x, center_planet.y + 10, 0 };
     Kengine::vec3 bottom_center = { center_planet.x, center_planet.y - 10, 0 };
-    l_lines->vertex(left_center, { 0, 1, 1, 1 }, 5);
-    l_lines->vertex(right_center, { 0, 1, 1, 1 }, 5);
-    l_lines->vertex(top_center, { 0, 1, 1, 1 }, 5);
-    l_lines->vertex(bottom_center, { 0, 1, 1, 1 }, 5);
-    l_lines->draw();
+    // l_lines->vertex(left_center, { 0, 1, 1, 1 }, 5);
+    // l_lines->vertex(right_center, { 0, 1, 1, 1 }, 5);
+    // l_lines->vertex(top_center, { 0, 1, 1, 1 }, 5);
+    // l_lines->vertex(bottom_center, { 0, 1, 1, 1 }, 5);
+    // l_lines->draw();
     // vao->bind();
     // vao->draw(Kengine::graphics::draw_mode::triangles, l_indexes.size());
 }

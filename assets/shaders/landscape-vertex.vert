@@ -14,5 +14,5 @@ layout(std140) uniform Matrices
 void main()
 {
     t_position  = v_position / 40.0;
-    gl_Position = projection * view * vec4(v_position, 0.0, 1.0);
+    gl_Position = projection * view * vec4(v_position, 1.0f, 1.0f);
 }

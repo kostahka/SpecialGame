@@ -6,14 +6,26 @@ set(SPECIAL_GAME_SOURCES
     # cmake-format: sortable
     components/astronaut-component.cxx
     components/bullet-component.cxx
+    components/enemies-progress-bar-component.cxx
     components/enemy-component.cxx
+    components/enemy-wave-text-component.cxx
+    components/game-over-menu-component.cxx
+    components/game-tutorial-menu-component.cxx
+    components/gui-button-component.cxx
+    components/gui-selectable-component.cxx
+    components/pause-menu-component.cxx
     components/player-controller.cxx
+    components/player-gun-selectable-component.cxx
+    components/player-health-bar-component.cxx
+    components/progress-bar-component.cxx
     game.cxx
     resources/resources.cxx
     system/astronaut-system.cxx
+    system/background-system.cxx
     system/bullet-system.cxx
     system/enemy-spawner-system.cxx
     system/enemy-system.cxx
+    system/game-gui-system.cxx
     system/landscape-system.cxx
     system/planet-gameplay-system.cxx
     system/player-system.cxx
@@ -25,14 +37,26 @@ set(SPECIAL_GAME_HEADERS
     ../include/components/astronaut-component.hxx
     ../include/components/bullet-component.hxx
     ../include/components/damage-interface.hxx
+    ../include/components/enemies-progress-bar-component.hxx
     ../include/components/enemy-component.hxx
+    ../include/components/enemy-wave-text-component.hxx
+    ../include/components/game-over-menu-component.hxx
+    ../include/components/game-tutorial-menu-component.hxx
+    ../include/components/gui-button-component.hxx
+    ../include/components/gui-selectable-component.hxx
+    ../include/components/pause-menu-component.hxx
     ../include/components/player-controller.hxx
+    ../include/components/player-gun-selectable-component.hxx
+    ../include/components/player-health-bar-component.hxx
+    ../include/components/progress-bar-component.hxx
     ../include/game.hxx
     ../include/resources/resources.hxx
     ../include/system/astronaut-system.hxx
+    ../include/system/background-system.hxx
     ../include/system/bullet-system.hxx
     ../include/system/enemy-spawner-system.hxx
     ../include/system/enemy-system.hxx
+    ../include/system/game-gui-system.hxx
     ../include/system/landscape-system.hxx
     ../include/system/planet-gameplay-system.hxx
     ../include/system/player-system.hxx

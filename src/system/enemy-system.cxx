@@ -100,7 +100,7 @@ void enemy_system::on_update(Kengine::scene& sc, int delta_ms)
             if (enemy_ent.reload_time_less < 0)
             {
                 enemy_ent.reload_time_less = enemy_ent.reload_time;
-                astr_ent.shoot();
+                astr_ent.shoot             = true;
             }
         }
     }

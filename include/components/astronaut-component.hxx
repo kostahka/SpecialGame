@@ -47,7 +47,6 @@ struct astronaut_component : public Kengine::component, public damage_interface
 
     bool imgui_editable_render() override;
 
-    void shoot();
     void select_gun(gun_type g_type);
 
     entt::entity walk_sound_entity = entt::null;
@@ -68,6 +67,8 @@ struct astronaut_component : public Kengine::component, public damage_interface
 
     bool flying   = false;
     bool drilling = false;
+
+    bool shoot = false;
 
     float gun_angle = 0;
 

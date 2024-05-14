@@ -21,4 +21,10 @@ public:
     void on_update(Kengine::scene&, int delta_ms) override;
 
     Kengine::scene& sc;
+
+    inline int get_players_count() { return players_count; }
+
+private:
+    int  players_count = 1;
+    void select_player_gun(gun_type gun);
 };

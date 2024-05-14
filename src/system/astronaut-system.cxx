@@ -10,6 +10,7 @@
 #include "Kengine/scene/scene.hxx"
 
 #include "components/astronaut-component.hxx"
+#include "components/bullet-component.hxx"
 #include "game.hxx"
 
 #include "box2d/b2_body.h"
@@ -19,7 +20,7 @@ static Kengine::string_id astronaut_idle_animation_id{};
 static Kengine::string_id astronaut_walk_animation_id{};
 static Kengine::string_id astronaut_fly_animation_id{};
 
-std::shared_ptr<Kengine::scene> astronaut_system::bullet_scene = nullptr;
+static Kengine::string_id beam_shader_time_id{};
 
 constexpr float drill_max_distance  = 50.0f;
 constexpr float drill_damage        = 0.0005f;
@@ -68,6 +69,7 @@ void astronaut_system::on_start(Kengine::scene& sc)
     astronaut_idle_animation_id = Kengine::hash_string("idle");
     astronaut_walk_animation_id = Kengine::hash_string("walk");
     astronaut_fly_animation_id  = Kengine::hash_string("fly");
+    beam_shader_time_id         = Kengine::hash_string("time");
 }
 
 void astronaut_system::on_render(Kengine::scene&, int delta_ms) {}
@@ -81,6 +83,9 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
 
     for (auto [ent, trans_ent, ph_ent, anim_ent, astr_ent] : astr_view.each())
     {
+        ph_ent->GetUserData().pointer = reinterpret_cast<uintptr_t>(
+            static_cast<damage_interface*>(&astr_ent));
+
         float         astronaut_angle = trans_ent.transf.angle;
         Kengine::vec2 astronaut_pos   = trans_ent.transf.position;
         float         down_angle      = astronaut_angle - 3.14f / 2.f;
@@ -225,6 +230,11 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
             beam_sprite_ent.visible = astr_ent.drilling;
             if (astr_ent.drilling)
             {
+                beam_sprite_ent.get_material()->set_property(
+                    beam_shader_time_id,
+                    Kengine::graphics::shader_type_any(
+                        static_cast<float>(Kengine::get_time_ms() % 10000)));
+
                 beam_trans_ent.transf.scale.x =
                     drill_max_distance / trans_ent.transf.scale.y;
 
@@ -270,6 +280,70 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
             }
         }
 
+        if (astr_ent.shoot)
+        {
+
+            if (astr_ent.current_gun == gun_type::pistol)
+            {
+
+                Kengine::vec2 bullet_pos = {
+                    std::cos(astr_ent.gun_angle) * trans_ent.transf.scale.y,
+                    std::sin(astr_ent.gun_angle) * trans_ent.transf.scale.y
+                };
+
+                if (bullet_scene)
+                {
+                    auto bul_view = bullet_scene->registry
+                                        .view<Kengine::transform_component,
+                                              bullet_component>();
+
+                    for (auto [bullet_ent, bullet_trans_ent, bul_ent] :
+                         bul_view.each())
+                    {
+                        bullet_trans_ent.transf.position =
+                            bullet_pos + trans_ent.transf.position;
+                        bul_ent.angle = astr_ent.gun_angle;
+                    }
+
+                    sc.instansiate(bullet_scene);
+                }
+
+                if (astr_ent.pistol_entity != entt::null &&
+                    sc.registry.any_of<Kengine::audio_component>(
+                        astr_ent.pistol_entity))
+                {
+                    auto& pistol_audio =
+                        sc.registry.get<Kengine::audio_component>(
+                            astr_ent.pistol_entity);
+
+                    pistol_audio.play_one_shot();
+                }
+            }
+            else
+            {
+                astr_ent.drilling = !astr_ent.drilling;
+                if (astr_ent.drill_entity != entt::null &&
+                    sc.registry.any_of<Kengine::audio_component>(
+                        astr_ent.drill_entity))
+                {
+                    auto& drill_audio =
+                        sc.registry.get<Kengine::audio_component>(
+                            astr_ent.drill_entity);
+
+                    if (astr_ent.drilling)
+                    {
+                        // drill_start_sound->play();
+                        drill_audio.resume();
+                    }
+                    else
+                    {
+                        // drill_shooting_sound->stop();
+                        drill_audio.stop();
+                    }
+                }
+            }
+            astr_ent.shoot = false;
+        }
         if (astr_ent.hp <= 0)
         {
             sc.registry.destroy(ent);
@@ -324,10 +398,10 @@ void astronaut_system::bind_damage_interface(entt::registry& reg,
 {
     if (reg.all_of<Kengine::physics_component, astronaut_component>(ent))
     {
-        auto [ph_ent, astr_ent] =
-            reg.get<Kengine::physics_component, astronaut_component>(ent);
+        // auto [ph_ent, astr_ent] =
+        //     reg.get<Kengine::physics_component, astronaut_component>(ent);
 
-        ph_ent->GetUserData().pointer = reinterpret_cast<uintptr_t>(
-            static_cast<damage_interface*>(&astr_ent));
+        // ph_ent->GetUserData().pointer = reinterpret_cast<uintptr_t>(
+        //     static_cast<damage_interface*>(&astr_ent));
     }
 }

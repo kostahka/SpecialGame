@@ -1,11 +1,15 @@
 #include "system/enemy-spawner-system.hxx"
 
+#include "Kengine/components/text-component.hxx"
 #include "Kengine/components/transform-component.hxx"
 #include "Kengine/scene/scene.hxx"
 
 #include "components/astronaut-component.hxx"
+#include "components/enemies-progress-bar-component.hxx"
 #include "components/enemy-component.hxx"
+#include "components/enemy-wave-text-component.hxx"
 #include "components/player-controller.hxx"
+#include "components/progress-bar-component.hxx"
 #include "game.hxx"
 #include "system/landscape-system.hxx"
 
@@ -21,11 +25,10 @@ constexpr int wave_enemy_max_count = 20;
 constexpr float spawn_min_angle = 3.14f / 9.f;
 constexpr float spawn_max_angle = 3.14f / 4.f;
 
-static std::shared_ptr<Kengine::scene> enemy_sc = nullptr;
 
 enemy_spawner_system::enemy_spawner_system(Kengine::scene&   sc,
                                            landscape_system& land_system)
-    : system(name, Kengine::system_update_type)
+    : system(name, Kengine::system_update_type | Kengine::system_render_type)
     , sc(sc)
     , land_system(land_system)
 {
@@ -59,14 +62,49 @@ std::size_t enemy_spawner_system::serialize_size() const
     return 0;
 }
 
-void enemy_spawner_system::on_start(Kengine::scene&) {}
+void enemy_spawner_system::on_start(Kengine::scene& sc)
+{
+    sc.instansiate(Kengine::hash_string("enemy-waves-gui"));
+}
 
 void enemy_spawner_system::on_event(Kengine::scene&,
                                     const Kengine::event::game_event&)
 {
 }
 
-void enemy_spawner_system::on_render(Kengine::scene&, int delta_ms) {}
+void enemy_spawner_system::on_render(Kengine::scene&, int delta_ms)
+{
+    float progress = 0.f;
+
+    std::stringstream text;
+    if (wave_active)
+    {
+        progress = static_cast<float>(wave_enemies_left_count) /
+                   total_wave_enemies_count;
+        text << "Enemies left: " << wave_enemies_left_count;
+    }
+    else
+    {
+        progress = static_cast<float>(wave_time) / total_wave_time;
+        text << "Time to next wave:";
+    }
+
+    auto en_progress_bar_view =
+        sc.registry
+            .view<progress_bar_component, enemies_progress_bar_component>();
+    for (auto [ent, progress_bar_ent, en_progress_bar_ent] :
+         en_progress_bar_view.each())
+    {
+        progress_bar_ent.progress = progress;
+    }
+
+    auto en_wave_text_view =
+        sc.registry.view<Kengine::text_component, enemy_wave_text_component>();
+    for (auto [ent, text_ent, en_wave_text_ent] : en_wave_text_view.each())
+    {
+        text_ent.text = reinterpret_cast<const char32_t*>(text.str().c_str());
+    }
+}
 
 void enemy_spawner_system::on_update(Kengine::scene& sc, int delta_ms)
 {

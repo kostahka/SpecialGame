@@ -9,6 +9,14 @@
 #include "system/landscape-system.hxx"
 #include "system/player-system.hxx"
 
+enum class planet_gameplay_state
+{
+    play,
+    pause,
+    tutorial,
+    game_over
+};
+
 class planet_gameplay_system : public Kengine::system
 {
 public:
@@ -29,10 +37,14 @@ public:
     Kengine::scene& sc;
 
 private:
-    astronaut_system     astr_system;
-    player_system        pl_system;
-    landscape_system     land_system;
-    bullet_system        bul_system;
-    enemy_system         en_system;
-    enemy_spawner_system en_spawn_system;
+    void enable_menu_with_state();
+    void set_state(planet_gameplay_state state);
+
+    astronaut_system      astr_system;
+    player_system         pl_system;
+    landscape_system      land_system;
+    bullet_system         bul_system;
+    enemy_system          en_system;
+    enemy_spawner_system  en_spawn_system;
+    planet_gameplay_state state = planet_gameplay_state::tutorial;
 };
