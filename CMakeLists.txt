@@ -13,27 +13,19 @@ add_subdirectory(src)
 
 if(ANDROID)
     add_custom_target(
-        copy_special_game_assets_shaders ALL
-        COMMAND
-            ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_LIST_DIR}/shaders/
-            ${CMAKE_CURRENT_LIST_DIR}/android-project/app/src/main/assets/shaders
+        copy_special_game_assets ALL
         COMMAND
             ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
             ${CMAKE_CURRENT_LIST_DIR}/android-project/app/src/main/assets/assets
-        COMMENT "Copying shaders and assets into binary directory"
+        COMMENT "Copying assets into binary directory"
     )
 else()
     add_custom_target(
-        copy_special_game_assets_shaders ALL
-        COMMAND
-            ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_LIST_DIR}/shaders/
-            $<TARGET_FILE_DIR:special-game>/shaders
+        copy_special_game_assets ALL
         COMMAND
             ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_LIST_DIR}/assets/
             $<TARGET_FILE_DIR:special-game>/assets
         COMMENT
-            "Copying shaders and assets into game directory: [$<TARGET_FILE_DIR:special-game>]"
+            "Copying assets into game directory: [$<TARGET_FILE_DIR:special-game>]"
     )
 endif()
