@@ -282,10 +282,8 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
 
         if (astr_ent.shoot)
         {
-
             if (astr_ent.current_gun == gun_type::pistol)
             {
-
                 Kengine::vec2 bullet_pos = {
                     std::cos(astr_ent.gun_angle) * trans_ent.transf.scale.y,
                     std::sin(astr_ent.gun_angle) * trans_ent.transf.scale.y
@@ -322,27 +320,26 @@ void astronaut_system::on_update(Kengine::scene& sc, int delta_ms)
             else
             {
                 astr_ent.drilling = !astr_ent.drilling;
-                if (astr_ent.drill_entity != entt::null &&
-                    sc.registry.any_of<Kengine::audio_component>(
-                        astr_ent.drill_entity))
-                {
-                    auto& drill_audio =
-                        sc.registry.get<Kengine::audio_component>(
-                            astr_ent.drill_entity);
-
-                    if (astr_ent.drilling)
-                    {
-                        // drill_start_sound->play();
-                        drill_audio.resume();
-                    }
-                    else
-                    {
-                        // drill_shooting_sound->stop();
-                        drill_audio.stop();
-                    }
-                }
             }
+
             astr_ent.shoot = false;
+        }
+        if (astr_ent.drill_entity != entt::null &&
+            sc.registry.any_of<Kengine::audio_component>(astr_ent.drill_entity))
+        {
+            auto& drill_audio = sc.registry.get<Kengine::audio_component>(
+                astr_ent.drill_entity);
+
+            if (astr_ent.drilling)
+            {
+                // drill_start_sound->play();
+                drill_audio.resume();
+            }
+            else
+            {
+                // drill_shooting_sound->stop();
+                drill_audio.stop();
+            }
         }
         if (astr_ent.hp <= 0)
         {

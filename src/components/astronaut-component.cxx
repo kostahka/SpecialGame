@@ -145,6 +145,10 @@ astronaut_component& astronaut_component::operator=(astronaut_component&& other)
 void astronaut_component::select_gun(gun_type g_type)
 {
     current_gun = g_type;
+    if (g_type != gun_type::drill)
+    {
+        drilling = false;
+    }
     if (sc)
     {
         if (pistol_entity != entt::null &&

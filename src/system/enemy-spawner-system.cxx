@@ -13,6 +13,8 @@
 #include "game.hxx"
 #include "system/landscape-system.hxx"
 
+#include <codecvt>
+
 constexpr int enemy_min_spawn_time = 2000;
 constexpr int enemy_max_spawn_time = 8000;
 
@@ -24,7 +26,6 @@ constexpr int wave_enemy_max_count = 20;
 
 constexpr float spawn_min_angle = 3.14f / 9.f;
 constexpr float spawn_max_angle = 3.14f / 4.f;
-
 
 enemy_spawner_system::enemy_spawner_system(Kengine::scene&   sc,
                                            landscape_system& land_system)
@@ -88,6 +89,7 @@ void enemy_spawner_system::on_render(Kengine::scene&, int delta_ms)
         progress = static_cast<float>(wave_time) / total_wave_time;
         text << "Time to next wave:";
     }
+    text.flush();
 
     auto en_progress_bar_view =
         sc.registry
@@ -102,7 +104,23 @@ void enemy_spawner_system::on_render(Kengine::scene&, int delta_ms)
         sc.registry.view<Kengine::text_component, enemy_wave_text_component>();
     for (auto [ent, text_ent, en_wave_text_ent] : en_wave_text_view.each())
     {
-        text_ent.text = reinterpret_cast<const char32_t*>(text.str().c_str());
+        auto str_text    = text.str();
+        auto text_length = str_text.length();
+        if (text_length % 4 != 0)
+        {
+            text_length = ((text_length / 4) + 1);
+        }
+        else
+        {
+            text_length /= 4;
+        }
+        text_ent.text.resize(text_length + 1);
+        for (int i = 0; i < text_length; i++)
+        {
+            text_ent.text[i] =
+                reinterpret_cast<const char32_t*>(str_text.c_str())[i];
+        }
+        text_ent.text[text_length] = 0;
     }
 }
 
@@ -144,26 +162,37 @@ void enemy_spawner_system::on_update(Kengine::scene& sc, int delta_ms)
                         auto prefab_enemy_view =
                             enemy_sc->registry
                                 .view<Kengine::transform_component,
-                                      enemy_component>();
+                                      enemy_component,
+                                      astronaut_component>();
 
                         for (auto [prefab_ent,
                                    prefab_trans_ent,
-                                   prefab_enemy_ent] : prefab_enemy_view.each())
+                                   prefab_enemy_ent,
+                                   prefab_astr_ent] : prefab_enemy_view.each())
                         {
                             prefab_trans_ent.transf.position =
                                 land_system.get_spawn_place(
                                     target_angle + get_random_spawn_angle());
+                            // prefab_astr_ent.select_gun(rand() % 2 == 0
+                            //                                ? gun_type::pistol
+                            //                                :
+                            //                                gun_type::drill);
                         }
 
                         sc.instansiate(enemy_sc);
 
                         for (auto [prefab_ent,
                                    prefab_trans_ent,
-                                   prefab_enemy_ent] : prefab_enemy_view.each())
+                                   prefab_enemy_ent,
+                                   prefab_astr_ent] : prefab_enemy_view.each())
                         {
                             prefab_trans_ent.transf.position =
                                 land_system.get_spawn_place(
                                     target_angle - get_random_spawn_angle());
+                            // prefab_astr_ent.select_gun(rand() % 2 == 0
+                            //                                ? gun_type::pistol
+                            //                                :
+                            //                                gun_type::drill);
                         }
 
                         sc.instansiate(enemy_sc);
